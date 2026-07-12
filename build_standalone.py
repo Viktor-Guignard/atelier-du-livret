@@ -17,11 +17,13 @@ SHARED_MODULES = [
     "js/core/utils.js",
     "js/core/store.js",
     "js/core/api.js",
+    "js/core/firebase.js",
     "js/data/categories.js",
     "js/data/chants.js",
     "js/data/modeles.js",
     "js/components/ornaments.js",
     "js/components/pageRenderer.js",
+    "js/components/printKit.js",
     "js/components/book3d.js",
     "js/components/toast.js",
     "js/components/nav.js",
@@ -30,10 +32,14 @@ SHARED_MODULES = [
 PAGES = [
     "index.html", "categories.html", "modeles.html",
     "modele.html", "configurateur.html", "commande.html",
-    "atelier.html",
+    "atelier.html", "admin.html",
 ]
 
-IMPORT_RE = re.compile(r"^import\s.*?;\s*$", re.M)
+# Seuls les imports RELATIFS (./ ou ../) sont retirés : js/core/firebase.js
+# importe le SDK Firebase depuis gstatic.com (URL absolue) et doit le garder
+# (les déclarations import sont de toute façon hoistées par le module ES,
+# peu importe où elles se trouvent après concaténation).
+IMPORT_RE = re.compile(r"^import\s.*?from\s+['\"]\.{1,2}/.*?['\"]\s*;\s*$", re.M)
 EXPORT_RE = re.compile(r"^export\s+", re.M)
 LINK_RE = re.compile(r'<link rel="stylesheet" href="(css/[^"]+)">')
 SCRIPT_RE = re.compile(r'<script type="module" src="(js/pages/[^"]+)"></script>')

@@ -188,6 +188,19 @@
   margin-bottom: var(--sp-4);
 }
 .commande-confirm .confirm-icon { background: var(--success-bg); color: var(--success); }
+
+.commande-numero {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  background: var(--gold-soft);
+  border-radius: 999px;
+  padding: var(--sp-2) var(--sp-5);
+  margin-bottom: var(--sp-4);
+  font-size: var(--fs-sm);
+  color: var(--gold-deep);
+}
+.commande-numero strong { font-family: var(--font-display); font-size: var(--fs-lg); letter-spacing: .02em; }
 .commande-vide { grid-column: 1 / -1; }
 
 @media (max-width: 1023px) {

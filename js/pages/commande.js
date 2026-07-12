@@ -4,6 +4,7 @@ import { initSite } from '../components/nav.js';
 import { el, qs, getParam, formatDateFr } from '../core/utils.js';
 import { listProjects, loadProject } from '../core/store.js';
 import { estimateOrder, submitOrder, downloadProjectJSON, downloadOrderJSON, devisNumber, TARIFS, CONTACT_EMAIL } from '../core/api.js';
+import { saveOrder } from '../core/firebase.js';
 import { categorieById } from '../data/categories.js';
 import { renderPage } from '../components/pageRenderer.js';
 import { ORNAMENTS } from '../components/ornaments.js';
@@ -295,7 +296,18 @@ if (!projet) {
     const btnLabel = goldBtn.textContent;
     goldBtn.textContent = 'Envoi en cours…';
 
-    const result = await submitOrder(payload);
+    /* 1. Enregistrement dans l'espace privé (Firestore) — numéro de commande officiel. */
+    let numero = null;
+    try {
+      numero = await saveOrder(payload);
+    } catch (err) {
+      console.error('Échec de l\'enregistrement de la commande dans Firestore :', err);
+      // Pas bloquant : submitOrder() bascule alors sur un e-mail contenant le dossier complet.
+    }
+    const adminUrl = new URL('admin.html', location.href).href;
+
+    /* 2. Notification par e-mail (courte si numero, complète en secours sinon). */
+    const result = await submitOrder(payload, { numero, adminUrl });
     downloadOrderJSON(payload);
     if (result.method === 'mailto' && result.mailto) window.location.href = result.mailto;
 
@@ -309,11 +321,12 @@ if (!projet) {
       el('h2', {}, envoiReel
         ? (lastIntent === 'devis' ? 'Votre demande de devis est envoyée' : 'Votre commande est envoyée')
         : (lastIntent === 'devis' ? 'Votre demande de devis est prête' : 'Votre demande de commande est prête')),
+      numero ? el('p', { class: 'commande-numero' }, [el('span', {}, 'Numéro de commande'), el('strong', {}, numero)]) : null,
       envoiReel
         ? el('p', { class: 'lead', style: 'margin: 0 auto var(--sp-4)' },
             `Nous avons bien reçu votre demande. Un accusé de réception vous est adressé à ${payload.contact.email}, ` +
             'et nous revenons vers vous sous 24 h ouvrées avec le devis, puis le BAT. ' +
-            'Une copie de votre commande (.json) vient d\'être téléchargée — conservez-la.')
+            (numero ? 'Merci de conserver ce numéro dans vos échanges avec nous.' : 'Une copie de votre commande (.json) vient d\'être téléchargée — conservez-la.'))
         : el('p', { class: 'lead', style: 'margin: 0 auto var(--sp-4)' },
             'Votre messagerie s\'est ouverte avec le récapitulatif complet. ' +
             'Le fichier de commande (.json) vient d\'être téléchargé : joignez-le au message avant l\'envoi.'),

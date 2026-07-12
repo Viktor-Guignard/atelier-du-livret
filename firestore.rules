@@ -1,0 +1,33 @@
+/*
+ * Règles de sécurité Firestore — à coller dans :
+ * Firebase Console → Firestore Database → onglet "Règles" → Publier.
+ *
+ * Principe : n'importe quel visiteur peut CRÉER une commande (passer
+ * commande sur le site), mais seul un compte connecté (le vôtre, créé dans
+ * Authentication) peut LIRE, MODIFIER ou SUPPRIMER les commandes —
+ * c'est ce qui rend l'espace admin.html réellement privé.
+ */
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Compteur technique de numérotation (ex. counters/2026 → { n: 42 }).
+    // Aucune donnée personnelle dedans : accès libre par simplicité.
+    match /counters/{year} {
+      allow read, write: if true;
+    }
+
+    // Commandes reçues depuis le site.
+    match /commandes/{orderId} {
+      // Créer une commande : ouvert à tous (c'est le geste "passer commande"),
+      // mais la forme minimale des données est vérifiée.
+      allow create: if request.resource.data.keys().hasAll(['numero', 'contact', 'commande', 'projet'])
+                    && request.resource.data.contact.email is string
+                    && request.resource.data.projet.pages is list;
+
+      // Lire, modifier, supprimer : réservé à un compte authentifié (vous).
+      allow read, update, delete: if request.auth != null;
+    }
+  }
+}

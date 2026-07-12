@@ -100,10 +100,72 @@ export function devisNumber() {
   return `DEV-${ymd}-${String(Math.floor(Math.random() * 900) + 100)}`;
 }
 
-function orderBody(payload) {
+const RULE = '─'.repeat(38);
+
+/** Récapitulatif COURT, à votre usage (voie normale) : la commande est déjà en base. */
+function orderBodyShort(payload, numero, adminUrl) {
+  const { projet, contact, commande } = payload;
+  const lignes = [
+    RULE,
+    `  ${payload.intent === 'devis' ? 'NOUVELLE DEMANDE DE DEVIS' : 'NOUVELLE COMMANDE'}`,
+    RULE,
+    '',
+    `Numéro          ${numero}`,
+    `Client          ${contact.prenom} ${contact.nom}`,
+    `Contact         ${contact.email}${contact.telephone ? ' · ' + contact.telephone : ''}`,
+    '',
+    'PROJET',
+    `  ${projet.nom}`,
+    `  ${projet.pages.length} pages`,
+    '',
+    'IMPRESSION',
+    `  Quantité       ${commande.quantite} exemplaires`,
+    `  Format         ${(commande.format || 'a5').toUpperCase()} · ${TARIFS.papiers[commande.papier]?.nom || commande.papier}`,
+    `  Montant TTC    ${commande.estimation.total.toFixed(2)} €`,
+    commande.bat ? '  BAT numérique demandé avant impression' : null,
+    '',
+    adminUrl ? `${RULE}\nDossier complet & PDF d'impression → ${adminUrl}` : null,
+  ].filter((l) => l !== null);
+  return lignes.join('\n');
+}
+
+/** Message chaleureux destiné au CLIENT — à coller dans Formspree (Autoresponse) via {{message_client}}. */
+function clientMessage(payload, numero) {
+  const { projet, contact, commande } = payload;
+  const lignes = [
+    `Bonjour ${contact.prenom},`,
+    '',
+    payload.intent === 'devis'
+      ? 'Nous avons bien reçu votre demande de devis — merci de votre confiance.'
+      : 'Nous avons bien reçu votre commande — merci de votre confiance.',
+    '',
+    RULE,
+    `  Votre livret          ${projet.nom}`,
+    numero ? `  Numéro de suivi       ${numero}` : null,
+    `  Quantité              ${commande.quantite} exemplaires`,
+    `  Montant TTC           ${commande.estimation.total.toFixed(2)} €`,
+    RULE,
+    '',
+    commande.bat
+      ? 'Un bon à tirer (BAT) numérique vous sera envoyé avant toute impression : rien ne part sans votre validation.'
+      : null,
+    'Nous revenons vers vous sous 24 h ouvrées.',
+    '',
+    'À très bientôt,',
+    'L\'Atelier du Livret',
+  ].filter((l) => l !== null);
+  return lignes.join('\n');
+}
+
+/** Récapitulatif COMPLET, à votre usage (voie de secours, si l'enregistrement en base a échoué). */
+function orderBodyFull(payload) {
   const { projet, contact, commande, message } = payload;
   const lignes = [
-    `${payload.intent === 'devis' ? 'DEMANDE DE DEVIS' : 'DEMANDE DE COMMANDE'} — L'Atelier du Livret`,
+    RULE,
+    `  ${payload.intent === 'devis' ? 'DEMANDE DE DEVIS' : 'DEMANDE DE COMMANDE'}`,
+    RULE,
+    '',
+    '⚠ L\'enregistrement dans l\'espace privé a échoué : ce message contient donc le dossier complet en secours.',
     '',
     `Projet : ${projet.nom} (réf. ${projet.id})`,
     `Modèle : ${projet.modeleId} — cérémonie : ${projet.categorieId}`,
@@ -133,60 +195,61 @@ function orderFileName(projet) {
   return `commande-${(projet.nom || 'livret').toLowerCase().replace(/[^a-z0-9]+/gi, '-')}.json`;
 }
 
-/*
- * Formspree (plan gratuit) REFUSE les pièces jointes fichier (erreur "File
- * Uploads Not Permitted") — vérifié en conditions réelles. Le projet complet
- * est donc envoyé comme TEXTE dans un champ dédié et bien identifié du mail :
- * ouvrez le mail reçu, repérez le bloc « FICHIER_COMMANDE_JSON — à copier
- * dans atelier.html », sélectionnez tout son contenu, copiez-le, puis dans
- * atelier.html ouvrez « …ou collez le contenu JSON reçu par e-mail », collez
- * et cliquez « Charger ce JSON ». (Un plan Formspree payant activerait de
- * vraies pièces jointes ; non nécessaire pour ce volume de commandes.)
- */
-
 /**
- * Envoie la demande de commande.
- * - ORDER_ENDPOINT configuré → POST réel : vous recevez un e-mail avec le
- *   récapitulatif lisible ET le projet complet en JSON (à copier-coller
- *   dans atelier.html, voir ci-dessus). Le client reçoit l'accusé de
- *   réception automatique du service. Retourne { ok, method: 'endpoint' }.
- * - Sinon (ou si le réseau échoue) → repli : e-mail pré-rempli côté client
- *   + téléchargement local du .json à joindre à la main.
- *   Retourne { ok, method: 'mailto', mailto }.
+ * Notifie l'atelier qu'une commande vient d'être passée.
+ * - Voie normale : `numero` (et `adminUrl`) fournis — la commande est déjà
+ *   enregistrée dans Firestore (voir js/core/firebase.js) ; l'e-mail reste
+ *   COURT (numéro + résumé), le dossier complet et le PDF se consultent
+ *   dans admin.html.
+ * - Voie de secours : pas de `numero` (l'écriture en base a échoué, ex.
+ *   hors ligne) — l'e-mail contient alors le dossier complet en texte, pour
+ *   qu'aucune commande ne soit perdue (à copier dans atelier.html).
+ * Retourne { ok, method: 'endpoint' | 'mailto', mailto? }.
  */
-export async function submitOrder(payload) {
+export async function submitOrder(payload, { numero, adminUrl } = {}) {
   const type = payload.intent === 'devis' ? 'Demande de devis' : 'Demande de commande';
-  const subject = `${type} — ${payload.projet.nom} (${payload.commande.quantite} ex.)`;
+  const subject = numero
+    ? `${type} ${numero} — ${payload.projet.nom} (${payload.commande.quantite} ex.)`
+    : `${type} — ${payload.projet.nom} (${payload.commande.quantite} ex.)`;
 
   if (ORDER_ENDPOINT) {
     try {
-      const fichier = JSON.stringify({
-        type: 'commande-atelier-livret',
-        version: 1,
-        creeLe: new Date().toISOString(),
-        intent: payload.intent,
-        contact: payload.contact,
-        commande: payload.commande,
-        message: payload.message,
-        projet: payload.projet,
-      }, null, 2);
+      const base = {
+        _subject: subject,
+        _replyto: payload.contact.email,
+        email: payload.contact.email,
+        nom: `${payload.contact.prenom} ${payload.contact.nom}`,
+        telephone: payload.contact.telephone || '',
+      };
 
-      const tropVolumineux = fichier.length > MAX_ATTACHMENT_SIZE;
+      const body = numero
+        ? {
+            ...base,
+            numero,
+            recapitulatif: orderBodyShort(payload, numero, adminUrl),
+            message_client: clientMessage(payload, numero),
+          }
+        : (() => {
+            const fichier = JSON.stringify({
+              type: 'commande-atelier-livret', version: 1, creeLe: new Date().toISOString(),
+              intent: payload.intent, contact: payload.contact, commande: payload.commande,
+              message: payload.message, projet: payload.projet,
+            }, null, 2);
+            const tropVolumineux = fichier.length > MAX_ATTACHMENT_SIZE;
+            return {
+              ...base,
+              recapitulatif: orderBodyFull(payload),
+              message_client: clientMessage(payload, null),
+              fichier_commande_json: tropVolumineux
+                ? '(Projet trop volumineux pour tenir dans l\'e-mail — redemandez-le au client, qui en a téléchargé une copie.)'
+                : fichier,
+            };
+          })();
 
       const res = await fetch(ORDER_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({
-          _subject: subject,
-          _replyto: payload.contact.email,
-          email: payload.contact.email,
-          nom: `${payload.contact.prenom} ${payload.contact.nom}`,
-          telephone: payload.contact.telephone || '',
-          '1_recapitulatif_lisible': orderBody(payload),
-          '2_FICHIER_COMMANDE_JSON — à copier dans atelier.html': tropVolumineux
-            ? '(Projet trop volumineux pour tenir dans l\'e-mail — redemandez-le au client, qui en a téléchargé une copie.)'
-            : fichier,
-        }),
+        body: JSON.stringify(body),
       });
       if (res.ok) return { ok: true, method: 'endpoint' };
     } catch {
@@ -194,9 +257,10 @@ export async function submitOrder(payload) {
     }
   }
 
+  const mailBody = numero ? orderBodyShort(payload, numero, adminUrl) : orderBodyFull(payload);
   const mailto = `mailto:${CONTACT_EMAIL}`
     + `?subject=${encodeURIComponent(subject)}`
-    + `&body=${encodeURIComponent(orderBody(payload))}`;
+    + `&body=${encodeURIComponent(mailBody)}`;
   return { ok: true, method: 'mailto', mailto };
 }
 

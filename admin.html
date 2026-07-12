@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Espace privé — commandes — L'Atelier du Livret</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=Lora:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/livret.css">
+  <link rel="stylesheet" href="css/pages/atelier.css">
+  <link rel="stylesheet" href="css/pages/admin.css">
+</head>
+<body>
+  <main id="main" class="atelier admin">
+
+    <!-- ================= Connexion ================= -->
+    <section id="login-view" class="admin-login" data-noprint>
+      <div class="admin-login-card">
+        <span class="admin-login-icon" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="1.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+        </span>
+        <h1>Espace privé</h1>
+        <p class="small muted" style="margin-bottom:20px">Réservé à l'atelier — connectez-vous pour retrouver les commandes.</p>
+        <form id="login-form" novalidate>
+          <div class="field">
+            <label for="login-email">Adresse e-mail</label>
+            <input id="login-email" type="email" autocomplete="username" required>
+          </div>
+          <div class="field">
+            <label for="login-password">Mot de passe</label>
+            <input id="login-password" type="password" autocomplete="current-password" required>
+          </div>
+          <p id="login-error" class="small" style="color:var(--danger)" role="alert" hidden></p>
+          <button class="btn btn-gold btn-lg" type="submit" style="width:100%">Se connecter</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ================= Espace admin ================= -->
+    <div id="admin-view" hidden>
+      <header class="atelier-bar" data-noprint>
+        <div>
+          <h1>Commandes reçues</h1>
+          <p class="small muted" id="admin-whoami"></p>
+        </div>
+        <div class="atelier-actions">
+          <input id="admin-search" type="search" placeholder="Rechercher un numéro, un nom…" aria-label="Rechercher une commande" class="admin-search">
+          <button id="btn-logout" class="btn btn-ghost btn-sm" type="button">Se déconnecter</button>
+        </div>
+      </header>
+
+      <section class="admin-layout">
+        <div id="orders-empty" class="admin-empty" hidden>
+          <p class="muted">Aucune commande pour le moment.</p>
+        </div>
+        <div id="orders-list" class="admin-orders" role="list" aria-label="Commandes"></div>
+
+        <div id="detail-panel" class="admin-detail" hidden data-noprint>
+          <div class="admin-detail-bar">
+            <label class="checkbox-row" style="margin:0">
+              <input type="checkbox" id="mode-bat">
+              <span>Mode <strong>BAT</strong> (filigrane + mention, à envoyer au client)</span>
+            </label>
+            <button id="btn-print" class="btn btn-gold" type="button">Imprimer / exporter en PDF</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="fiche" class="atelier-fiche" hidden></section>
+      <section id="sheets" class="atelier-sheets" aria-label="Planches d'impression"></section>
+    </div>
+
+  </main>
+  <script type="module" src="js/pages/admin.js"></script>
+</body>
+</html>
