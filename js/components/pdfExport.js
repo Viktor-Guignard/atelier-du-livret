@@ -13,6 +13,17 @@ import html2canvas from 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/+esm';
 
 const MM_W = 160;
 const MM_H = 222;
+const RIBBON_RGB = [179, 57, 47];   // rouge du ruban BAT (--danger), voir atelier.css .bat-ribbon
+
+/** Mélange OPAQUE de `rgb` sur `bg` (mêmes ratios que le rgba() d'origine du ruban) — voir pageRenderer.js:blendHex. */
+function blendOpaque(rgb, bg, ratio) {
+  return `rgb(${rgb.map((c, i) => Math.round(c * ratio + bg[i] * (1 - ratio))).join(', ')})`;
+}
+
+function parseRgb(str) {
+  const m = /rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)/.exec(str || '');
+  return m ? [+m[1], +m[2], +m[3]] : [255, 255, 255];
+}
 
 /**
  * Génère et télécharge le PDF à partir d'un conteneur de planches (.print-sheet).
@@ -35,14 +46,20 @@ export async function exportSheetsToPDF(sheetsContainer, filename, { onProgress 
       // sérialise les couleurs avec alpha (rgba/box-shadow…) en notation
       // CSS Color 4 `color(srgb …)` via getComputedStyle, qu'html2canvas ne
       // sait pas interpréter (indépendant de nos propres styles — voir
-      // pageRenderer.js). On enlève les ombres (purement décoratives, sans
-      // utilité sur une planche imprimée) et on rend le ruban BAT opaque.
+      // pageRenderer.js). On enlève les ombres (purement décoratives) et on
+      // remplace la transparence du ruban BAT par un mélange opaque de même
+      // ratio sur le fond réel de la planche — même rendu qu'à l'écran,
+      // au lieu d'un rouge plein qui casserait la discrétion du filigrane.
       onclone: (clonedDoc, clonedEl) => {
         clonedEl.style.boxShadow = 'none';
         clonedDoc.querySelectorAll('*').forEach((node) => { node.style.boxShadow = 'none'; });
-        clonedDoc.querySelectorAll('.bat-ribbon').forEach((node) => {
-          node.style.color = 'rgb(179, 57, 47)';
-          node.style.borderColor = 'rgb(179, 57, 47)';
+        clonedDoc.querySelectorAll('.print-sheet').forEach((sheetEl) => {
+          const ribbon = sheetEl.querySelector('.bat-ribbon');
+          if (!ribbon) return;
+          const bleed = sheetEl.querySelector('.print-bleed');
+          const bg = parseRgb(bleed ? getComputedStyle(bleed).backgroundColor : '');
+          ribbon.style.color = blendOpaque(RIBBON_RGB, bg, .28);
+          ribbon.style.borderColor = blendOpaque(RIBBON_RGB, bg, .22);
         });
       },
     });
