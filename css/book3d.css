@@ -1,0 +1,153 @@
+/* ==========================================================================
+   Livre 3D — feuilletage réaliste, rotation, zoom, modes à plat.
+   Structure : .book3d-stage > .book3d-world > .book3d-book > .book3d-leaf ×N
+   ========================================================================== */
+
+.book3d-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  perspective: 2200px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+}
+.book3d-stage.is-dragging { cursor: grabbing; }
+
+/* Ombre portée au sol */
+.book3d-stage::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  width: 46%;
+  height: 5%;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at center, rgba(31, 41, 51, .22), transparent 70%);
+  filter: blur(6px);
+  pointer-events: none;
+}
+
+.book3d-world {
+  transform-style: preserve-3d;
+  transition: transform .5s var(--ease, ease);
+  will-change: transform;
+}
+.book3d-stage.is-dragging .book3d-world { transition: none; }
+
+.book3d-book {
+  position: relative;
+  height: var(--book-h, 420px);
+  aspect-ratio: 296 / 210;             /* double page A5 */
+  transform-style: preserve-3d;
+  transition: transform .9s var(--ease, ease);
+}
+
+.book3d-leaf {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transition: transform .9s cubic-bezier(.45, .05, .3, 1);
+}
+.book3d-leaf.is-flipped { transform: rotateY(-180deg); }
+
+.book3d-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+  background: #fff;
+}
+.book3d-face .lv-page { height: 100%; width: 100%; }
+.book3d-face--back { transform: rotateY(180deg); }
+
+/* Ombre de pli, côté reliure */
+.book3d-face--front::after,
+.book3d-face--back::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity .9s ease;
+}
+.book3d-face--front::after {
+  background: linear-gradient(to right, rgba(31,25,12,.16), rgba(31,25,12,.035) 12%, transparent 22%);
+}
+.book3d-face--back::after {
+  background: linear-gradient(to left, rgba(31,25,12,.16), rgba(31,25,12,.035) 12%, transparent 22%);
+}
+
+/* Couverture : léger cadre + épaisseur perçue */
+.book3d-leaf--cover .book3d-face {
+  box-shadow: 0 0 0 1px rgba(31, 25, 12, .12), 0 10px 30px -12px rgba(31, 41, 51, .35);
+}
+
+/* Tranche des pages (épaisseur du bloc) */
+.book3d-edge {
+  position: absolute;
+  top: .6%;
+  bottom: .6%;
+  width: 10px;
+  right: 0;
+  transform-origin: right center;
+  background:
+    repeating-linear-gradient(to right, #F6F2E9 0 1.6px, #DDD6C6 1.6px 2px);
+  border-radius: 0 2px 2px 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .4s ease;
+}
+.book3d-edge.is-visible { opacity: 1; }
+
+/* ---------------- Modes à plat (double page / page à page) ---------------- */
+
+.book3d-flat {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+  display: none;
+  padding: var(--sp-5, 24px);
+  scrollbar-width: thin;
+}
+.book3d-flat-inner {
+  margin: auto;
+  display: flex;
+  gap: 2px;
+  justify-content: center;
+  align-items: center;
+  transform-origin: top center;
+  min-height: 100%;
+}
+.book3d-flat-inner .lv-page {
+  width: var(--flat-page-w, 340px);
+  box-shadow: var(--shadow, 0 6px 24px -8px rgba(31,41,51,.16));
+  flex: none;
+}
+
+.book3d-stage[data-mode="double"],
+.book3d-stage[data-mode="simple"] {
+  perspective: none;
+  cursor: default;
+  touch-action: pan-x pan-y;
+}
+.book3d-stage[data-mode="double"] .book3d-world,
+.book3d-stage[data-mode="simple"] .book3d-world,
+.book3d-stage[data-mode="double"]::after,
+.book3d-stage[data-mode="simple"]::after { display: none; }
+.book3d-stage[data-mode="double"] .book3d-flat,
+.book3d-stage[data-mode="simple"] .book3d-flat { display: block; }
+
+@media (prefers-reduced-motion: reduce) {
+  .book3d-leaf, .book3d-book, .book3d-world { transition-duration: .01ms !important; }
+}

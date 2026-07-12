@@ -1,0 +1,161 @@
+/* ==========================================================================
+   Atelier — préparation d'impression.
+   Feuille : 160 × 222 mm  =  coupe A5 (148 × 210) + fond perdu 3 mm + zone
+   de traits de coupe 3 mm. @page identique → PDF exact via « Imprimer ».
+   ========================================================================== */
+
+.atelier { max-width: 900px; margin: 0 auto; padding: var(--sp-5) var(--sp-4) var(--sp-8); }
+
+.atelier-bar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-5);
+  flex-wrap: wrap;
+  margin-bottom: var(--sp-5);
+}
+.atelier-bar h1 { font-size: var(--fs-xl); margin-bottom: var(--sp-1); }
+.atelier-bar .small { max-width: 52ch; }
+.atelier-actions { display: grid; gap: var(--sp-3); justify-items: end; }
+
+/* ---------------- Chargement ---------------- */
+
+.atelier-drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  text-align: center;
+  padding: var(--sp-6);
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-lg);
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+}
+.atelier-drop:hover, .atelier-drop.is-over { border-color: var(--gold); background: var(--gold-soft); }
+.atelier-drop svg { color: var(--gold-deep); }
+
+.atelier-paste { margin-top: var(--sp-3); font-size: var(--fs-sm); color: var(--ink-soft); }
+.atelier-paste summary { cursor: pointer; min-height: 32px; }
+.atelier-paste textarea { margin: var(--sp-2) 0; font-family: ui-monospace, monospace; font-size: var(--fs-xs); }
+
+#load-error { color: var(--danger); margin-top: var(--sp-2); }
+
+/* ---------------- Fiche de fabrication ---------------- */
+
+.atelier-fiche {
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-5);
+  margin: var(--sp-5) 0;
+  box-shadow: var(--shadow-sm);
+}
+.atelier-fiche h2 { font-size: var(--fs-lg); margin-bottom: var(--sp-3); }
+.fiche-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--sp-3) var(--sp-5);
+}
+.fiche-item { border-bottom: 1px dashed var(--border-soft); padding-bottom: var(--sp-2); }
+.fiche-item dt {
+  font-size: .6875rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.fiche-item dd { margin: 2px 0 0; font-size: var(--fs-sm); color: var(--ink); font-weight: 500; }
+.fiche-message { grid-column: 1 / -1; }
+.fiche-message dd { white-space: pre-line; font-weight: 400; }
+
+/* ---------------- Planches ---------------- */
+
+.atelier-sheets { display: grid; gap: 10mm; justify-items: center; }
+
+.print-sheet {
+  position: relative;
+  width: 160mm;
+  height: 222mm;
+  background: #FFFFFF;
+  box-shadow: var(--shadow);
+  flex: none;
+  overflow: hidden;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+/* Fond perdu : la couleur papier du livret déborde de 3 mm autour de la coupe */
+.print-bleed { position: absolute; inset: 3mm; background: var(--sheet-paper, #FFF); }
+.print-trim { position: absolute; inset: 6mm; }
+.print-trim .lv-page { width: 148mm; height: 210mm; box-shadow: none; }
+
+/* Traits de coupe (dans la zone externe de 3 mm, alignés sur la coupe) */
+.crop {
+  position: absolute;
+  background: #000;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+.crop-h { width: 2.4mm; height: 0.2mm; }
+.crop-v { width: 0.2mm; height: 2.4mm; }
+
+/* Mention BAT */
+.print-sheet .bat-ribbon { display: none; }
+.atelier.is-bat .print-sheet .bat-ribbon {
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-28deg);
+  font-family: var(--font-ui);
+  font-size: 11mm;
+  font-weight: 600;
+  letter-spacing: .18em;
+  color: rgba(179, 57, 47, .28);
+  border: 1.2mm solid rgba(179, 57, 47, .22);
+  border-radius: 3mm;
+  padding: 2mm 8mm;
+  pointer-events: none;
+  z-index: 9;
+  white-space: nowrap;
+}
+
+/* Fiche imprimée en tête du PDF */
+.print-sheet--fiche .print-trim {
+  background: #FFF;
+  padding: 10mm;
+  font-family: var(--font-ui);
+  font-size: 3.6mm;
+  line-height: 1.55;
+  color: #1F2933;
+}
+.print-sheet--fiche h2 { font-family: var(--font-display); font-size: 7mm; margin: 0 0 2mm; }
+.print-sheet--fiche .fiche-sub { color: #6E7A87; font-size: 3.2mm; margin-bottom: 6mm; }
+.print-sheet--fiche table { width: 100%; border-collapse: collapse; }
+.print-sheet--fiche td { padding: 2.2mm 0; border-bottom: .2mm dashed #E5DECF; vertical-align: top; }
+.print-sheet--fiche td:first-child {
+  width: 34%;
+  font-size: 2.8mm;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #6E7A87;
+}
+
+/* ---------------- Impression ---------------- */
+
+@media print {
+  @page { size: 160mm 222mm; margin: 0; }
+  body { background: #FFF; }
+  [data-noprint], .site-header, .site-footer, .toast-zone { display: none !important; }
+  .atelier { max-width: none; padding: 0; margin: 0; }
+  .atelier-fiche { display: none; }          /* la fiche écran ; la version PDF est une planche */
+  .atelier-sheets { display: block; }
+  .print-sheet {
+    box-shadow: none;
+    margin: 0;
+    page-break-after: always;
+    break-after: page;
+  }
+}

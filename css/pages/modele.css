@@ -1,0 +1,127 @@
+/* Page Aperçu 3D d'un modèle */
+
+.viewer-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: var(--sp-6);
+  align-items: start;
+}
+
+.viewer-scene-wrap { min-width: 0; }
+
+.viewer-scene {
+  position: relative;
+  height: min(66vh, 640px);
+  background:
+    radial-gradient(900px 400px at 50% 115%, rgba(168, 133, 59, .1), transparent 60%),
+    var(--paper-soft);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.viewer-scene .book3d-stage { position: absolute; inset: 0; min-height: 0; }
+
+.viewer-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-5);
+  flex-wrap: wrap;
+  margin-top: var(--sp-4);
+}
+.viewer-toolbar-group { display: flex; align-items: center; gap: var(--sp-2); }
+.viewer-indicator {
+  font-size: var(--fs-sm);
+  color: var(--ink-soft);
+  min-width: 96px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.viewer-modes { flex-wrap: wrap; justify-content: center; }
+
+.viewer-hint { text-align: center; margin: var(--sp-3) 0 0; }
+
+.viewer-thumbs {
+  display: flex;
+  gap: var(--sp-2);
+  overflow-x: auto;
+  padding: var(--sp-3) var(--sp-1);
+  margin-top: var(--sp-3);
+  scrollbar-width: thin;
+}
+.viewer-thumb {
+  flex: none;
+  width: 68px;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  padding: 0;
+  background: none;
+  cursor: pointer;
+  position: relative;
+  transition: border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+.viewer-thumb:hover { transform: translateY(-2px); }
+.viewer-thumb.is-active { border-color: var(--gold); }
+.viewer-thumb .lv-page { pointer-events: none; box-shadow: var(--shadow-sm); }
+.viewer-thumb-num {
+  position: absolute;
+  bottom: -2px; right: -2px;
+  background: var(--night);
+  color: #F5F1E6;
+  font-size: .625rem;
+  font-weight: 600;
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+/* ---------------- Panneau ---------------- */
+
+.viewer-panel {
+  position: sticky;
+  top: 96px;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-5);
+  box-shadow: var(--shadow-sm);
+}
+.viewer-panel .badge { margin-bottom: var(--sp-3); }
+.viewer-panel h1 { font-size: var(--fs-xl); margin-bottom: var(--sp-3); }
+.viewer-panel .desc { color: var(--ink-soft); font-size: var(--fs-sm); }
+
+.viewer-specs { display: grid; gap: var(--sp-3); margin: var(--sp-4) 0 var(--sp-5); }
+.viewer-spec {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  font-size: var(--fs-xs);
+  color: var(--ink-faint);
+  border-bottom: 1px dashed var(--border-soft);
+  padding-bottom: var(--sp-2);
+}
+.viewer-spec strong { color: var(--ink-soft); font-weight: 600; }
+.viewer-spec .modele-dots { display: flex; }
+.viewer-spec .modele-dots span {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,0,0,.08);
+  margin-left: -5px;
+}
+.viewer-spec .modele-dots span:first-child { margin-left: 0; }
+
+.viewer-panel .btn-gold { width: 100%; }
+.viewer-panel .viewer-retour {
+  display: block;
+  text-align: center;
+  margin-top: var(--sp-3);
+  font-size: var(--fs-sm);
+}
+
+.viewer-notfound { text-align: center; padding: var(--sp-8) 0; grid-column: 1 / -1; }
+
+@media (max-width: 1023px) {
+  .viewer-layout { grid-template-columns: 1fr; }
+  .viewer-panel { position: static; }
+  .viewer-scene { height: min(58vh, 520px); }
+}

@@ -1,0 +1,176 @@
+/* ==========================================================================
+   Accueil — héros, étapes, catégories, exemples, avis
+   ========================================================================== */
+
+/* ---------------- Héros ---------------- */
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(1100px 500px at 85% -10%, var(--gold-soft), transparent 65%),
+    var(--paper);
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.hero-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr);
+  align-items: center;
+  gap: var(--sp-7);
+  padding-block: var(--sp-8);
+  min-height: min(78vh, 720px);
+}
+
+.hero-copy h1 { margin-bottom: var(--sp-4); }
+.hero-copy h1 em { font-style: italic; color: var(--gold-deep); }
+
+.hero-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  margin-top: var(--sp-5);
+}
+
+.hero-reassurance {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-5);
+  padding: 0;
+  margin: var(--sp-5) 0 0;
+  font-size: var(--fs-xs);
+  color: var(--ink-soft);
+}
+.hero-reassurance li { display: inline-flex; align-items: center; gap: var(--sp-2); }
+.hero-reassurance svg { color: var(--gold-deep); flex: none; }
+
+/* Éventail de couvertures réelles */
+.hero-books {
+  position: relative;
+  height: 480px;
+  perspective: 1400px;
+}
+.hero-book {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(240px, 24vw);
+  box-shadow: var(--shadow-lg);
+  border-radius: 3px;
+  overflow: hidden;
+  transition: transform var(--dur-slow) var(--ease), box-shadow var(--dur-slow) var(--ease);
+}
+.hero-book:nth-child(1) { transform: translate(-92%, -46%) rotate(-9deg); z-index: 1; }
+.hero-book:nth-child(2) { transform: translate(-50%, -52%) rotate(1.5deg); z-index: 3; }
+.hero-book:nth-child(3) { transform: translate(-8%, -44%) rotate(9deg); z-index: 2; }
+.hero-book:hover { z-index: 4; }
+.hero-book:nth-child(1):hover { transform: translate(-92%, -48%) rotate(-7deg) scale(1.04); }
+.hero-book:nth-child(2):hover { transform: translate(-50%, -54%) rotate(0deg) scale(1.04); }
+.hero-book:nth-child(3):hover { transform: translate(-8%, -46%) rotate(7deg) scale(1.04); }
+
+/* ---------------- Étapes ---------------- */
+
+.steps { margin-top: var(--sp-6); }
+.step .card-body { padding: var(--sp-5); }
+.step-num {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--fs-2xl);
+  font-weight: 600;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: var(--sp-3);
+}
+.step h3 { font-size: var(--fs-md); margin-bottom: var(--sp-2); }
+
+/* ---------------- Catégories ---------------- */
+
+#home-categories { margin-top: var(--sp-6); }
+
+.cat-card { text-align: center; }
+.cat-card .card-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-5) var(--sp-4);
+}
+.cat-card-medaillon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--gold-soft);
+  color: var(--gold-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--sp-2);
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.cat-card-medaillon svg { width: 32px; height: 32px; }
+.cat-card:hover .cat-card-medaillon { background: var(--night); color: var(--gold-soft); }
+.cat-card h3 { margin: 0; font-size: var(--fs-lg); }
+.cat-card p { font-size: var(--fs-xs); color: var(--ink-soft); margin: 0; }
+
+/* ---------------- Exemples ---------------- */
+
+#home-exemples { margin-top: var(--sp-6); }
+
+.exemple-card .card-body { display: flex; flex-direction: column; gap: var(--sp-2); }
+.exemple-cover {
+  background: var(--paper-soft);
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: var(--sp-5) var(--sp-6);
+  display: flex;
+  justify-content: center;
+}
+.exemple-cover > div {
+  width: min(200px, 60%);
+  box-shadow: var(--shadow);
+  transition: transform var(--dur) var(--ease);
+}
+.exemple-card:hover .exemple-cover > div { transform: translateY(-4px) rotate(-1deg); }
+.exemple-card h3 { margin: 0; font-size: var(--fs-lg); }
+.exemple-card .badge { align-self: flex-start; }
+.exemple-card p { font-size: var(--fs-sm); color: var(--ink-soft); margin: 0; }
+.exemple-actions { display: flex; gap: var(--sp-2); margin-top: var(--sp-2); flex-wrap: wrap; }
+
+/* ---------------- Avis ---------------- */
+
+.avis-grid { margin-top: var(--sp-6); }
+.avis-card .card-body { display: flex; flex-direction: column; gap: var(--sp-3); }
+.avis-card blockquote {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-md);
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--ink);
+}
+.avis-card figcaption { font-size: var(--fs-xs); color: var(--ink-faint); }
+.avis-card figcaption strong { color: var(--ink-soft); font-weight: 600; }
+
+/* ---------------- CTA final ---------------- */
+
+.home-final-quote {
+  font-family: var(--font-display);
+  font-size: clamp(var(--fs-lg), 3vw, var(--fs-xl));
+  font-style: italic;
+  color: #F5F1E6;
+  margin-bottom: var(--sp-5);
+  line-height: 1.5;
+}
+
+/* ---------------- Responsive ---------------- */
+
+@media (max-width: 1023px) {
+  .hero-inner { grid-template-columns: 1fr; min-height: 0; }
+  .hero-books { height: 380px; max-width: 560px; margin-inline: auto; width: 100%; }
+}
+@media (max-width: 640px) {
+  .hero-inner { padding-block: var(--sp-7); }
+  .hero-books { height: 300px; }
+  .hero-book { width: 38vw; }
+  .hero-ctas .btn { flex: 1; }
+}

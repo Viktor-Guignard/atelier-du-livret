@@ -1,0 +1,55 @@
+/* Page Modèles — filtres + grille de cartes avec vraies couvertures */
+
+.modeles-filtres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  justify-content: center;
+  margin-bottom: var(--sp-6);
+}
+
+.modele-card { display: flex; flex-direction: column; overflow: hidden; }
+
+.modele-cover {
+  background: var(--paper-soft);
+  padding: var(--sp-5) var(--sp-6);
+  display: flex;
+  justify-content: center;
+}
+.modele-cover > div {
+  width: min(210px, 62%);
+  box-shadow: var(--shadow);
+  transition: transform var(--dur) var(--ease);
+}
+.modele-card:hover .modele-cover > div { transform: translateY(-4px) rotate(-1deg); }
+
+.modele-card .card-body { display: flex; flex-direction: column; gap: var(--sp-2); flex: 1; }
+.modele-card .badge { align-self: flex-start; }
+.modele-card h2 { font-size: var(--fs-lg); margin: 0; }
+.modele-card p { font-size: var(--fs-sm); color: var(--ink-soft); margin: 0; flex: 1; }
+
+.modele-style {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-xs);
+  color: var(--ink-faint);
+}
+.modele-dots { display: flex; }
+.modele-dots span {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,0,0,.08);
+  margin-left: -5px;
+}
+.modele-dots span:first-child { margin-left: 0; }
+
+.modele-actions { display: flex; gap: var(--sp-2); margin-top: var(--sp-2); flex-wrap: wrap; }
+.modele-actions .btn { flex: 1; }
+
+.modeles-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: var(--ink-faint);
+  padding: var(--sp-7) 0;
+}

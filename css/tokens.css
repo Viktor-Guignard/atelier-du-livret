@@ -1,0 +1,65 @@
+/* ==========================================================================
+   L'Atelier du Livret — Design tokens
+   ========================================================================== */
+
+:root {
+  /* --- Couleurs ------------------------------------------------------- */
+  --paper:        #FAF7F1;   /* fond ivoire */
+  --paper-soft:   #F3EEE4;   /* ivoire plus soutenu (sections alternées) */
+  --surface:      #FFFFFF;
+  --ink:          #1F2933;   /* encre bleu nuit — texte principal */
+  --ink-soft:     #4B5563;   /* texte secondaire */
+  --ink-faint:    #6E7A87;   /* légendes, placeholders */
+  --gold:         #A8853B;   /* accent or — grands éléments, filets */
+  --gold-deep:    #8A6D2F;   /* or foncé — texte lisible sur ivoire (4.5:1) */
+  --gold-soft:    #EFE6D0;   /* fond doré très pâle */
+  --night:        #22303E;   /* bleu nuit profond — CTA, footer */
+  --night-hover:  #2E4154;
+  --border:       #E5DECF;
+  --border-soft:  #EFEAE0;
+
+  --success:      #2F7A4D;
+  --success-bg:   #E9F4EE;
+  --danger:       #B3392F;
+  --danger-bg:    #FBEDEB;
+
+  --focus-ring:   0 0 0 3px rgba(168, 133, 59, .35);
+
+  /* --- Typographie ----------------------------------------------------- */
+  --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-ui:      'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  --fs-xs:   .8125rem;  /* 13 */
+  --fs-sm:   .875rem;   /* 14 */
+  --fs-base: 1rem;      /* 16 */
+  --fs-md:   1.125rem;  /* 18 */
+  --fs-lg:   1.375rem;  /* 22 */
+  --fs-xl:   1.75rem;   /* 28 */
+  --fs-2xl:  2.375rem;  /* 38 */
+  --fs-3xl:  3.25rem;   /* 52 */
+
+  /* --- Espacements (base 4) -------------------------------------------- */
+  --sp-1: .25rem;  --sp-2: .5rem;   --sp-3: .75rem;  --sp-4: 1rem;
+  --sp-5: 1.5rem;  --sp-6: 2rem;    --sp-7: 3rem;    --sp-8: 4rem;
+  --sp-9: 6rem;
+
+  /* --- Rayons / ombres -------------------------------------------------- */
+  --radius-sm: 6px;
+  --radius:    12px;
+  --radius-lg: 20px;
+  --shadow-sm: 0 1px 3px rgba(31, 41, 51, .07);
+  --shadow:    0 6px 24px -8px rgba(31, 41, 51, .14);
+  --shadow-lg: 0 24px 60px -20px rgba(31, 41, 51, .28);
+
+  /* --- Mouvements ------------------------------------------------------- */
+  --ease:      cubic-bezier(.33, 1, .68, 1);
+  --dur-fast:  160ms;
+  --dur:       260ms;
+  --dur-slow:  420ms;
+
+  /* --- Z-index ----------------------------------------------------------- */
+  --z-header:  100;
+  --z-drawer:  200;
+  --z-modal:   400;
+  --z-toast:   600;
+}

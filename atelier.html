@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Atelier — préparation d'impression — L'Atelier du Livret</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=Lora:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/livret.css">
+  <link rel="stylesheet" href="css/pages/atelier.css">
+</head>
+<body>
+  <main id="main" class="atelier">
+
+    <header class="atelier-bar" data-noprint>
+      <div>
+        <h1>Atelier · préparation d'impression</h1>
+        <p class="small muted">Espace interne — chargez un fichier de commande (.json) reçu du site
+        pour produire le PDF d'impression : A5, fond perdu 3 mm, traits de coupe, sans filigrane.</p>
+      </div>
+      <div class="atelier-actions">
+        <label class="checkbox-row" style="margin:0">
+          <input type="checkbox" id="mode-bat">
+          <span>Mode <strong>BAT</strong> (filigrane + mention, à envoyer au client)</span>
+        </label>
+        <button id="btn-print" class="btn btn-gold" type="button" disabled>Imprimer / exporter en PDF</button>
+      </div>
+    </header>
+
+    <section class="atelier-load" id="load-zone" data-noprint>
+      <div class="atelier-drop" id="drop-zone" tabindex="0" role="button" aria-label="Charger un fichier de commande">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4m0 0 4 4m-4-4-4 4"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+        <p><strong>Déposez le fichier commande-….json ici</strong><br>ou cliquez pour le choisir</p>
+        <input type="file" id="file-input" accept="application/json,.json" class="visually-hidden">
+      </div>
+      <details class="atelier-paste">
+        <summary>…ou collez le contenu JSON reçu par e-mail</summary>
+        <textarea id="paste-input" rows="5" placeholder='{"type":"commande-atelier-livret", …}'></textarea>
+        <button id="paste-load" class="btn btn-ghost btn-sm" type="button">Charger ce JSON</button>
+      </details>
+      <p class="small muted" id="load-error" role="alert" hidden></p>
+    </section>
+
+    <section id="fiche" class="atelier-fiche" hidden></section>
+    <section id="sheets" class="atelier-sheets" aria-label="Planches d'impression"></section>
+
+  </main>
+  <script type="module" src="js/pages/atelier.js"></script>
+</body>
+</html>

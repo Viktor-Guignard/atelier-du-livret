@@ -1,0 +1,237 @@
+/* Page Commande / Devis */
+
+.commande-layout {
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr);
+  gap: var(--sp-6);
+  align-items: start;
+}
+
+/* ---------------- Récapitulatif ---------------- */
+
+.commande-recap {
+  position: sticky;
+  top: 96px;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-5);
+  box-shadow: var(--shadow-sm);
+}
+
+.recap-cover {
+  width: 170px;
+  margin: 0 auto var(--sp-4);
+  box-shadow: var(--shadow);
+}
+.commande-recap h2 { font-size: var(--fs-lg); text-align: center; margin-bottom: var(--sp-1); }
+.recap-cat { text-align: center; margin-bottom: var(--sp-4); }
+
+.recap-specs { display: grid; gap: var(--sp-2); margin-bottom: var(--sp-4); }
+.recap-spec {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  font-size: var(--fs-xs);
+  color: var(--ink-faint);
+  border-bottom: 1px dashed var(--border-soft);
+  padding-bottom: var(--sp-2);
+}
+.recap-spec strong { color: var(--ink-soft); font-weight: 600; text-align: right; }
+
+.recap-actions { display: grid; gap: var(--sp-2); }
+.recap-actions .btn { width: 100%; }
+
+/* ---------------- Formulaire ---------------- */
+
+.commande-form {
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-6);
+  box-shadow: var(--shadow-sm);
+}
+.commande-form fieldset {
+  border: none;
+  padding: 0;
+  margin: 0 0 var(--sp-5);
+}
+.commande-form legend {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  margin-bottom: var(--sp-4);
+  padding: 0;
+}
+
+.estimation {
+  background: var(--gold-soft);
+  border-radius: var(--radius);
+  padding: var(--sp-4) var(--sp-5);
+  margin-bottom: var(--sp-5);
+}
+
+.devis-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--sp-3);
+}
+.devis-head h3 { margin: 0; font-size: var(--fs-lg); color: var(--gold-deep); }
+.devis-num { font-size: var(--fs-xs); color: var(--gold-deep); letter-spacing: .04em; }
+
+.devis-lignes { display: grid; gap: 6px; margin-bottom: var(--sp-3); }
+.devis-ligne {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  font-size: var(--fs-sm);
+  color: var(--ink);
+  border-bottom: 1px dashed color-mix(in srgb, var(--gold) 35%, transparent);
+  padding-bottom: 5px;
+}
+.devis-ligne--remise { color: var(--success); }
+.devis-montant { font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 500; }
+
+.devis-total-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding-top: var(--sp-2);
+}
+.devis-total-row > span:first-child { font-weight: 600; color: var(--gold-deep); }
+.estimation-total {
+  font-family: var(--font-display);
+  font-size: var(--fs-2xl);
+  font-weight: 600;
+  color: var(--gold-deep);
+  font-variant-numeric: tabular-nums;
+}
+.estimation-detail { font-size: var(--fs-xs); color: var(--gold-deep); }
+
+.commande-submit { display: flex; gap: var(--sp-3); flex-wrap: wrap; }
+.commande-submit .btn-gold { flex: 1; }
+
+.checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  font-size: var(--fs-sm);
+  color: var(--ink-soft);
+  margin-bottom: var(--sp-4);
+  cursor: pointer;
+}
+.checkbox-row input {
+  width: 20px; height: 20px;
+  min-height: 0;
+  margin-top: 2px;
+  accent-color: var(--gold);
+  cursor: pointer;
+  flex: none;
+}
+
+/* ---------------- Et ensuite ---------------- */
+
+.ensuite {
+  margin-top: var(--sp-5);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-5);
+}
+.ensuite h3 { margin-bottom: var(--sp-4); }
+.ensuite ol {
+  list-style: none;
+  counter-reset: etape;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--sp-3);
+}
+.ensuite li {
+  counter-increment: etape;
+  display: flex;
+  gap: var(--sp-3);
+  align-items: baseline;
+  font-size: var(--fs-sm);
+  color: var(--ink-soft);
+}
+.ensuite li::before {
+  content: counter(etape, decimal-leading-zero);
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--gold);
+  font-size: var(--fs-md);
+}
+
+/* ---------------- Confirmation & état vide ---------------- */
+
+.commande-confirm, .commande-vide {
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-7) var(--sp-6);
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+.commande-confirm .confirm-icon,
+.commande-vide .vide-icon {
+  display: inline-flex;
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: var(--gold-soft);
+  color: var(--gold-deep);
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--sp-4);
+}
+.commande-confirm .confirm-icon { background: var(--success-bg); color: var(--success); }
+.commande-vide { grid-column: 1 / -1; }
+
+@media (max-width: 1023px) {
+  .commande-layout { grid-template-columns: 1fr; }
+  .commande-recap { position: static; }
+  .commande-form { padding: var(--sp-5); }
+}
+
+/* ---------------- Devis imprimable (PDF via la boîte d'impression) ---------------- */
+
+#devis-print { display: none; }
+
+@media print {
+  body.print-devis > *:not(#devis-print) { display: none !important; }
+  body.print-devis { background: #FFF; }
+  body.print-devis #devis-print {
+    display: block;
+    font-family: var(--font-ui);
+    color: #1F2933;
+    font-size: 12px;
+    line-height: 1.6;
+    max-width: 170mm;
+    margin: 0 auto;
+  }
+  @page { size: A4; margin: 18mm; }
+
+  #devis-print header { border-bottom: 2px solid #A8853B; padding-bottom: 6mm; margin-bottom: 8mm; }
+  #devis-print .dp-brand { font-family: var(--font-display); font-size: 24px; font-weight: 600; }
+  #devis-print .dp-sub { color: #6E7A87; letter-spacing: .08em; text-transform: uppercase; font-size: 9px; }
+
+  #devis-print .dp-meta { display: flex; justify-content: space-between; gap: 10mm; margin-bottom: 8mm; }
+  #devis-print .dp-projet { background: #F7F3E9; padding: 4mm 5mm; border-radius: 2mm; margin-bottom: 8mm; }
+
+  #devis-print .dp-table { width: 100%; border-collapse: collapse; margin-bottom: 8mm; }
+  #devis-print .dp-table th {
+    text-align: left; font-size: 9px; letter-spacing: .1em; text-transform: uppercase;
+    color: #6E7A87; border-bottom: 1px solid #E5DECF; padding: 2mm 0;
+  }
+  #devis-print .dp-table th:last-child, #devis-print .dp-table td:last-child { text-align: right; white-space: nowrap; }
+  #devis-print .dp-table td { border-bottom: .5px dashed #E5DECF; padding: 2.5mm 0; }
+  #devis-print .dp-table tfoot td {
+    border-bottom: none; border-top: 2px solid #A8853B;
+    font-weight: 600; font-size: 15px; padding-top: 3mm;
+  }
+  #devis-print .dp-mentions { margin: 0; padding-left: 5mm; color: #4B5563; font-size: 10.5px; }
+  #devis-print .dp-mentions li { margin-bottom: 1.5mm; }
+}

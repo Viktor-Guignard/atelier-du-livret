@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Choisissez votre cérémonie — L'Atelier du Livret</title>
+  <meta name="description" content="Baptême, communion, profession de foi, confirmation, mariage, funérailles, messe anniversaire, jubilé : choisissez la cérémonie de votre livret de messe personnalisé.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=Lora:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages/categories.css">
+</head>
+<body>
+  <main id="main">
+    <section class="section page-head">
+      <div class="container text-center">
+        <p class="eyebrow">Créer mon livret</p>
+        <h1>Choisissez votre cérémonie</h1>
+        <p class="lead">Chaque cérémonie possède ses modèles, sa structure liturgique et ses chants —
+        vous n'aurez plus qu'à personnaliser.</p>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:0">
+      <div class="container">
+        <div class="grid grid-4" id="cat-grid"></div>
+      </div>
+    </section>
+
+    <section class="section section-alt">
+      <div class="container">
+        <div class="grid grid-3 reassurance" id="reassurance">
+          <div class="reassurance-item">
+            <span class="reassurance-icon" aria-hidden="true">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-5"/><circle cx="12" cy="12" r="9"/></svg>
+            </span>
+            <h3>BAT systématique</h3>
+            <p class="small muted">Un bon à tirer numérique vous est envoyé avant impression : rien ne part sans votre accord.</p>
+          </div>
+          <div class="reassurance-item">
+            <span class="reassurance-icon" aria-hidden="true">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V6a1 1 0 0 1 1-1h5l2 2h7a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/></svg>
+            </span>
+            <h3>Impression en France</h3>
+            <p class="small muted">Papiers de création, façonnage soigné, livraison en 5 à 7 jours ouvrés partout en France.</p>
+          </div>
+          <div class="reassurance-item">
+            <span class="reassurance-icon" aria-hidden="true">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21c-4.5-2.5-8-5.5-8-9.5A4.5 4.5 0 0 1 12 8a4.5 4.5 0 0 1 8 3.5c0 4-3.5 7-8 9.5Z"/></svg>
+            </span>
+            <h3>Accompagnement humain</h3>
+            <p class="small muted">Une question de liturgie, de droits d'un chant, de mise en page ? Nous répondons sous 24 h ouvrées.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script type="module" src="js/pages/categories.js"></script>
+</body>
+</html>

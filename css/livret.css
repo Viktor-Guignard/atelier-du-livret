@@ -1,0 +1,278 @@
+/* ==========================================================================
+   Rendu des pages du livret (.lv-page) — format A5 (148 × 210).
+   Toute la typographie est en unités container (cqw) : la page reste
+   parfaitement proportionnée et NETTE à toutes les tailles (vignette → zoom).
+   Variables injectées par pageRenderer :
+   --lv-paper, --lv-ink, --lv-accent, --lv-soft, --lv-display, --lv-body
+   ========================================================================== */
+
+.lv-page {
+  aspect-ratio: 148 / 210;
+  width: 100%;
+  container-type: inline-size;
+  background: var(--lv-paper, #FBF8F0);
+  color: var(--lv-ink, #3A352C);
+  font-family: var(--lv-body, Georgia, serif);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .04);
+}
+
+.lv-page-inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 8cqw 9cqw 10cqw;
+  font-size: 3.1cqw;
+  line-height: 1.55;
+  min-height: 0;
+}
+
+/* Numéro de page */
+.lv-folio {
+  position: absolute;
+  bottom: 3.4cqw;
+  left: 0; right: 0;
+  text-align: center;
+  font-size: 2.4cqw;
+  letter-spacing: .3em;
+  color: var(--lv-accent);
+  font-family: var(--lv-display);
+}
+
+/* --- Couverture ---------------------------------------------------------- */
+
+.lv-cover {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 3cqw;
+  border: 1px solid color-mix(in srgb, var(--lv-accent) 45%, transparent);
+  outline: 1px solid color-mix(in srgb, var(--lv-accent) 45%, transparent);
+  outline-offset: 1.6cqw;
+  padding: 8cqw 6cqw;
+  margin: 1cqw;
+}
+
+.lv-cover-ornament { width: 14cqw; color: var(--lv-accent); }
+.lv-cover-ornament svg { width: 100%; height: auto; }
+
+.lv-cover-title {
+  font-family: var(--lv-display);
+  font-size: 5.2cqw;
+  font-weight: 500;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--lv-ink);
+  margin: 0;
+}
+
+.lv-cover-subtitle {
+  font-family: var(--lv-display);
+  font-size: 8.4cqw;
+  font-weight: 600;
+  font-style: italic;
+  line-height: 1.15;
+  color: var(--lv-accent);
+  margin: 0;
+}
+
+.lv-cover-filet { width: 40%; color: var(--lv-accent); opacity: .9; }
+.lv-cover-filet svg { width: 100%; height: auto; }
+
+.lv-cover-meta {
+  font-size: 3cqw;
+  letter-spacing: .06em;
+  line-height: 1.8;
+  color: var(--lv-ink);
+  opacity: .85;
+}
+
+/* Variante typographique : très grands prénoms, pas de cadre */
+.lv-cover--typographique { border: none; outline: none; }
+.lv-cover--typographique .lv-cover-subtitle {
+  font-size: 12cqw;
+  font-style: normal;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  line-height: 1.05;
+}
+.lv-cover--typographique .lv-cover-title { font-size: 3.6cqw; letter-spacing: .34em; }
+
+/* Variante botanique : rameaux en coins, cadre discret */
+.lv-cover--botanique { border: none; outline: none; position: relative; }
+.lv-cover--botanique .lv-corner {
+  position: absolute;
+  width: 16cqw;
+  color: var(--lv-accent);
+  opacity: .85;
+}
+.lv-cover--botanique .lv-corner svg { width: 100%; height: auto; }
+.lv-corner--tl { top: 2cqw; left: 2cqw; }
+.lv-corner--br { bottom: 2cqw; right: 2cqw; transform: rotate(180deg); }
+
+/* Variante photo : arche photographique */
+.lv-cover--photo { border: none; outline: none; gap: 4cqw; }
+
+/* --- Blocs ---------------------------------------------------------------- */
+
+.lv-heading {
+  font-family: var(--lv-display);
+  font-size: 4.6cqw;
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--lv-ink);
+  margin: 1cqw 0 1.5cqw;
+}
+.lv-heading-filet { width: 30%; margin: 0 auto 3cqw; color: var(--lv-accent); }
+.lv-heading-filet svg { width: 100%; height: auto; display: block; }
+
+.lv-subheading {
+  font-family: var(--lv-display);
+  font-size: 3.5cqw;
+  font-weight: 600;
+  font-style: italic;
+  text-align: center;
+  color: var(--lv-accent);
+  margin: 2.4cqw 0 1cqw;
+}
+
+.lv-text { text-align: center; white-space: pre-line; margin: 0 0 2.4cqw; }
+.lv-text--left { text-align: left; }
+
+.lv-chant { margin: 0 0 3cqw; text-align: center; }
+.lv-chant-label {
+  font-size: 2.4cqw;
+  font-weight: 600;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--lv-accent);
+  margin-bottom: .6cqw;
+}
+.lv-chant-titre {
+  font-family: var(--lv-display);
+  font-size: 3.9cqw;
+  font-style: italic;
+  font-weight: 600;
+  margin-bottom: 1.2cqw;
+}
+.lv-chant-paroles { white-space: pre-line; font-size: 2.9cqw; line-height: 1.6; }
+.lv-chant-note {
+  font-size: 2.3cqw;
+  font-style: italic;
+  opacity: .65;
+  margin-top: 1cqw;
+}
+
+.lv-lecture { margin: 0 0 3cqw; text-align: center; }
+.lv-lecture-ref {
+  font-size: 2.4cqw;
+  font-weight: 600;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--lv-accent);
+  margin-bottom: .6cqw;
+}
+.lv-lecture-titre { font-family: var(--lv-display); font-size: 3.6cqw; font-style: italic; }
+.lv-lecture-extrait { white-space: pre-line; font-size: 2.9cqw; margin-top: 1cqw; opacity: .9; }
+
+.lv-priere { margin: 0 0 3cqw; text-align: center; }
+.lv-priere-titre {
+  font-family: var(--lv-display);
+  font-size: 3.9cqw;
+  font-weight: 600;
+  font-style: italic;
+  color: var(--lv-accent);
+  margin-bottom: 1.2cqw;
+}
+.lv-priere-texte { white-space: pre-line; font-size: 2.9cqw; line-height: 1.6; }
+
+.lv-photo { margin: 0 auto 3cqw; text-align: center; width: 66%; }
+.lv-photo-frame {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: var(--lv-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid color-mix(in srgb, var(--lv-accent) 40%, transparent);
+}
+.lv-photo--arch .lv-photo-frame { border-radius: 50% 50% 0 0 / 38% 38% 0 0; }
+.lv-photo--oval .lv-photo-frame { border-radius: 50%; aspect-ratio: 1; width: 80%; margin-inline: auto; }
+.lv-photo-frame img { width: 100%; height: 100%; object-fit: cover; }
+.lv-photo-placeholder { color: var(--lv-accent); opacity: .7; width: 26%; }
+.lv-photo-placeholder svg { width: 100%; height: auto; }
+.lv-photo-caption { font-size: 2.6cqw; font-style: italic; margin-top: 1.4cqw; opacity: .8; }
+
+.lv-ornament { display: flex; justify-content: center; margin: 2cqw 0 3cqw; color: var(--lv-accent); }
+.lv-ornament svg { width: 12cqw; height: auto; }
+
+.lv-spacer--s { height: 2cqw; flex: none; }
+.lv-spacer--m { height: 5cqw; flex: none; }
+.lv-spacer--l { height: 10cqw; flex: none; }
+
+.lv-deroulement { margin: 0 0 3cqw; font-size: 3cqw; }
+.lv-deroulement-item {
+  display: flex;
+  align-items: baseline;
+  gap: 2cqw;
+  padding: 1cqw 0;
+  border-bottom: 1px dotted color-mix(in srgb, var(--lv-accent) 40%, transparent);
+}
+.lv-deroulement-heure {
+  font-family: var(--lv-display);
+  font-weight: 600;
+  color: var(--lv-accent);
+  min-width: 14cqw;
+}
+
+.lv-remerciement {
+  margin-top: auto;
+  padding-top: 3cqw;
+  font-style: italic;
+  text-align: center;
+  white-space: pre-line;
+  font-size: 2.9cqw;
+  line-height: 1.7;
+  opacity: .9;
+}
+
+/* Page vide (ajoutée par le client, ou page de garde) */
+.lv-page-vide {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--lv-accent);
+  opacity: .35;
+}
+.lv-page-vide svg { width: 10cqw; height: auto; }
+
+/* Filigrane de protection — présent sur tous les aperçus à l'écran,
+   retiré uniquement dans l'atelier d'impression (opts.print). */
+.lv-watermark {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='190'%3E%3Ctext x='150' y='95' font-family='Helvetica,Arial,sans-serif' font-size='15' letter-spacing='3' fill='rgba(70,70,85,0.09)' text-anchor='middle' transform='rotate(-30 150 95)'%3EAPERCU %C2%B7 ATELIER DU LIVRET%3C/text%3E%3C/svg%3E");
+  background-size: 62cqw auto;
+}
+
+/* Débordement signalé dans le configurateur */
+.lv-page.is-overflowing::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 6cqw;
+  background: linear-gradient(to top, rgba(179, 57, 47, .18), transparent);
+  pointer-events: none;
+}

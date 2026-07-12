@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nos modèles de livrets — L'Atelier du Livret</title>
+  <meta name="description" content="25 modèles de livrets de messe élégants, classés par cérémonie. Aperçu 3D réaliste et personnalisation complète en ligne.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=Lora:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/livret.css">
+  <link rel="stylesheet" href="css/pages/modeles.css">
+</head>
+<body>
+  <main id="main">
+    <section class="section page-head" style="padding-bottom: var(--sp-5)">
+      <div class="container text-center">
+        <p class="eyebrow">Les modèles</p>
+        <h1>Nos modèles de livrets</h1>
+        <p class="lead">Chaque modèle est une vraie maquette : ce que vous voyez ici est
+        exactement ce que vous personnaliserez, page après page.</p>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:0">
+      <div class="container">
+        <div class="modeles-filtres" id="filtres" role="group" aria-label="Filtrer par cérémonie"></div>
+        <div class="grid grid-3" id="modeles-grid"></div>
+      </div>
+    </section>
+  </main>
+  <script type="module" src="js/pages/modeles.js"></script>
+</body>
+</html>

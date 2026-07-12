@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Configurateur de livret — L'Atelier du Livret</title>
+  <meta name="description" content="Personnalisez votre livret de messe en ligne : textes, chants, photos, couleurs et polices, avec un aperçu 3D en temps réel.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=Lora:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/livret.css">
+  <link rel="stylesheet" href="css/book3d.css">
+  <link rel="stylesheet" href="css/pages/configurateur.css">
+</head>
+<body class="cfg-body">
+
+  <header class="cfg-topbar">
+    <a class="cfg-back" href="modeles.html" aria-label="Retour aux modèles">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+      <span>Modèles</span>
+    </a>
+    <div class="cfg-title">
+      <input id="cfg-nom" type="text" aria-label="Nom du projet" maxlength="80" autocomplete="off">
+      <span id="cfg-status" class="cfg-status" role="status">Nouveau projet</span>
+    </div>
+    <div class="cfg-actions">
+      <button id="cfg-save" class="btn btn-ghost btn-sm" type="button">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+        Enregistrer
+      </button>
+      <a id="cfg-commander" class="btn btn-gold btn-sm" href="commande.html">Commander</a>
+    </div>
+  </header>
+
+  <main id="main" class="cfg-layout">
+
+    <!-- ================= Panneau d'édition ================= -->
+    <aside class="cfg-panel" aria-label="Panneau de personnalisation">
+      <div class="cfg-tabs" role="tablist" aria-label="Sections de personnalisation">
+        <button role="tab" id="tab-infos"  aria-controls="pane-infos"  aria-selected="true"  class="cfg-tab is-active" data-pane="infos"  type="button">Informations</button>
+        <button role="tab" id="tab-pages"  aria-controls="pane-pages"  aria-selected="false" class="cfg-tab" data-pane="pages"  type="button">Pages</button>
+        <button role="tab" id="tab-chants" aria-controls="pane-chants" aria-selected="false" class="cfg-tab" data-pane="chants" type="button">Chants</button>
+        <button role="tab" id="tab-style"  aria-controls="pane-style"  aria-selected="false" class="cfg-tab" data-pane="style"  type="button">Style</button>
+      </div>
+
+      <div id="pane-infos"  role="tabpanel" aria-labelledby="tab-infos"  class="cfg-pane is-active"></div>
+      <div id="pane-pages"  role="tabpanel" aria-labelledby="tab-pages"  class="cfg-pane" hidden></div>
+      <div id="pane-chants" role="tabpanel" aria-labelledby="tab-chants" class="cfg-pane" hidden></div>
+      <div id="pane-style"  role="tabpanel" aria-labelledby="tab-style"  class="cfg-pane" hidden></div>
+    </aside>
+
+    <!-- ================= Aperçu temps réel ================= -->
+    <section class="cfg-preview" aria-label="Aperçu du livret">
+      <div class="cfg-preview-toolbar">
+        <div class="cfg-modes" role="group" aria-label="Mode d'affichage">
+          <button class="chip is-active" data-view="edition" type="button">Édition</button>
+          <button class="chip" data-view="3d" type="button">Livre 3D</button>
+          <button class="chip" data-view="double" type="button">Double page</button>
+          <button class="chip" data-view="simple" type="button">Page à page</button>
+        </div>
+        <div class="cfg-zoom" role="group" aria-label="Zoom">
+          <button id="zoom-out" class="btn-icon" type="button" aria-label="Zoom arrière" title="Zoom arrière">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 21 21M8 11h6"/></svg>
+          </button>
+          <button id="zoom-reset" class="btn-icon" type="button" aria-label="Réinitialiser la vue" title="Réinitialiser la vue">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"/></svg>
+          </button>
+          <button id="zoom-in" class="btn-icon" type="button" aria-label="Zoom avant" title="Zoom avant">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 21 21M8 11h6M11 8v6"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Vue édition : page courante en grand -->
+      <div id="view-edition" class="cfg-view-edition">
+        <button id="page-prev" class="btn-icon cfg-page-nav" type="button" aria-label="Page précédente" title="Page précédente">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+        </button>
+        <div class="cfg-page-holder"><div id="cfg-page-canvas" class="cfg-page-canvas"></div></div>
+        <button id="page-next" class="btn-icon cfg-page-nav" type="button" aria-label="Page suivante" title="Page suivante">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+
+      <!-- Vue livre (3D / double / simple) -->
+      <div id="view-book" class="cfg-view-book" hidden>
+        <div id="cfg-book" class="cfg-book-holder"></div>
+        <div class="cfg-book-nav">
+          <button id="book-prev" class="btn-icon" type="button" aria-label="Page précédente" title="Page précédente">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+          </button>
+          <span id="book-indicator" class="cfg-book-indicator" aria-live="polite">page 1</span>
+          <button id="book-next" class="btn-icon" type="button" aria-label="Page suivante" title="Page suivante">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+        <p class="cfg-book-hint small muted">Cliquez sur les pages pour feuilleter · glissez pour faire pivoter · molette pour zoomer</p>
+      </div>
+
+      <!-- Vignettes -->
+      <div class="cfg-thumbs-wrap">
+        <div id="cfg-thumbs" class="cfg-thumbs" role="listbox" aria-label="Pages du livret"></div>
+        <button id="thumb-add" class="cfg-thumb-add" type="button" title="Ajouter une page">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          <span>Page</span>
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="js/pages/configurateur.js"></script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+/* Page Cérémonies */
+
+.page-head { padding-bottom: var(--sp-6); }
+
+.catpage-card { display: flex; flex-direction: column; }
+.catpage-card .card-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--sp-2);
+  padding: var(--sp-6) var(--sp-4) var(--sp-5);
+  flex: 1;
+}
+.catpage-medaillon {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: var(--gold-soft);
+  color: var(--gold-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.catpage-medaillon svg { width: 38px; height: 38px; }
+.catpage-card:hover .catpage-medaillon { background: var(--night); color: var(--gold-soft); transform: translateY(-2px); }
+
+.catpage-card h2 { font-size: var(--fs-lg); margin: var(--sp-2) 0 0; }
+.catpage-accroche {
+  font-family: var(--font-display);
+  font-style: italic;
+  color: var(--gold-deep);
+  margin: 0;
+}
+.catpage-desc { font-size: var(--fs-xs); color: var(--ink-soft); margin: 0; }
+.catpage-count { font-size: var(--fs-xs); color: var(--ink-faint); margin: var(--sp-1) 0 0; }
+.catpage-card .btn { margin-top: var(--sp-3); }
+
+.reassurance-item { text-align: center; padding: var(--sp-4); }
+.reassurance-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--gold-deep);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--sp-3);
+}
+.reassurance-item h3 { font-size: var(--fs-md); margin-bottom: var(--sp-2); }
