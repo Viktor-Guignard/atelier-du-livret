@@ -28,9 +28,11 @@
           <input type="checkbox" id="mode-bat">
           <span>Mode <strong>BAT</strong> (filigrane + mention, à envoyer au client)</span>
         </label>
-        <button id="btn-print" class="btn btn-gold" type="button" disabled>Imprimer / exporter en PDF</button>
+        <button id="btn-download-pdf" class="btn btn-gold" type="button" disabled>Télécharger le PDF</button>
+        <button id="btn-print" class="btn btn-ghost btn-sm" type="button" disabled>Imprimer directement…</button>
       </div>
     </header>
+    <p id="pdf-progress" class="small muted" role="status" hidden style="text-align:right;padding:0 var(--sp-4)"></p>
 
     <section class="atelier-load" id="load-zone" data-noprint>
       <div class="atelier-drop" id="drop-zone" tabindex="0" role="button" aria-label="Charger un fichier de commande">

@@ -12,6 +12,27 @@ import { ornament, filetSVG, ORNAMENTS } from './ornaments.js';
 /** Texte multi-lignes : placeholders résolus, HTML échappé, \n préservés (white-space: pre-line). */
 const ml = (text, fields) => escapeHtml(interpolate(text, fields));
 
+const hexToRgbArr = (hex) => {
+  const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return m ? [1, 2, 3].map((i) => parseInt(m[i], 16)) : [0, 0, 0];
+};
+
+/**
+ * Mélange OPAQUE de deux couleurs hex (`ratio` = poids de `hex`, le reste de
+ * `bgHex`) → 'rgb(r, g, b)', SANS alpha. Remplace toute transparence dans les
+ * styles du livret : Chrome sérialise désormais les couleurs avec alpha
+ * (même une rgba() littérale) en notation CSS Color 4 `color(srgb r g b / a)`
+ * via getComputedStyle, que html2canvas (utilisé pour l'export PDF) ne sait
+ * pas interpréter. Une couleur 100% opaque n'a pas ce problème. color-mix()
+ * a le même souci et est donc banni des styles du livret.
+ */
+function blendHex(hex, bgHex, ratio) {
+  const c1 = hexToRgbArr(hex);
+  const c2 = hexToRgbArr(bgHex);
+  const mix = c1.map((v, i) => Math.round(v * ratio + c2[i] * (1 - ratio)));
+  return `rgb(${mix.join(', ')})`;
+}
+
 /** Applique la palette et les polices du projet sur un élément (variables --lv-*). */
 export function applyProjectStyle(node, project) {
   const theme = themeById(project.themeId);
@@ -19,6 +40,8 @@ export function applyProjectStyle(node, project) {
   node.style.setProperty('--lv-paper', theme.paper);
   node.style.setProperty('--lv-ink', theme.ink);
   node.style.setProperty('--lv-accent', theme.accent);
+  node.style.setProperty('--lv-accent-45', blendHex(theme.accent, theme.paper, .45));
+  node.style.setProperty('--lv-accent-40', blendHex(theme.accent, theme.paper, .4));
   node.style.setProperty('--lv-soft', theme.soft);
   node.style.setProperty('--lv-display', font.display);
   node.style.setProperty('--lv-body', font.body);

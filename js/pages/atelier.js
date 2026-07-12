@@ -14,6 +14,7 @@
 
 import { qs } from '../core/utils.js';
 import { buildPrintKit } from '../components/printKit.js';
+import { exportSheetsToPDF } from '../components/pdfExport.js';
 import { showToast } from '../components/toast.js';
 
 let commande = null;   // { intent, contact, commande, message, projet } | { projet } seul
@@ -77,8 +78,42 @@ function render() {
   sheets.append(sheetsNode);
 
   qs('#btn-print').disabled = false;
+  qs('#btn-download-pdf').disabled = false;
   showToast(`${pageCount} planches prêtes${isBat ? ' (mode BAT)' : ''}.`, 'success');
 }
 
 qs('#mode-bat').addEventListener('change', () => { if (commande) render(); });
 qs('#btn-print').addEventListener('click', () => window.print());
+
+/* ---------------- Téléchargement direct du PDF ---------------- */
+
+const downloadBtn = qs('#btn-download-pdf');
+const progress = qs('#pdf-progress');
+
+downloadBtn.addEventListener('click', async () => {
+  if (!commande) return;
+  const isBat = qs('#mode-bat').checked;
+  const base = (commande.numero || commande.projet.nom || 'livret').toLowerCase().replace(/[^a-z0-9]+/gi, '-');
+  const filename = `${base}-${isBat ? 'BAT' : 'impression'}.pdf`;
+
+  downloadBtn.disabled = true;
+  const label = downloadBtn.textContent;
+  progress.hidden = false;
+
+  try {
+    await exportSheetsToPDF(qs('#sheets'), filename, {
+      onProgress: (i, total) => {
+        downloadBtn.textContent = `Génération… ${i}/${total}`;
+        progress.textContent = `Planche ${i} sur ${total}…`;
+      },
+    });
+    showToast('PDF téléchargé.', 'success');
+  } catch (err) {
+    console.error(err);
+    showToast('Échec de la génération du PDF — réessayez.', 'error');
+  } finally {
+    downloadBtn.disabled = false;
+    downloadBtn.textContent = label;
+    progress.hidden = true;
+  }
+});

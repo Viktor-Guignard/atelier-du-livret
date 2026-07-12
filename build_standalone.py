@@ -24,6 +24,7 @@ SHARED_MODULES = [
     "js/components/ornaments.js",
     "js/components/pageRenderer.js",
     "js/components/printKit.js",
+    "js/components/pdfExport.js",
     "js/components/book3d.js",
     "js/components/toast.js",
     "js/components/nav.js",

@@ -52,8 +52,8 @@
   justify-content: center;
   text-align: center;
   gap: 3cqw;
-  border: 1px solid color-mix(in srgb, var(--lv-accent) 45%, transparent);
-  outline: 1px solid color-mix(in srgb, var(--lv-accent) 45%, transparent);
+  border: 1px solid var(--lv-accent-45);
+  outline: 1px solid var(--lv-accent-45);
   outline-offset: 1.6cqw;
   padding: 8cqw 6cqw;
   margin: 1cqw;
@@ -203,7 +203,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid color-mix(in srgb, var(--lv-accent) 40%, transparent);
+  border: 1px solid var(--lv-accent-40);
 }
 .lv-photo--arch .lv-photo-frame { border-radius: 50% 50% 0 0 / 38% 38% 0 0; }
 .lv-photo--oval .lv-photo-frame { border-radius: 50%; aspect-ratio: 1; width: 80%; margin-inline: auto; }
@@ -225,7 +225,7 @@
   align-items: baseline;
   gap: 2cqw;
   padding: 1cqw 0;
-  border-bottom: 1px dotted color-mix(in srgb, var(--lv-accent) 40%, transparent);
+  border-bottom: 1px dotted var(--lv-accent-40);
 }
 .lv-deroulement-heure {
   font-family: var(--lv-display);
