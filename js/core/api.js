@@ -21,8 +21,8 @@ export const CONTACT_EMAIL = 'viktor.guignard@gmail.com';
  */
 export const ORDER_ENDPOINT = 'https://formspree.io/f/xaqrwzzy';
 
-/* Taille maximale du projet joint au POST (au-delà : fichier à transmettre en réponse). */
-const MAX_INLINE_PROJECT = 150_000;
+/* Taille maximale de la pièce jointe .json (au-delà : trop lourd pour l'envoi direct). */
+const MAX_ATTACHMENT_SIZE = 5_000_000;
 
 /*
  * Grille tarifaire — positionnement haut de gamme (grandes célébrations).
@@ -37,10 +37,7 @@ export const TARIFS = {
     'creation':   { nom: 'Création ivoire 170 g', coef: 1.2 },
     'nacre':      { nom: 'Nacré grand luxe 250 g', coef: 1.45 },
   },
-  options: {
-    'dorure': { nom: 'Dorure à chaud sur couverture', parEx: 1.9 },
-    'coins':  { nom: 'Coins arrondis', parEx: 0.35 },
-  },
+  options: {},                             // finitions optionnelles (dorure, coins…) — désactivées pour l'instant
   fraisCreation: 120,                      // mise en page personnalisée + BAT
   seuilFraisOfferts: 800,                  // frais de création offerts au-delà
   remises: [ [300, .88], [150, .92], [75, .96] ],   // [quantité mini, coefficient]
@@ -127,17 +124,34 @@ function orderBody(payload) {
     '',
     message ? `Informations complémentaires :\n${message}` : null,
     '',
-    '— Le fichier .json du projet est joint à ce message (ou envoyé à la suite). —',
+    '— Le projet complet (JSON) figure plus bas dans ce message : copiez-le dans atelier.html pour préparer l\'impression. —',
   ].filter((l) => l !== null);
   return lignes.join('\n');
 }
 
+function orderFileName(projet) {
+  return `commande-${(projet.nom || 'livret').toLowerCase().replace(/[^a-z0-9]+/gi, '-')}.json`;
+}
+
+/*
+ * Formspree (plan gratuit) REFUSE les pièces jointes fichier (erreur "File
+ * Uploads Not Permitted") — vérifié en conditions réelles. Le projet complet
+ * est donc envoyé comme TEXTE dans un champ dédié et bien identifié du mail :
+ * ouvrez le mail reçu, repérez le bloc « FICHIER_COMMANDE_JSON — à copier
+ * dans atelier.html », sélectionnez tout son contenu, copiez-le, puis dans
+ * atelier.html ouvrez « …ou collez le contenu JSON reçu par e-mail », collez
+ * et cliquez « Charger ce JSON ». (Un plan Formspree payant activerait de
+ * vraies pièces jointes ; non nécessaire pour ce volume de commandes.)
+ */
+
 /**
  * Envoie la demande de commande.
- * - ORDER_ENDPOINT configuré → POST réel : vous recevez la commande par e-mail
- *   (avec le projet en JSON) et le client reçoit l'accusé de réception
- *   automatique du service. Retourne { ok, method: 'endpoint' }.
- * - Sinon (ou si le réseau échoue) → repli : e-mail pré-rempli.
+ * - ORDER_ENDPOINT configuré → POST réel : vous recevez un e-mail avec le
+ *   récapitulatif lisible ET le projet complet en JSON (à copier-coller
+ *   dans atelier.html, voir ci-dessus). Le client reçoit l'accusé de
+ *   réception automatique du service. Retourne { ok, method: 'endpoint' }.
+ * - Sinon (ou si le réseau échoue) → repli : e-mail pré-rempli côté client
+ *   + téléchargement local du .json à joindre à la main.
  *   Retourne { ok, method: 'mailto', mailto }.
  */
 export async function submitOrder(payload) {
@@ -146,15 +160,19 @@ export async function submitOrder(payload) {
 
   if (ORDER_ENDPOINT) {
     try {
-      const projetJson = JSON.stringify({
+      const fichier = JSON.stringify({
         type: 'commande-atelier-livret',
         version: 1,
+        creeLe: new Date().toISOString(),
         intent: payload.intent,
         contact: payload.contact,
         commande: payload.commande,
         message: payload.message,
         projet: payload.projet,
-      });
+      }, null, 2);
+
+      const tropVolumineux = fichier.length > MAX_ATTACHMENT_SIZE;
+
       const res = await fetch(ORDER_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
@@ -164,10 +182,10 @@ export async function submitOrder(payload) {
           email: payload.contact.email,
           nom: `${payload.contact.prenom} ${payload.contact.nom}`,
           telephone: payload.contact.telephone || '',
-          recapitulatif: orderBody(payload),
-          fichier_commande_json: projetJson.length <= MAX_INLINE_PROJECT
-            ? projetJson
-            : '(Projet trop volumineux pour l\'envoi direct — le client a téléchargé le fichier .json : le demander en réponse.)',
+          '1_recapitulatif_lisible': orderBody(payload),
+          '2_FICHIER_COMMANDE_JSON — à copier dans atelier.html': tropVolumineux
+            ? '(Projet trop volumineux pour tenir dans l\'e-mail — redemandez-le au client, qui en a téléchargé une copie.)'
+            : fichier,
         }),
       });
       if (res.ok) return { ok: true, method: 'endpoint' };
@@ -202,7 +220,7 @@ export function downloadOrderJSON(payload) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `commande-${(payload.projet.nom || 'livret').toLowerCase().replace(/[^a-z0-9]+/gi, '-')}.json`;
+  a.download = orderFileName(payload.projet);
   document.body.append(a);
   a.click();
   a.remove();

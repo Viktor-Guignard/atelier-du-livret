@@ -201,13 +201,13 @@ if (!projet) {
         field('c-format', 'Format', inFormat),
       ]),
       field('c-papier', 'Papier', inPapier),
-      el('div', { class: 'field' }, [
+      optInputs.length ? el('div', { class: 'field' }, [
         el('label', {}, 'Finitions'),
         ...optInputs.map((o) => el('label', { class: 'checkbox-row', style: 'margin-bottom:8px' }, [
           o.input,
           el('span', {}, [`${o.nom} `, el('span', { class: 'muted small' }, `(+ ${o.parEx.toFixed(2).replace('.', ',')} €/ex.)`)]),
         ])),
-      ]),
+      ]) : null,
       el('label', { class: 'checkbox-row' }, [
         inBat,
         el('span', {}, 'Recevoir un BAT numérique avant impression (recommandé) — vous validez chaque page avant le lancement.'),
