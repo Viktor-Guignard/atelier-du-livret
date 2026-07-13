@@ -265,6 +265,40 @@ export async function submitOrder(payload, { numero, adminUrl } = {}) {
 }
 
 /**
+ * Prévient l'atelier qu'un client vient de valider son bon à tirer en ligne.
+ * Envoi silencieux (best-effort) via l'endpoint e-mail ; n'interrompt jamais
+ * le parcours client si l'envoi échoue.
+ */
+export async function notifyBatValidated({ numero, nom, adminUrl }) {
+  if (!ORDER_ENDPOINT) return { ok: false, method: 'none' };
+  const body = [
+    RULE,
+    '  BON À TIRER VALIDÉ PAR LE CLIENT',
+    RULE,
+    '',
+    numero ? `Commande : ${numero}` : null,
+    `Validé par : ${nom || '(nom non précisé)'}`,
+    '',
+    'Vous pouvez lancer l\'impression.',
+    adminUrl ? `\nEspace privé → ${adminUrl}` : null,
+  ].filter((l) => l !== null).join('\n');
+  try {
+    const res = await fetch(ORDER_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({
+        _subject: `BAT validé${numero ? ' — ' + numero : ''} — L'Atelier du Livret`,
+        email: CONTACT_EMAIL,
+        recapitulatif: body,
+      }),
+    });
+    return { ok: res.ok, method: 'endpoint' };
+  } catch {
+    return { ok: false, method: 'none' };
+  }
+}
+
+/**
  * Fichier de commande complet (contact + fabrication + projet) : la copie du
  * client, et le fichier que l'atelier charge dans atelier.html pour produire
  * le PDF d'impression (traits de coupe, fond perdu, sans filigrane).

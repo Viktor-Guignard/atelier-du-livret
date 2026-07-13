@@ -6,7 +6,7 @@
  */
 
 import { qs, el } from '../core/utils.js';
-import { onAuthChange, signIn, signOutAdmin, listOrders } from '../core/firebase.js';
+import { onAuthChange, signIn, signOutAdmin, listOrders, createBatShare, getBat } from '../core/firebase.js';
 import { buildPrintKit } from '../components/printKit.js';
 import { exportSheetsToPDF } from '../components/pdfExport.js';
 import { showToast } from '../components/toast.js';
@@ -125,14 +125,91 @@ function selectOrder(numero) {
   if (!order) return;
 
   qs('#detail-panel').hidden = false;
+  renderBatShare(order);
   renderPrint(order);
+}
+
+/* ---------------- BAT 3D partageable ---------------- */
+
+function batLink(token) {
+  return new URL(`bat.html?b=${token}`, location.href).href;
+}
+
+async function renderBatShare(order) {
+  const zone = qs('#bat-share');
+  zone.textContent = '';
+  zone.append(el('h3', { class: 'admin-bat-title' }, 'Bon à tirer 3D à envoyer au client'));
+
+  if (!order.batToken) {
+    const btn = el('button', { class: 'btn btn-gold btn-sm', type: 'button' }, 'Créer le lien du BAT 3D');
+    btn.addEventListener('click', async () => {
+      btn.disabled = true; btn.textContent = 'Création…';
+      try {
+        const token = await createBatShare(order);
+        order.batToken = token;                    // maj locale immédiate
+        showToast('Lien du BAT créé.', 'success');
+        renderBatShare(order);
+      } catch (err) {
+        console.error(err);
+        btn.disabled = false; btn.textContent = 'Créer le lien du BAT 3D';
+        showToast(err.message === 'PROJET_TROP_LOURD'
+          ? 'Projet trop lourd (photos) pour le BAT 3D — utilisez le PDF ci-dessous.'
+          : 'Impossible de créer le BAT — vérifiez les règles Firestore.', 'error');
+      }
+    });
+    zone.append(
+      el('p', { class: 'small muted', style: 'margin:0 0 12px' },
+        'Génère un lien privé où le client feuillette son livret en 3D et clique « Je valide ». Vous êtes prévenu dès validation.'),
+      btn,
+    );
+    return;
+  }
+
+  const link = batLink(order.batToken);
+  const linkRow = el('div', { class: 'admin-bat-linkrow' }, [
+    el('input', { type: 'text', readonly: '', value: link, 'aria-label': 'Lien du BAT', onclick: (e) => e.target.select() }),
+    el('button', {
+      class: 'btn btn-light btn-sm', type: 'button',
+      onclick: async () => { try { await navigator.clipboard.writeText(link); showToast('Lien copié.', 'success'); } catch { showToast('Copie impossible — sélectionnez le lien.', 'error'); } },
+    }, 'Copier'),
+  ]);
+
+  const prenom = order.contact?.prenom || '';
+  const mailBody = `Bonjour ${prenom},\n\nVotre bon à tirer est prêt. Feuilletez votre livret en 3D et validez-le en un clic ici :\n${link}\n\nÀ très bientôt,\nL'Atelier du Livret`;
+  const mailtoHref = `mailto:${order.contact?.email || ''}?subject=${encodeURIComponent('Votre bon à tirer — L\'Atelier du Livret')}&body=${encodeURIComponent(mailBody)}`;
+
+  const statusEl = el('p', { class: 'admin-bat-status small' }, 'Vérification du statut…');
+
+  zone.append(
+    el('p', { class: 'small muted', style: 'margin:0 0 10px' }, 'Lien privé à envoyer au client :'),
+    linkRow,
+    el('div', { class: 'admin-bat-actions' }, [
+      el('a', { class: 'btn btn-gold btn-sm', href: mailtoHref }, 'Préparer l\'e-mail au client'),
+      el('a', { class: 'btn btn-ghost btn-sm', href: link, target: '_blank', rel: 'noopener' }, 'Ouvrir le BAT'),
+    ]),
+    statusEl,
+  );
+
+  try {
+    const bat = await getBat(order.batToken);
+    if (bat?.valide) {
+      const d = bat.valideLe?.toDate ? bat.valideLe.toDate() : (bat.valideLe ? new Date(bat.valideLe) : null);
+      statusEl.className = 'admin-bat-status small is-valide';
+      statusEl.textContent = `✓ Validé par ${bat.valideParNom || 'le client'}${d ? ' le ' + d.toLocaleDateString('fr-FR') : ''} — impression possible.`;
+    } else {
+      statusEl.className = 'admin-bat-status small is-attente';
+      statusEl.textContent = '⏳ En attente de validation du client.';
+    }
+  } catch {
+    statusEl.textContent = '';
+  }
 }
 
 function renderPrint(order) {
   const isBat = qs('#mode-bat').checked;
   document.querySelector('.atelier').classList.toggle('is-bat', isBat);
 
-  const { ficheNode, sheetsNode, pageCount } = buildPrintKit(order, { isBat });
+  const { ficheNode, sheetsNode, pageCount } = buildPrintKit(order, { mode: isBat ? 'bat' : 'production' });
 
   const fiche = qs('#fiche');
   fiche.hidden = false;

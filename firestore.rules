@@ -13,9 +13,13 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // Compteur technique de numérotation (ex. counters/2026 → { n: 42 }).
-    // Aucune donnée personnelle dedans : accès libre par simplicité.
+    // Lecture libre (nécessaire à la transaction de commande). Écriture publique
+    // MAIS le compteur ne peut QUE progresser de +1 : impossible de le remettre
+    // à zéro (ce qui provoquerait des collisions de numéros de commande).
     match /counters/{year} {
-      allow read, write: if true;
+      allow read: if true;
+      allow create: if request.resource.data.n == 1;
+      allow update: if request.resource.data.n == resource.data.n + 1;
     }
 
     // Commandes reçues depuis le site.
@@ -28,6 +32,32 @@ service cloud.firestore {
 
       // Lire, modifier, supprimer : réservé à un compte authentifié (vous).
       allow read, update, delete: if request.auth != null;
+    }
+
+    // Bons à tirer partageables (BAT 3D). Le jeton {token} est long et aléatoire :
+    // seul celui qui possède le lien peut lire le BAT. Impossible d'énumérer.
+    match /bats/{token} {
+      // Lire un BAT précis : public (il faut connaître le jeton). Lister : non.
+      allow get: if true;
+      allow list: if request.auth != null;
+
+      // Créer / supprimer un BAT : réservé au compte atelier.
+      allow create, delete: if request.auth != null;
+
+      // Mettre à jour : soit l'atelier (authentifié), soit le client — mais
+      // le client ne peut QUE valider : passer valide de false à true et
+      // renseigner la date + son nom, rien d'autre (contenu du BAT figé).
+      // Sens unique (resource.valide == false) : impossible de dé/re-valider.
+      allow update: if request.auth != null
+        || (
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['valide', 'valideLe', 'valideParNom'])
+          && resource.data.valide == false
+          && request.resource.data.valide == true
+          && request.resource.data.valideLe is timestamp
+          && request.resource.data.valideParNom is string
+          && request.resource.data.valideParNom.size() <= 120
+        );
     }
   }
 }

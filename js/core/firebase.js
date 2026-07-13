@@ -15,7 +15,8 @@ import {
   getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {
-  getFirestore, doc, runTransaction, getDoc, getDocs, collection, query, orderBy, serverTimestamp,
+  getFirestore, doc, runTransaction, getDoc, getDocs, setDoc, updateDoc,
+  collection, query, orderBy, serverTimestamp,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 const firebaseConfig = {
@@ -74,4 +75,67 @@ export async function listOrders() {
 export async function getOrder(numero) {
   const snap = await getDoc(doc(db, 'commandes', numero));
   return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+}
+
+/* ---------------- BAT en ligne (bon à tirer 3D partageable) ---------------- */
+
+/** Jeton aléatoire long et non devinable (le lien du BAT en dépend entièrement). */
+function randomToken(len = 22) {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  const bytes = crypto.getRandomValues(new Uint8Array(len));
+  return Array.from(bytes, (b) => chars[b % chars.length]).join('');
+}
+
+/**
+ * Crée un BAT partageable pour une commande : écrit un instantané du projet
+ * dans `bats/{token}` (lisible publiquement UNIQUEMENT si l'on connaît le
+ * jeton) et retourne le jeton. Réservé au compte atelier (règles Firestore).
+ * L'instantané rend le BAT consultable par le client sans lui donner accès à
+ * la commande elle-même (contact, prix… restent privés).
+ */
+export async function createBatShare(order) {
+  const token = randomToken();
+  const projet = order.projet;
+
+  // Firestore limite un document à 1 Mo. Un projet lourd en photos peut le
+  // dépasser : on prévient clairement plutôt que d'échouer de façon cryptique.
+  if (JSON.stringify(projet).length > 900_000) {
+    throw new Error('PROJET_TROP_LOURD');
+  }
+
+  await setDoc(doc(db, 'bats', token), {
+    token,
+    numero: order.numero || null,
+    contactPrenom: order.contact?.prenom || '',
+    contactNom: order.contact?.nom || '',
+    projet,                       // instantané figé (pages, thème, police, champs)
+    valide: false,
+    valideLe: null,
+    valideParNom: null,
+    creeLe: serverTimestamp(),
+  });
+  // Mémoriser le jeton sur la commande (pour retrouver le statut côté atelier).
+  if (order.numero) {
+    try { await updateDoc(doc(db, 'commandes', order.numero), { batToken: token }); } catch { /* non bloquant */ }
+  }
+  return token;
+}
+
+/** Lit un BAT par son jeton (accès public : il faut connaître le jeton). */
+export async function getBat(token) {
+  const snap = await getDoc(doc(db, 'bats', token));
+  return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+}
+
+/**
+ * Valide un BAT (action du client). N'affecte que les champs de validation ;
+ * les règles Firestore interdisent toute autre modification et empêchent de
+ * re-valider un BAT déjà validé.
+ */
+export async function validateBat(token, nom) {
+  await updateDoc(doc(db, 'bats', token), {
+    valide: true,
+    valideLe: serverTimestamp(),
+    valideParNom: nom || '',
+  });
 }

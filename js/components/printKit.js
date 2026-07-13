@@ -27,16 +27,23 @@ function cropMarks() {
   return marks;
 }
 
-function sheet(contentNode, paperColor, extraClass = '') {
-  const s = el('section', { class: `print-sheet ${extraClass}`.trim() });
+/* Planche PRODUCTION : 160×222 mm = coupe A5 + fond perdu 3 mm + traits de coupe.
+   Destinée à l'imprimeur (pas de filigrane). data-mm-* lu par pdfExport. */
+function productionSheet(contentNode, paperColor, extraClass = '') {
+  const s = el('section', { class: `print-sheet ${extraClass}`.trim(), 'data-mm-w': '160', 'data-mm-h': '222' });
   if (paperColor) s.style.setProperty('--sheet-paper', paperColor);
   s.append(
     el('div', { class: 'print-bleed', 'aria-hidden': 'true' }),
     el('div', { class: 'print-trim' }, [contentNode]),
     ...cropMarks(),
-    el('span', { class: 'bat-ribbon' }, 'BON À TIRER'),
   );
   return s;
+}
+
+/* Planche BAT : A5 propre (148×210 mm), SANS fond perdu ni traits de coupe.
+   Destinée à la validation client — le filigrane reste (renderPage print:false). */
+function batSheet(pageNode) {
+  return el('section', { class: 'print-sheet print-sheet--bat', 'data-mm-w': '148', 'data-mm-h': '210' }, [pageNode]);
 }
 
 /* ---------------- Fiche de fabrication ---------------- */
@@ -75,14 +82,20 @@ export function ficheRows(commande) {
 }
 
 /**
- * Construit la fiche (résumé écran) + les planches (fiche imprimée + pages).
- * Renvoie { ficheNode, sheetsNode, pageCount }.
+ * Construit la fiche (résumé écran, toujours) + les planches à imprimer.
+ * mode 'production' (défaut) : fiche de fabrication + pages 160×222 avec fond
+ *   perdu et traits de coupe, sans filigrane → fichier HD pour l'imprimeur.
+ * mode 'bat' : uniquement les pages A5 propres (sans fiche interne, sans coupe
+ *   ni fond perdu), filigrane conservé → PDF de validation à envoyer au client.
+ * Renvoie { ficheNode, sheetsNode, pageCount, mode }.
  */
-export function buildPrintKit(commande, { isBat = false } = {}) {
+export function buildPrintKit(commande, { mode = 'production' } = {}) {
+  const isBat = mode === 'bat';
   const projet = commande.projet;
   const theme = themeById(projet.themeId);
   const rows = ficheRows(commande);
 
+  // Fiche à l'écran (repère atelier) — présente dans les deux modes.
   const ficheNode = el('div', {}, [
     el('h2', {}, 'Fiche de fabrication'),
     el('dl', { class: 'fiche-grid', style: 'margin:0' }, rows.map(([dt, dd]) =>
@@ -93,24 +106,26 @@ export function buildPrintKit(commande, { isBat = false } = {}) {
 
   const sheetsNode = el('div', {});
 
-  const ficheTable = el('div', {}, [
-    el('h2', {}, 'L\'Atelier du Livret — fiche de fabrication'),
-    el('p', { class: 'fiche-sub' }, isBat
-      ? 'BON À TIRER — document de validation, non destiné à l\'impression.'
-      : 'Document d\'impression — A5, fond perdu 3 mm, traits de coupe.'),
-    el('table', {}, rows.map(([dt, dd]) => el('tr', {}, [el('td', {}, dt), el('td', {}, dd)]))),
-  ]);
-  sheetsNode.append(sheet(ficheTable, '#FFFFFF', 'print-sheet--fiche'));
+  // Fiche imprimée en tête : UNIQUEMENT en production (contient prix/contact,
+  // à ne pas envoyer au client dans un BAT).
+  if (!isBat) {
+    const ficheTable = el('div', {}, [
+      el('h2', {}, 'L\'Atelier du Livret — fiche de fabrication'),
+      el('p', { class: 'fiche-sub' }, 'Document d\'impression — A5, fond perdu 3 mm, traits de coupe.'),
+      el('table', {}, rows.map(([dt, dd]) => el('tr', {}, [el('td', {}, dt), el('td', {}, dd)]))),
+    ]);
+    sheetsNode.append(productionSheet(ficheTable, '#FFFFFF', 'print-sheet--fiche'));
+  }
 
   projet.pages.forEach((page, i) => {
     const node = renderPage(page, projet, {
       pageNumber: i + 1,
       totalPages: projet.pages.length,
-      print: !isBat,
+      print: !isBat,          // production → pas de filigrane ; BAT → filigrane
     });
     node.removeAttribute('role');
-    sheetsNode.append(sheet(node, theme.paper));
+    sheetsNode.append(isBat ? batSheet(node) : productionSheet(node, theme.paper));
   });
 
-  return { ficheNode, sheetsNode, pageCount: projet.pages.length };
+  return { ficheNode, sheetsNode, pageCount: projet.pages.length, mode };
 }

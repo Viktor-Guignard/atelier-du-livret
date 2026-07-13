@@ -66,7 +66,7 @@ function render() {
   const isBat = qs('#mode-bat').checked;
   document.querySelector('.atelier').classList.toggle('is-bat', isBat);
 
-  const { ficheNode, sheetsNode, pageCount } = buildPrintKit(commande, { isBat });
+  const { ficheNode, sheetsNode, pageCount } = buildPrintKit(commande, { mode: isBat ? 'bat' : 'production' });
 
   const fiche = qs('#fiche');
   fiche.hidden = false;

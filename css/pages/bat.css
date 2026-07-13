@@ -1,0 +1,102 @@
+/* ==========================================================================
+   Bon à tirer en ligne (bat.html) — page publique de validation client
+   ========================================================================== */
+
+.bat-header {
+  border-bottom: 1px solid var(--border-soft);
+  background: rgba(250, 247, 241, .92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: var(--sp-3) var(--sp-5);
+}
+
+.bat-main { width: min(1080px, 100% - 2 * var(--sp-4)); margin: 0 auto; padding: var(--sp-6) 0 var(--sp-8); }
+
+.bat-status { text-align: center; padding: var(--sp-8) 0; }
+.bat-status h1 { margin-bottom: var(--sp-3); }
+
+/* ---------------- Intro ---------------- */
+
+.bat-intro { text-align: center; margin-bottom: var(--sp-6); }
+.bat-intro .eyebrow { justify-content: center; }
+.bat-intro .eyebrow::before { display: none; }
+.bat-ref { margin-top: var(--sp-3); font-size: var(--fs-sm); color: var(--ink-faint); }
+.bat-ref .badge { margin-right: var(--sp-2); }
+
+/* ---------------- Viewer ---------------- */
+
+.bat-viewer { margin-bottom: var(--sp-7); }
+
+.bat-scene {
+  position: relative;
+  height: min(64vh, 600px);
+  background:
+    radial-gradient(900px 400px at 50% 115%, rgba(168, 133, 59, .1), transparent 60%),
+    var(--paper-soft);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.bat-scene .book3d-stage { position: absolute; inset: 0; min-height: 0; }
+
+.bat-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-5);
+  flex-wrap: wrap;
+  margin-top: var(--sp-4);
+}
+.bat-tb-group { display: flex; align-items: center; gap: var(--sp-2); }
+.bat-modes { flex-wrap: wrap; justify-content: center; }
+.bat-indicator {
+  font-size: var(--fs-sm); color: var(--ink-soft);
+  min-width: 96px; text-align: center; font-variant-numeric: tabular-nums;
+}
+.bat-hint { text-align: center; margin: var(--sp-3) 0 0; }
+
+.bat-thumbs {
+  display: flex; gap: var(--sp-2);
+  overflow-x: auto; padding: var(--sp-3) var(--sp-1);
+  margin-top: var(--sp-3); scrollbar-width: thin;
+  justify-content: flex-start;
+}
+.bat-thumb {
+  flex: none; width: 68px;
+  border: 2px solid transparent; border-radius: 4px;
+  padding: 0; background: none; cursor: pointer; position: relative;
+  transition: border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+.bat-thumb:hover { transform: translateY(-2px); }
+.bat-thumb.is-active { border-color: var(--gold); }
+.bat-thumb .lv-page { pointer-events: none; box-shadow: var(--shadow-sm); }
+.bat-thumb-num {
+  position: absolute; bottom: -2px; right: -2px;
+  background: var(--night); color: #F5F1E6;
+  font-size: .625rem; font-weight: 600; border-radius: 4px; padding: 1px 5px;
+}
+@media (min-width: 700px) { .bat-thumbs { justify-content: center; } }
+
+/* ---------------- Validation ---------------- */
+
+.bat-validation {
+  text-align: center;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--sp-7) var(--sp-5);
+}
+.bat-validation h2 { font-size: var(--fs-xl); margin-bottom: var(--sp-2); }
+.bat-validation.is-done { background: var(--success-bg); border-color: transparent; }
+
+.bat-check {
+  display: inline-flex; width: 64px; height: 64px;
+  border-radius: 50%; background: var(--surface); color: var(--success);
+  align-items: center; justify-content: center; margin-bottom: var(--sp-3);
+  box-shadow: var(--shadow-sm);
+}
+
+@media (max-width: 640px) {
+  .bat-scene { height: min(56vh, 480px); }
+}

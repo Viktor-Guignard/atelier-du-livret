@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Votre bon à tirer — L'Atelier du Livret</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=Lora:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/livret.css">
+  <link rel="stylesheet" href="css/book3d.css">
+  <link rel="stylesheet" href="css/pages/bat.css">
+</head>
+<body>
+  <header class="bat-header">
+    <span class="brand" style="pointer-events:none">
+      <span class="brand-mark" aria-hidden="true">
+        <svg width="30" height="30" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M24 13c-4-3-10-3.5-15-2v26c5-1.5 11-1 15 2 4-3 10-3.5 15-2V11c-5-1.5-11-1-15 2Z"/><path d="M24 13v26M24 5v4M21 7h6"/></svg>
+      </span>
+      <span>
+        <span class="brand-name">L'Atelier du Livret</span>
+        <span class="brand-tagline">Bon à tirer</span>
+      </span>
+    </span>
+  </header>
+
+  <main id="main" class="bat-main">
+    <div id="bat-loading" class="bat-status">
+      <p class="muted">Chargement de votre bon à tirer…</p>
+    </div>
+
+    <div id="bat-error" class="bat-status" hidden>
+      <h1>Lien introuvable</h1>
+      <p class="lead" style="margin-inline:auto">Ce bon à tirer n'existe pas ou n'est plus disponible.
+      Vérifiez le lien reçu par e-mail, ou contactez l'atelier.</p>
+    </div>
+
+    <div id="bat-view" hidden></div>
+  </main>
+
+  <script type="module" src="js/pages/bat.js"></script>
+</body>
+</html>

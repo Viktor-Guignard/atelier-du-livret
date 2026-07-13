@@ -100,26 +100,9 @@
 .crop-h { width: 2.4mm; height: 0.2mm; }
 .crop-v { width: 0.2mm; height: 2.4mm; }
 
-/* Mention BAT */
-.print-sheet .bat-ribbon { display: none; }
-.atelier.is-bat .print-sheet .bat-ribbon {
-  display: block;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) rotate(-28deg);
-  font-family: var(--font-ui);
-  font-size: 11mm;
-  font-weight: 600;
-  letter-spacing: .18em;
-  color: rgba(179, 57, 47, .28);
-  border: 1.2mm solid rgba(179, 57, 47, .22);
-  border-radius: 3mm;
-  padding: 2mm 8mm;
-  pointer-events: none;
-  z-index: 9;
-  white-space: nowrap;
-}
+/* Planche BAT : A5 propre (148×210), sans fond perdu ni traits de coupe */
+.print-sheet--bat { width: 148mm; height: 210mm; }
+.print-sheet--bat .lv-page { width: 148mm; height: 210mm; box-shadow: none; }
 
 /* Fiche imprimée en tête du PDF */
 .print-sheet--fiche .print-trim {
@@ -146,7 +129,9 @@
 /* ---------------- Impression ---------------- */
 
 @media print {
-  @page { size: 160mm 222mm; margin: 0; }
+  /* size: auto → chaque planche s'imprime à sa taille réelle (160×222 en
+     production, 148×210 en BAT). Le téléchargement PDF reste la voie exacte. */
+  @page { size: auto; margin: 0; }
   body { background: #FFF; }
   [data-noprint], .site-header, .site-footer, .toast-zone { display: none !important; }
   .atelier { max-width: none; padding: 0; margin: 0; }
