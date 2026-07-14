@@ -211,7 +211,7 @@ if (!projet) {
       ]) : null,
       el('label', { class: 'checkbox-row' }, [
         inBat,
-        el('span', {}, 'Recevoir un BAT numérique avant impression (recommandé) — vous validez chaque page avant le lancement.'),
+        el('span', {}, 'Bon à tirer numérique avant impression (inclus, recommandé) — vous validez chaque page avant le lancement.'),
       ]),
     ]),
     el('fieldset', {}, [
@@ -321,7 +321,7 @@ if (!projet) {
       el('h2', {}, envoiReel
         ? (lastIntent === 'devis' ? 'Votre demande de devis est envoyée' : 'Votre commande est envoyée')
         : (lastIntent === 'devis' ? 'Votre demande de devis est prête' : 'Votre demande de commande est prête')),
-      numero ? el('p', { class: 'commande-numero' }, [el('span', {}, 'Numéro de commande'), el('strong', {}, numero)]) : null,
+      numero ? el('p', { class: 'commande-numero' }, [el('span', {}, lastIntent === 'devis' ? 'Numéro de suivi' : 'Numéro de commande'), el('strong', {}, numero)]) : null,
       envoiReel
         ? el('p', { class: 'lead', style: 'margin: 0 auto var(--sp-4)' },
             `Nous avons bien reçu votre demande. Un accusé de réception vous est adressé à ${payload.contact.email}, ` +

@@ -207,9 +207,8 @@ async function renderBatShare(order) {
 
 function renderPrint(order) {
   const isBat = qs('#mode-bat').checked;
-  document.querySelector('.atelier').classList.toggle('is-bat', isBat);
 
-  const { ficheNode, sheetsNode, pageCount } = buildPrintKit(order, { mode: isBat ? 'bat' : 'production' });
+  const { ficheNode, sheetsNode } = buildPrintKit(order, { mode: isBat ? 'bat' : 'production' });
 
   const fiche = qs('#fiche');
   fiche.hidden = false;
@@ -220,7 +219,8 @@ function renderPrint(order) {
   sheets.textContent = '';
   sheets.append(sheetsNode);
 
-  showToast(`${pageCount} planches prêtes${isBat ? ' (mode BAT)' : ''}.`, 'success');
+  const nb = sheets.querySelectorAll('.print-sheet').length;
+  showToast(`${nb} planche${nb > 1 ? 's' : ''} prête${nb > 1 ? 's' : ''}${isBat ? ' (mode BAT)' : ''}.`, 'success');
 }
 
 qs('#mode-bat').addEventListener('change', () => {

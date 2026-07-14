@@ -83,7 +83,7 @@ for (const avis of AVIS) {
   avisGrid.append(el('figure', { class: 'card avis-card', style: 'margin:0' }, [
     el('div', { class: 'card-body' }, [
       el('span', { class: 'stars', html: STAR.repeat(5), role: 'img', 'aria-label': '5 étoiles sur 5' }),
-      el('blockquote', {}, `« ${avis.texte} »`),
+      el('blockquote', {}, `« ${avis.texte} »`),
       el('figcaption', {}, [el('strong', {}, avis.auteur), ` — ${avis.contexte}`]),
     ]),
   ]));

@@ -2,8 +2,9 @@
  * ATELIER (interne, accès direct par fichier) — transforme un fichier de
  * commande (chargé ou collé) en planches prêtes à imprimer : A5 + fond
  * perdu 3 mm + traits de coupe, sans filigrane.
- * Mode BAT : filigrane conservé + mention « BON À TIRER » sur chaque planche.
- * Export : bouton Imprimer → « Enregistrer au format PDF » (feuille 160×222 mm).
+ * Mode BAT : pages A5 propres, filigrane conservé, sans fond perdu ni traits
+ * de coupe (planche 148×210) — destinées à la validation client.
+ * Export : « Télécharger le PDF » (jsPDF) ou impression système.
  *
  * Depuis l'ajout de Firebase, la voie normale de réception d'une commande
  * est admin.html (espace privé, liste triée, pas de copier-coller). Cette
@@ -64,9 +65,8 @@ qs('#paste-load').addEventListener('click', () => parsePayload(qs('#paste-input'
 
 function render() {
   const isBat = qs('#mode-bat').checked;
-  document.querySelector('.atelier').classList.toggle('is-bat', isBat);
 
-  const { ficheNode, sheetsNode, pageCount } = buildPrintKit(commande, { mode: isBat ? 'bat' : 'production' });
+  const { ficheNode, sheetsNode } = buildPrintKit(commande, { mode: isBat ? 'bat' : 'production' });
 
   const fiche = qs('#fiche');
   fiche.hidden = false;
@@ -79,7 +79,8 @@ function render() {
 
   qs('#btn-print').disabled = false;
   qs('#btn-download-pdf').disabled = false;
-  showToast(`${pageCount} planches prêtes${isBat ? ' (mode BAT)' : ''}.`, 'success');
+  const nb = sheets.querySelectorAll('.print-sheet').length;
+  showToast(`${nb} planche${nb > 1 ? 's' : ''} prête${nb > 1 ? 's' : ''}${isBat ? ' (mode BAT)' : ''}.`, 'success');
 }
 
 qs('#mode-bat').addEventListener('change', () => { if (commande) render(); });
