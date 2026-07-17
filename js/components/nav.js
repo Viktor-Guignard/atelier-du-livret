@@ -90,7 +90,8 @@ export function initSite({ active = '' } = {}) {
         ]),
       ]),
       el('div', { class: 'footer-bottom' }, [
-        el('span', {}, `© ${new Date().getFullYear()} L'Atelier du Livret — site de démonstration.`),
+        el('span', {}, `© ${new Date().getFullYear()} L'Atelier du Livret`),
+        el('a', { href: 'confidentialite.html' }, 'Confidentialité & données'),
         el('span', {}, 'Textes liturgiques contemporains : à insérer selon votre licence SECLI.'),
       ]),
     ]),

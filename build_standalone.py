@@ -33,7 +33,7 @@ SHARED_MODULES = [
 PAGES = [
     "index.html", "categories.html", "modeles.html",
     "modele.html", "configurateur.html", "commande.html",
-    "atelier.html", "admin.html", "bat.html",
+    "atelier.html", "admin.html", "bat.html", "confidentialite.html",
 ]
 
 # Seuls les imports RELATIFS (./ ou ../) sont retirés : js/core/firebase.js
