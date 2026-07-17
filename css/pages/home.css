@@ -117,7 +117,8 @@
 
 #home-exemples { margin-top: var(--sp-6); }
 
-.exemple-card .card-body { display: flex; flex-direction: column; gap: var(--sp-2); }
+.exemple-card { display: flex; flex-direction: column; }
+.exemple-card .card-body { display: flex; flex-direction: column; gap: var(--sp-2); flex: 1; }
 .exemple-cover {
   background: var(--paper-soft);
   border-radius: var(--radius) var(--radius) 0 0;
@@ -134,12 +135,13 @@
 .exemple-card h3 { margin: 0; font-size: var(--fs-lg); }
 .exemple-card .badge { align-self: flex-start; }
 .exemple-card p { font-size: var(--fs-sm); color: var(--ink-soft); margin: 0; }
-.exemple-actions { display: flex; gap: var(--sp-2); margin-top: var(--sp-2); flex-wrap: wrap; }
+.exemple-actions { display: flex; gap: var(--sp-2); margin-top: auto; padding-top: var(--sp-2); flex-wrap: wrap; }
 
 /* ---------------- Avis ---------------- */
 
 .avis-grid { margin-top: var(--sp-6); }
-.avis-card .card-body { display: flex; flex-direction: column; gap: var(--sp-3); }
+.avis-card { display: flex; flex-direction: column; }
+.avis-card .card-body { display: flex; flex-direction: column; gap: var(--sp-3); flex: 1; }
 .avis-card blockquote {
   margin: 0;
   font-family: var(--font-display);
@@ -148,7 +150,7 @@
   line-height: 1.5;
   color: var(--ink);
 }
-.avis-card figcaption { font-size: var(--fs-xs); color: var(--ink-faint); }
+.avis-card figcaption { font-size: var(--fs-xs); color: var(--ink-faint); margin-top: auto; padding-top: var(--sp-2); }
 .avis-card figcaption strong { color: var(--ink-soft); font-weight: 600; }
 
 /* ---------------- CTA final ---------------- */
