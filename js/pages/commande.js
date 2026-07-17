@@ -315,7 +315,7 @@ if (!projet) {
     goldBtn.textContent = btnLabel;
 
     /* Confirmation */
-    const envoiReel = result.method === 'endpoint';
+    const envoiReel = result.method === 'emailjs';
     form.replaceWith(el('div', { class: 'commande-confirm' }, [
       el('span', { class: 'confirm-icon', html: '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>' }),
       el('h2', {}, envoiReel

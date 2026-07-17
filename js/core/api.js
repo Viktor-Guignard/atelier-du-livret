@@ -1,28 +1,37 @@
 /*
  * Couche d'envoi de commande — seule frontière avec l'extérieur.
- * Aujourd'hui (site statique GitHub Pages) : récapitulatif par e-mail (mailto)
- * + export du projet en JSON à joindre.
- * Demain : remplacer submitOrder() par un POST vers une API (panier, Stripe/
- * PayPal, espace client) sans toucher au reste du site.
+ * Envoi des e-mails via EmailJS (client-side, gratuit 200 e-mails/mois) : à
+ * chaque commande, DEUX e-mails partent — la notification à l'atelier ET
+ * l'accusé de réception au client. Repli sur un e-mail pré-rempli (mailto)
+ * si EmailJS échoue. Aucun serveur : compatible GitHub Pages.
  */
 
+import emailjs from 'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/+esm';
 import { formatDateFr } from './utils.js';
 
 export const CONTACT_EMAIL = 'viktor.guignard@gmail.com';
 
 /*
- * COMMANDES RÉELLES — endpoint d'envoi (recommandé : Formspree, gratuit).
- * 1. Créez un formulaire sur https://formspree.io (2 min) avec votre adresse
- *    de réception, et activez dans ses réglages l'« auto-response » : c'est
- *    l'accusé de réception envoyé automatiquement au client.
- * 2. Collez l'URL du formulaire ci-dessous, ex. 'https://formspree.io/f/abcdwxyz'.
- * Tant que cette constante est vide, le site se replie sur l'ouverture d'un
- * e-mail pré-rempli (mailto) — le flux de démonstration.
+ * EmailJS — identifiants publics (conçus pour être visibles côté client, comme
+ * Firebase). Service Gmail connecté à CONTACT_EMAIL + un template générique
+ * piloté par les variables to_email / reply_to / subject / message.
+ * Pour changer de compte : remplacer ces trois valeurs.
  */
-export const ORDER_ENDPOINT = 'https://formspree.io/f/xaqrwzzy';
+const EMAILJS = {
+  publicKey: 'MwzwkkXRyTFfXZy_f',
+  serviceId: 'service_r8cydnk',
+  templateId: 'template_90sttdl',
+};
 
-/* Taille maximale de la pièce jointe .json (au-delà : trop lourd pour l'envoi direct). */
-const MAX_ATTACHMENT_SIZE = 5_000_000;
+/** Envoie un e-mail via le template générique EmailJS. Rejette si l'envoi échoue. */
+async function sendEmail({ to_email, reply_to, subject, message }) {
+  return emailjs.send(
+    EMAILJS.serviceId,
+    EMAILJS.templateId,
+    { to_email, reply_to: reply_to || CONTACT_EMAIL, subject, message },
+    { publicKey: EMAILJS.publicKey },
+  );
+}
 
 /*
  * Grille tarifaire — positionnement haut de gamme (grandes célébrations).
@@ -196,82 +205,52 @@ function orderFileName(projet) {
 }
 
 /**
- * Notifie l'atelier qu'une commande vient d'être passée.
- * - Voie normale : `numero` (et `adminUrl`) fournis — la commande est déjà
- *   enregistrée dans Firestore (voir js/core/firebase.js) ; l'e-mail reste
- *   COURT (numéro + résumé), le dossier complet et le PDF se consultent
- *   dans admin.html.
- * - Voie de secours : pas de `numero` (l'écriture en base a échoué, ex.
- *   hors ligne) — l'e-mail contient alors le dossier complet en texte, pour
- *   qu'aucune commande ne soit perdue (à copier dans atelier.html).
- * Retourne { ok, method: 'endpoint' | 'mailto', mailto? }.
+ * Envoie la demande de commande. DEUX e-mails via EmailJS :
+ *  1. À l'ATELIER (CONTACT_EMAIL) — récapitulatif court si la commande est en
+ *     base (numero fourni), complet en secours sinon.
+ *  2. Au CLIENT — accusé de réception personnalisé.
+ * Si EmailJS échoue (réseau, quota), repli sur un e-mail pré-rempli (mailto)
+ * vers l'atelier, pour ne jamais perdre la demande.
+ * Retourne { ok, method: 'emailjs' | 'mailto', mailto? }.
  */
 export async function submitOrder(payload, { numero, adminUrl } = {}) {
   const type = payload.intent === 'devis' ? 'Demande de devis' : 'Demande de commande';
-  const subject = numero
+  const subjectAtelier = numero
     ? `${type} ${numero} — ${payload.projet.nom} (${payload.commande.quantite} ex.)`
     : `${type} — ${payload.projet.nom} (${payload.commande.quantite} ex.)`;
+  const messageAtelier = numero ? orderBodyShort(payload, numero, adminUrl) : orderBodyFull(payload);
 
-  if (ORDER_ENDPOINT) {
-    try {
-      const base = {
-        _subject: subject,
-        _replyto: payload.contact.email,
-        email: payload.contact.email,
-        nom: `${payload.contact.prenom} ${payload.contact.nom}`,
-        telephone: payload.contact.telephone || '',
-      };
-
-      const body = numero
-        ? {
-            ...base,
-            numero,
-            recapitulatif: orderBodyShort(payload, numero, adminUrl),
-            message_client: clientMessage(payload, numero),
-          }
-        : (() => {
-            const fichier = JSON.stringify({
-              type: 'commande-atelier-livret', version: 1, creeLe: new Date().toISOString(),
-              intent: payload.intent, contact: payload.contact, commande: payload.commande,
-              message: payload.message, projet: payload.projet,
-            }, null, 2);
-            const tropVolumineux = fichier.length > MAX_ATTACHMENT_SIZE;
-            return {
-              ...base,
-              recapitulatif: orderBodyFull(payload),
-              message_client: clientMessage(payload, null),
-              fichier_commande_json: tropVolumineux
-                ? '(Projet trop volumineux pour tenir dans l\'e-mail — redemandez-le au client, qui en a téléchargé une copie.)'
-                : fichier,
-            };
-          })();
-
-      const res = await fetch(ORDER_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify(body),
-      });
-      if (res.ok) return { ok: true, method: 'endpoint' };
-    } catch {
-      /* réseau indisponible → repli mailto ci-dessous */
-    }
+  try {
+    // 1. Notification à l'atelier (réponse → e-mail du client).
+    await sendEmail({
+      to_email: CONTACT_EMAIL,
+      reply_to: payload.contact.email,
+      subject: subjectAtelier,
+      message: messageAtelier,
+    });
+    // 2. Accusé de réception au client (réponse → atelier).
+    await sendEmail({
+      to_email: payload.contact.email,
+      reply_to: CONTACT_EMAIL,
+      subject: `${payload.intent === 'devis' ? 'Votre demande de devis' : 'Votre commande'} — L'Atelier du Livret`,
+      message: clientMessage(payload, numero),
+    });
+    return { ok: true, method: 'emailjs' };
+  } catch (err) {
+    console.error('Envoi EmailJS impossible, repli mailto :', err);
+    const mailto = `mailto:${CONTACT_EMAIL}`
+      + `?subject=${encodeURIComponent(subjectAtelier)}`
+      + `&body=${encodeURIComponent(messageAtelier)}`;
+    return { ok: true, method: 'mailto', mailto };
   }
-
-  const mailBody = numero ? orderBodyShort(payload, numero, adminUrl) : orderBodyFull(payload);
-  const mailto = `mailto:${CONTACT_EMAIL}`
-    + `?subject=${encodeURIComponent(subject)}`
-    + `&body=${encodeURIComponent(mailBody)}`;
-  return { ok: true, method: 'mailto', mailto };
 }
 
 /**
  * Prévient l'atelier qu'un client vient de valider son bon à tirer en ligne.
- * Envoi silencieux (best-effort) via l'endpoint e-mail ; n'interrompt jamais
- * le parcours client si l'envoi échoue.
+ * Envoi silencieux (best-effort) ; n'interrompt jamais le parcours client.
  */
 export async function notifyBatValidated({ numero, nom, adminUrl }) {
-  if (!ORDER_ENDPOINT) return { ok: false, method: 'none' };
-  const body = [
+  const message = [
     RULE,
     '  BON À TIRER VALIDÉ PAR LE CLIENT',
     RULE,
@@ -283,16 +262,12 @@ export async function notifyBatValidated({ numero, nom, adminUrl }) {
     adminUrl ? `\nEspace privé → ${adminUrl}` : null,
   ].filter((l) => l !== null).join('\n');
   try {
-    const res = await fetch(ORDER_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({
-        _subject: `BAT validé${numero ? ' — ' + numero : ''} — L'Atelier du Livret`,
-        email: CONTACT_EMAIL,
-        recapitulatif: body,
-      }),
+    await sendEmail({
+      to_email: CONTACT_EMAIL,
+      subject: `BAT validé${numero ? ' — ' + numero : ''} — L'Atelier du Livret`,
+      message,
     });
-    return { ok: res.ok, method: 'endpoint' };
+    return { ok: true, method: 'emailjs' };
   } catch {
     return { ok: false, method: 'none' };
   }
