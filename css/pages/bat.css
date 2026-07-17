@@ -80,6 +80,9 @@
 /* ---------------- Validation ---------------- */
 
 .bat-validation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
   background: var(--surface);
   border: 1px solid var(--border-soft);
@@ -89,6 +92,9 @@
 }
 .bat-validation h2 { font-size: var(--fs-xl); margin-bottom: var(--sp-2); }
 .bat-validation.is-done { background: var(--success-bg); border-color: transparent; }
+/* Case à cocher au-dessus, bouton nettement en dessous et de largeur maîtrisée */
+.bat-validation .checkbox-row { justify-content: center; }
+.bat-validation .btn-gold { margin-top: var(--sp-2); min-width: 260px; }
 
 .bat-check {
   display: inline-flex; width: 64px; height: 64px;
