@@ -10,7 +10,7 @@ import { ProjectStore, loadProject, listProjects, deleteProject } from '../core/
 import { buildDefaultProject, modeleById, THEMES, FONTS, themeById, fontById } from '../data/modeles.js';
 import { categorieById } from '../data/categories.js';
 import { CATEGORIES_LITURGIQUES, chantById, searchChants, categorieLiturgique } from '../data/chants.js';
-import { renderPage, renderAllPages } from '../components/pageRenderer.js';
+import { renderPage, renderPageThumb, renderAllPages } from '../components/pageRenderer.js';
 import { createBook3D } from '../components/book3d.js';
 import { showToast } from '../components/toast.js';
 
@@ -128,7 +128,7 @@ function renderThumbs() {
       'aria-selected': String(i === currentPageIndex),
       'aria-label': `Aller à la page ${i + 1}`,
       onclick: () => { goToPageIndex(i); },
-    }, [renderPage(page, project(), { pageNumber: i + 1 }), el('span', { class: 'cfg-thumb-num' }, String(i + 1))]);
+    }, [renderPageThumb(page, project(), { pageNumber: i + 1 }), el('span', { class: 'cfg-thumb-num' }, String(i + 1))]);
     thumbs.append(btn);
   });
   thumbs.querySelector('.is-active')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });

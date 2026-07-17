@@ -6,7 +6,7 @@ import { listProjects, loadProject } from '../core/store.js';
 import { estimateOrder, submitOrder, downloadProjectJSON, downloadOrderJSON, devisNumber, TARIFS, CONTACT_EMAIL } from '../core/api.js';
 import { saveOrder } from '../core/firebase.js';
 import { categorieById } from '../data/categories.js';
-import { renderPage } from '../components/pageRenderer.js';
+import { renderPageThumb } from '../components/pageRenderer.js';
 import { ORNAMENTS } from '../components/ornaments.js';
 import { showToast } from '../components/toast.js';
 
@@ -41,7 +41,7 @@ if (!projet) {
   /* ---------------- Récapitulatif ---------------- */
 
   recap.append(
-    el('div', { class: 'recap-cover' }, [renderPage(projet.pages[0], projet, { pageNumber: 1 })]),
+    el('div', { class: 'recap-cover' }, [renderPageThumb(projet.pages[0], projet, { pageNumber: 1 })]),
     el('h2', {}, projet.nom),
     el('p', { class: 'recap-cat' }, [el('span', { class: 'badge' }, categorie?.nom || 'Cérémonie')]),
     el('div', { class: 'recap-specs' }, [

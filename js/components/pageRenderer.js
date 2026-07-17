@@ -208,3 +208,42 @@ export function renderAllPages(project, opts = {}) {
   return project.pages.map((page, i) =>
     renderPage(page, project, { ...opts, pageNumber: i + 1, totalPages: project.pages.length }));
 }
+
+/**
+ * Vignette d'une page : rend le livret à une largeur de RÉFÉRENCE (320 px, où
+ * les polices ont une taille normale) puis le réduit par `transform: scale()`
+ * pour remplir son conteneur. Le texte suit la mise à l'échelle SANS être
+ * bloqué par un éventuel « minimum font size » du navigateur (Safari) — ce que
+ * les unités container (cqw) ne garantissent pas sur toutes les tailles.
+ * Le conteneur définit la largeur ; la vignette s'y adapte (ResizeObserver).
+ */
+const THUMB_REF = 600;   // largeur de rendu de référence : polices assez grandes pour jamais être bloquées
+export function renderPageThumb(page, project, opts = {}) {
+  const pageNode = renderPage(page, project, opts);
+  pageNode.style.width = `${THUMB_REF}px`;
+  pageNode.style.flex = 'none';
+
+  const inner = el('div', {}, [pageNode]);
+  inner.style.cssText = 'position:absolute;top:0;left:0;transform-origin:top left;will-change:transform;';
+
+  const wrap = el('div', { class: 'lv-thumb' }, [inner]);
+  wrap.style.cssText = 'position:relative;overflow:hidden;width:100%;aspect-ratio:148 / 210;';
+
+  // getBoundingClientRect().width est fiable ici (contrairement à clientWidth,
+  // qui peut renvoyer 0 avec aspect-ratio + enfant en position absolue).
+  const apply = (w) => {
+    const width = w || wrap.getBoundingClientRect().width;
+    if (width) inner.style.transform = `scale(${width / THUMB_REF})`;
+  };
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver((entries) => apply(entries[0]?.contentRect?.width)).observe(wrap);
+  }
+  requestAnimationFrame(() => apply());
+  return wrap;
+}
+
+/** Toutes les pages en vignettes (transform-scale) — pour les bandeaux de miniatures. */
+export function renderAllThumbs(project, opts = {}) {
+  return project.pages.map((page, i) =>
+    renderPageThumb(page, project, { ...opts, pageNumber: i + 1, totalPages: project.pages.length }));
+}

@@ -4,7 +4,7 @@ import { initSite } from '../components/nav.js';
 import { el, getParam } from '../core/utils.js';
 import { CATEGORIES, categorieById } from '../data/categories.js';
 import { MODELES, buildDefaultProject, themeById, fontById } from '../data/modeles.js';
-import { renderPage } from '../components/pageRenderer.js';
+import { renderPageThumb } from '../components/pageRenderer.js';
 
 initSite({ active: 'modeles' });
 
@@ -55,7 +55,7 @@ function renderGrid() {
 
     grid.append(el('article', { class: 'card modele-card' }, [
       el('div', { class: 'modele-cover' }, [
-        el('div', {}, [renderPage(projet.pages[0], projet, { pageNumber: 1 })]),
+        el('div', {}, [renderPageThumb(projet.pages[0], projet, { pageNumber: 1 })]),
       ]),
       el('div', { class: 'card-body' }, [
         el('span', { class: 'badge' }, cat?.nom || ''),

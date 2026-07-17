@@ -4,7 +4,7 @@ import { initSite } from '../components/nav.js';
 import { el } from '../core/utils.js';
 import { CATEGORIES } from '../data/categories.js';
 import { buildDefaultProject, modeleById } from '../data/modeles.js';
-import { renderPage } from '../components/pageRenderer.js';
+import { renderPageThumb } from '../components/pageRenderer.js';
 import { ornament } from '../components/ornaments.js';
 
 initSite({ active: 'accueil' });
@@ -16,7 +16,7 @@ const heroBooks = document.getElementById('hero-books');
 
 for (const modeleId of HERO_MODELES) {
   const projet = buildDefaultProject(modeleId);
-  const cover = renderPage(projet.pages[0], projet, { pageNumber: 1 });
+  const cover = renderPageThumb(projet.pages[0], projet, { pageNumber: 1 });
   heroBooks.append(el('div', { class: 'hero-book' }, [cover]));
 }
 
@@ -45,7 +45,7 @@ for (const modeleId of EXEMPLES) {
   const cat = CATEGORIES.find((c) => c.id === modele.categorieId);
   exGrid.append(el('article', { class: 'card exemple-card' }, [
     el('div', { class: 'exemple-cover' }, [
-      el('div', {}, [renderPage(projet.pages[0], projet, { pageNumber: 1 })]),
+      el('div', {}, [renderPageThumb(projet.pages[0], projet, { pageNumber: 1 })]),
     ]),
     el('div', { class: 'card-body' }, [
       el('span', { class: 'badge' }, cat?.nom || ''),

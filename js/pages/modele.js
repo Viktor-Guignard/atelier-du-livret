@@ -4,7 +4,7 @@ import { initSite } from '../components/nav.js';
 import { el, qs, qsa, getParam } from '../core/utils.js';
 import { categorieById } from '../data/categories.js';
 import { modeleById, buildDefaultProject, themeById, fontById } from '../data/modeles.js';
-import { renderPage, renderAllPages } from '../components/pageRenderer.js';
+import { renderPageThumb, renderAllPages } from '../components/pageRenderer.js';
 import { createBook3D } from '../components/book3d.js';
 
 initSite({ active: 'modeles' });
@@ -95,7 +95,7 @@ if (!modele) {
       type: 'button',
       'aria-label': `Aller à la page ${i + 1}`,
       onclick: () => book.goToPage(i),
-    }, [renderPage(page, projet, { pageNumber: i + 1 }), el('span', { class: 'viewer-thumb-num' }, String(i + 1))]);
+    }, [renderPageThumb(page, projet, { pageNumber: i + 1 }), el('span', { class: 'viewer-thumb-num' }, String(i + 1))]);
     thumbs.append(btn);
   });
 

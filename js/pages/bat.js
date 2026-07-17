@@ -8,7 +8,7 @@
 import { qs, el, getParam, describeDevice, getApproxLocation } from '../core/utils.js';
 import { getBat, validateBat } from '../core/firebase.js';
 import { notifyBatValidated, confirmBatToClient } from '../core/api.js';
-import { renderAllPages, renderPage } from '../components/pageRenderer.js';
+import { renderAllPages, renderPageThumb } from '../components/pageRenderer.js';
 import { createBook3D } from '../components/book3d.js';
 import { categorieById } from '../data/categories.js';
 import { showToast } from '../components/toast.js';
@@ -124,7 +124,7 @@ function render(bat) {
       class: `bat-thumb${i === 0 ? ' is-active' : ''}`, type: 'button',
       'aria-label': `Aller à la page ${i + 1}`,
       onclick: () => book.goToPage(i),
-    }, [renderPage(page, projet, { pageNumber: i + 1 }), el('span', { class: 'bat-thumb-num' }, String(i + 1))]));
+    }, [renderPageThumb(page, projet, { pageNumber: i + 1 }), el('span', { class: 'bat-thumb-num' }, String(i + 1))]));
   });
 }
 
