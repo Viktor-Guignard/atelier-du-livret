@@ -108,6 +108,7 @@ export async function createBatShare(order) {
     numero: order.numero || null,
     contactPrenom: order.contact?.prenom || '',
     contactNom: order.contact?.nom || '',
+    contactEmail: order.contact?.email || '',   // pour l'accusé de validation au client
     projet,                       // instantané figé (pages, thème, police, champs)
     valide: false,
     valideLe: null,

@@ -7,7 +7,7 @@
 
 import { qs, el, getParam } from '../core/utils.js';
 import { getBat, validateBat } from '../core/firebase.js';
-import { notifyBatValidated } from '../core/api.js';
+import { notifyBatValidated, confirmBatToClient } from '../core/api.js';
 import { renderAllPages, renderPage } from '../components/pageRenderer.js';
 import { createBook3D } from '../components/book3d.js';
 import { categorieById } from '../data/categories.js';
@@ -159,10 +159,16 @@ function renderValidation(bat, zone) {
     validateBtn.textContent = 'Validation…';
     try {
       await validateBat(bat.token, nomInput.value.trim());
+      // Notifs (best-effort, sans bloquer) : l'atelier ET le client.
       notifyBatValidated({
         numero: bat.numero,
         nom: nomInput.value.trim(),
         adminUrl: new URL('admin.html', location.href).href,
+      });
+      confirmBatToClient({
+        email: bat.contactEmail,
+        prenom: bat.contactPrenom,
+        numero: bat.numero,
       });
       const fresh = { ...bat, valide: true, valideParNom: nomInput.value.trim(), valideLe: new Date() };
       renderValidation(fresh, zone);

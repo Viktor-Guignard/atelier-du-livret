@@ -274,6 +274,37 @@ export async function notifyBatValidated({ numero, nom, adminUrl }) {
 }
 
 /**
+ * Accusé de validation envoyé AU CLIENT après qu'il a validé son bon à tirer
+ * (sa preuve à lui). Best-effort ; sans e-mail connu, ne fait rien.
+ */
+export async function confirmBatToClient({ email, prenom, numero }) {
+  if (!email) return { ok: false, method: 'none' };
+  const message = [
+    `Bonjour ${(prenom || '').trim()},`.replace(' ,', ','),
+    '',
+    'Merci — vous venez de valider votre bon à tirer.',
+    numero ? `Commande : ${numero}` : null,
+    '',
+    'Votre livret part maintenant à l\'impression, exactement tel que vous l\'avez validé.',
+    'Nous revenons vers vous pour la livraison.',
+    '',
+    'À très bientôt,',
+    'L\'Atelier du Livret',
+  ].filter((l) => l !== null).join('\n');
+  try {
+    await sendEmail({
+      to_email: email,
+      reply_to: CONTACT_EMAIL,
+      subject: 'Bon à tirer validé — L\'Atelier du Livret',
+      message,
+    });
+    return { ok: true, method: 'emailjs' };
+  } catch {
+    return { ok: false, method: 'none' };
+  }
+}
+
+/**
  * Fichier de commande complet (contact + fabrication + projet) : la copie du
  * client, et le fichier que l'atelier charge dans atelier.html pour produire
  * le PDF d'impression (traits de coupe, fond perdu, sans filigrane).
