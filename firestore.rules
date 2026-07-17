@@ -51,12 +51,14 @@ service cloud.firestore {
       allow update: if request.auth != null
         || (
           request.resource.data.diff(resource.data).affectedKeys()
-            .hasOnly(['valide', 'valideLe', 'valideParNom'])
+            .hasOnly(['valide', 'valideLe', 'valideParNom', 'valideAppareil'])
           && resource.data.valide == false
           && request.resource.data.valide == true
           && request.resource.data.valideLe is timestamp
           && request.resource.data.valideParNom is string
           && request.resource.data.valideParNom.size() <= 120
+          && request.resource.data.valideAppareil is string
+          && request.resource.data.valideAppareil.size() <= 120
         );
     }
   }

@@ -195,7 +195,9 @@ async function renderBatShare(order) {
     if (bat?.valide) {
       const d = bat.valideLe?.toDate ? bat.valideLe.toDate() : (bat.valideLe ? new Date(bat.valideLe) : null);
       statusEl.className = 'admin-bat-status small is-valide';
-      statusEl.textContent = `✓ Validé par ${bat.valideParNom || 'le client'}${d ? ' le ' + d.toLocaleDateString('fr-FR') : ''} — impression possible.`;
+      statusEl.textContent = `✓ Validé par ${bat.valideParNom || 'le client'}`
+        + `${d ? ' le ' + d.toLocaleString('fr-FR') : ''}`
+        + `${bat.valideAppareil ? ' · ' + bat.valideAppareil : ''} — impression possible.`;
     } else {
       statusEl.className = 'admin-bat-status small is-attente';
       statusEl.textContent = '⏳ En attente de validation du client.';

@@ -133,10 +133,11 @@ export async function getBat(token) {
  * les règles Firestore interdisent toute autre modification et empêchent de
  * re-valider un BAT déjà validé.
  */
-export async function validateBat(token, nom) {
+export async function validateBat(token, nom, appareil) {
   await updateDoc(doc(db, 'bats', token), {
     valide: true,
     valideLe: serverTimestamp(),
     valideParNom: nom || '',
+    valideAppareil: appareil || '',   // navigateur/appareil (traçabilité de la validation)
   });
 }

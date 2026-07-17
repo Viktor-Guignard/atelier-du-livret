@@ -43,6 +43,25 @@ export function interpolate(text, fields = {}) {
 
 export const getParam = (name) => new URLSearchParams(location.search).get(name);
 
+/** Résumé lisible de l'appareil/navigateur à partir du user-agent (ex. « Safari sur iPhone »). */
+export function describeDevice(ua = navigator.userAgent) {
+  ua = String(ua);
+  const os = /iPhone/.test(ua) ? 'iPhone'
+    : /iPad/.test(ua) ? 'iPad'
+    : /Android/.test(ua) ? 'Android'
+    : /Windows/.test(ua) ? 'Windows'
+    : /Mac OS X|Macintosh/.test(ua) ? 'macOS'
+    : /Linux/.test(ua) ? 'Linux'
+    : 'appareil inconnu';
+  const nav = /Edg\//.test(ua) ? 'Edge'
+    : /OPR\/|Opera/.test(ua) ? 'Opera'
+    : /Chrome\//.test(ua) ? 'Chrome'
+    : /Firefox\//.test(ua) ? 'Firefox'
+    : /Safari\//.test(ua) ? 'Safari'
+    : 'navigateur inconnu';
+  return `${nav} sur ${os}`;
+}
+
 /** '2026-09-12' → 'samedi 12 septembre 2026' (renvoie la valeur brute si non ISO) */
 export function formatDateFr(iso) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(String(iso))) return String(iso ?? '');

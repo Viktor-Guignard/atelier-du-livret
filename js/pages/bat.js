@@ -5,7 +5,7 @@
  * La validation n'écrit que les champs de validation (voir firestore.rules).
  */
 
-import { qs, el, getParam } from '../core/utils.js';
+import { qs, el, getParam, describeDevice } from '../core/utils.js';
 import { getBat, validateBat } from '../core/firebase.js';
 import { notifyBatValidated, confirmBatToClient } from '../core/api.js';
 import { renderAllPages, renderPage } from '../components/pageRenderer.js';
@@ -158,11 +158,12 @@ function renderValidation(bat, zone) {
     validateBtn.disabled = true;
     validateBtn.textContent = 'Validation…';
     try {
-      await validateBat(bat.token, nomInput.value.trim());
+      await validateBat(bat.token, nomInput.value.trim(), describeDevice());
       // Notifs (best-effort, sans bloquer) : l'atelier ET le client.
       notifyBatValidated({
         numero: bat.numero,
         nom: nomInput.value.trim(),
+        appareil: describeDevice(),
         adminUrl: new URL('admin.html', location.href).href,
       });
       confirmBatToClient({
