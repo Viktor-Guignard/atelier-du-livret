@@ -231,14 +231,20 @@ export function renderPageThumb(page, project, opts = {}) {
 
   // getBoundingClientRect().width est fiable ici (contrairement à clientWidth,
   // qui peut renvoyer 0 avec aspect-ratio + enfant en position absolue).
+  // Déclencheurs multiples (ResizeObserver + rAF + timeouts + load) pour que le
+  // scale s'applique quel que soit le navigateur/timing — sinon la page 600px
+  // s'afficherait à taille réelle, rognée.
+  let done = false;
   const apply = (w) => {
     const width = w || wrap.getBoundingClientRect().width;
-    if (width) inner.style.transform = `scale(${width / THUMB_REF})`;
+    if (width) { inner.style.transform = `scale(${width / THUMB_REF})`; done = true; }
   };
   if (typeof ResizeObserver !== 'undefined') {
     new ResizeObserver((entries) => apply(entries[0]?.contentRect?.width)).observe(wrap);
   }
   requestAnimationFrame(() => apply());
+  [0, 120, 400].forEach((d) => setTimeout(() => { if (!done) apply(); }, d));
+  window.addEventListener('load', () => { if (!done) apply(); }, { once: true });
   return wrap;
 }
 
