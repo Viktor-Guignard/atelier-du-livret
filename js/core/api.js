@@ -249,7 +249,7 @@ export async function submitOrder(payload, { numero, adminUrl } = {}) {
  * Prévient l'atelier qu'un client vient de valider son bon à tirer en ligne.
  * Envoi silencieux (best-effort) ; n'interrompt jamais le parcours client.
  */
-export async function notifyBatValidated({ numero, nom, appareil, adminUrl }) {
+export async function notifyBatValidated({ numero, nom, appareil, lieu, adminUrl }) {
   const message = [
     RULE,
     '  BON À TIRER VALIDÉ PAR LE CLIENT',
@@ -258,6 +258,7 @@ export async function notifyBatValidated({ numero, nom, appareil, adminUrl }) {
     numero ? `Commande : ${numero}` : null,
     `Validé par : ${nom || '(nom non précisé)'}`,
     appareil ? `Appareil : ${appareil}` : null,
+    lieu ? `Lieu (approx.) : ${lieu}` : null,
     '',
     'Vous pouvez lancer l\'impression.',
     adminUrl ? `\nEspace privé → ${adminUrl}` : null,

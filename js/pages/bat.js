@@ -5,7 +5,7 @@
  * La validation n'écrit que les champs de validation (voir firestore.rules).
  */
 
-import { qs, el, getParam, describeDevice } from '../core/utils.js';
+import { qs, el, getParam, describeDevice, getApproxLocation } from '../core/utils.js';
 import { getBat, validateBat } from '../core/firebase.js';
 import { notifyBatValidated, confirmBatToClient } from '../core/api.js';
 import { renderAllPages, renderPage } from '../components/pageRenderer.js';
@@ -14,6 +14,9 @@ import { categorieById } from '../data/categories.js';
 import { showToast } from '../components/toast.js';
 
 const token = getParam('b');
+
+// Préchargé dès l'ouverture pour ne pas ralentir le clic « Je valide ».
+const locationPromise = getApproxLocation();
 
 function show(id) {
   ['bat-loading', 'bat-error', 'bat-view'].forEach((k) => { qs('#' + k).hidden = k !== id; });
@@ -158,12 +161,19 @@ function renderValidation(bat, zone) {
     validateBtn.disabled = true;
     validateBtn.textContent = 'Validation…';
     try {
-      await validateBat(bat.token, nomInput.value.trim(), describeDevice());
+      const appareil = describeDevice();
+      // Lieu préchargé ; on l'attend au plus 2,5 s de plus pour ne pas bloquer.
+      const lieu = await Promise.race([
+        locationPromise,
+        new Promise((r) => setTimeout(() => r(''), 2500)),
+      ]);
+      await validateBat(bat.token, nomInput.value.trim(), appareil, lieu);
       // Notifs (best-effort, sans bloquer) : l'atelier ET le client.
       notifyBatValidated({
         numero: bat.numero,
         nom: nomInput.value.trim(),
-        appareil: describeDevice(),
+        appareil,
+        lieu,
         adminUrl: new URL('admin.html', location.href).href,
       });
       confirmBatToClient({

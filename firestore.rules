@@ -51,7 +51,7 @@ service cloud.firestore {
       allow update: if request.auth != null
         || (
           request.resource.data.diff(resource.data).affectedKeys()
-            .hasOnly(['valide', 'valideLe', 'valideParNom', 'valideAppareil'])
+            .hasOnly(['valide', 'valideLe', 'valideParNom', 'valideAppareil', 'valideLieu'])
           && resource.data.valide == false
           && request.resource.data.valide == true
           && request.resource.data.valideLe is timestamp
@@ -59,6 +59,8 @@ service cloud.firestore {
           && request.resource.data.valideParNom.size() <= 120
           && request.resource.data.valideAppareil is string
           && request.resource.data.valideAppareil.size() <= 120
+          && request.resource.data.valideLieu is string
+          && request.resource.data.valideLieu.size() <= 120
         );
     }
   }

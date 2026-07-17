@@ -62,6 +62,24 @@ export function describeDevice(ua = navigator.userAgent) {
   return `${nav} sur ${os}`;
 }
 
+/**
+ * Lieu approximatif (ville, région, pays) déduit de l'adresse IP publique via
+ * ipwho.is — gratuit, HTTPS, sans clé, sans autorisation du navigateur.
+ * Best-effort : renvoie '' en cas d'échec/timeout (VPN, hors ligne…). La
+ * précision est indicative (niveau ville) et non garantie.
+ */
+export async function getApproxLocation() {
+  try {
+    const r = await fetch('https://ipwho.is/', { signal: AbortSignal.timeout(4000) });
+    if (!r.ok) return '';
+    const d = await r.json();
+    if (d && d.success === false) return '';
+    return [d.city, d.region, d.country].filter(Boolean).join(', ');
+  } catch {
+    return '';
+  }
+}
+
 /** '2026-09-12' → 'samedi 12 septembre 2026' (renvoie la valeur brute si non ISO) */
 export function formatDateFr(iso) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(String(iso))) return String(iso ?? '');
