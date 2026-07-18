@@ -6,13 +6,14 @@
  */
 
 import { qs, qsa, el, debounce, getParam, escapeHtml, fileToDataURL, clamp } from '../core/utils.js';
-import { ProjectStore, loadProject, listProjects, deleteProject } from '../core/store.js';
+import { ProjectStore, loadProject, saveProject, listProjects, deleteProject } from '../core/store.js';
 import { buildDefaultProject, modeleById, THEMES, FONTS, themeById, fontById } from '../data/modeles.js';
 import { categorieById } from '../data/categories.js';
 import { CATEGORIES_LITURGIQUES, chantById, searchChants, categorieLiturgique } from '../data/chants.js';
 import { renderPage, renderPageThumb, renderAllPages } from '../components/pageRenderer.js';
 import { createBook3D } from '../components/book3d.js';
 import { showToast } from '../components/toast.js';
+import { addToCart, cartItems } from '../core/cart.js';
 
 /* ================================================================
    Chargement du projet
@@ -23,6 +24,10 @@ function resolveProject() {
   if (projetId) {
     const saved = loadProject(projetId);
     if (saved) return saved;
+    // Pas en localStorage : peut-être un livret repris depuis un panier (code,
+    // autre appareil). On ré-hydrate le store depuis l'instantané du panier.
+    const fromCart = cartItems().find((it) => it.projet?.id === projetId)?.projet;
+    if (fromCart) { saveProject(fromCart); return fromCart; }
     showToast('Projet introuvable — un nouveau livret a été créé.', 'error');
   }
   const modeleId = getParam('modele');
@@ -77,6 +82,21 @@ function doSave() {
 qs('#cfg-save').addEventListener('click', () => { doSave(); showToast('Projet enregistré sur cet appareil.', 'success'); });
 qs('#cfg-commander').addEventListener('click', doSave);
 window.addEventListener('beforeunload', (e) => { if (dirty) { doSave(); } });
+
+// Ajouter au panier : enregistre le livret puis l'ajoute (upsert par id).
+const addCartBtn = qs('#cfg-add-cart');
+addCartBtn.addEventListener('click', () => {
+  doSave();
+  if (!addToCart(project())) {
+    showToast('Panier plein sur cet appareil — retirez un livret ou passez commande.', 'error');
+    return;
+  }
+  showToast('Livret ajouté au panier.', 'success');
+  const label = addCartBtn.innerHTML;
+  addCartBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> Ajouté au panier';
+  addCartBtn.disabled = true;
+  setTimeout(() => { addCartBtn.innerHTML = label; addCartBtn.disabled = false; }, 1800);
+});
 
 /* ================================================================
    Aperçu — vue édition (page courante en grand)

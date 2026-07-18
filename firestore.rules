@@ -18,20 +18,49 @@ service cloud.firestore {
     // à zéro (ce qui provoquerait des collisions de numéros de commande).
     match /counters/{year} {
       allow read: if true;
-      allow create: if request.resource.data.n == 1;
-      allow update: if request.resource.data.n == resource.data.n + 1;
+      allow create: if request.resource.data.keys().hasOnly(['n'])
+                    && request.resource.data.n == 1;
+      allow update: if request.resource.data.keys().hasOnly(['n'])
+                    && request.resource.data.n is int
+                    && request.resource.data.n == resource.data.n + 1;
     }
 
     // Commandes reçues depuis le site.
     match /commandes/{orderId} {
       // Créer une commande : ouvert à tous (c'est le geste "passer commande"),
-      // mais la forme minimale des données est vérifiée.
-      allow create: if request.resource.data.keys().hasAll(['numero', 'contact', 'commande', 'projet'])
+      // mais la forme minimale des données est vérifiée. Deux formes acceptées :
+      //  - multi-livrets : { items:[{projet,commande}, …] } (panier) ;
+      //  - mono-livret   : { projet:{pages:[…]} } (ancien flux direct).
+      allow create: if request.resource.data.keys().hasAll(['numero', 'contact'])
                     && request.resource.data.contact.email is string
-                    && request.resource.data.projet.pages is list;
+                    && (
+                         (request.resource.data.keys().hasAll(['items'])
+                           && request.resource.data.items is list
+                           && request.resource.data.items.size() > 0)
+                      || (request.resource.data.keys().hasAll(['projet'])
+                           && request.resource.data.projet.pages is list)
+                    );
 
       // Lire, modifier, supprimer : réservé à un compte authentifié (vous).
       allow read, update, delete: if request.auth != null;
+    }
+
+    // Paniers repris par code (« PAN-XXXXXX »). Le code est détenu par le client
+    // (URL-capacité, comme les BAT). Aucune donnée personnelle : uniquement des
+    // livrets. Lecture par code seulement (pas d'énumération), taille limitée.
+    match /paniers/{code} {
+      allow get: if true;
+      allow list: if false;
+      // Créer / mettre à jour : ouvert (le client détient le code), forme et
+      // volume bornés pour éviter les abus.
+      // Note : les règles Firestore ne peuvent pas mesurer la taille en octets d'un
+      // document ; la borne réelle est le plafond 1 Mo de Firestore + la garde
+      // client (saveCart, 900 Ko). On borne ici le nombre d'articles et le type.
+      allow create, update: if request.resource.data.keys().hasOnly(['items', 'majLe'])
+                            && request.resource.data.items is list
+                            && request.resource.data.items.size() <= 30
+                            && request.resource.data.majLe is timestamp;
+      allow delete: if request.auth != null;
     }
 
     // Bons à tirer partageables (BAT 3D). Le jeton {token} est long et aléatoire :

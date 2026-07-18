@@ -16,6 +16,7 @@ OUT.mkdir(exist_ok=True)
 SHARED_MODULES = [
     "js/core/utils.js",
     "js/core/store.js",
+    "js/core/cart.js",
     "js/core/api.js",
     "js/core/firebase.js",
     "js/data/categories.js",
@@ -33,6 +34,7 @@ SHARED_MODULES = [
 PAGES = [
     "index.html", "categories.html", "modeles.html",
     "modele.html", "configurateur.html", "commande.html",
+    "panier.html",
     "atelier.html", "admin.html", "bat.html", "confidentialite.html",
 ]
 

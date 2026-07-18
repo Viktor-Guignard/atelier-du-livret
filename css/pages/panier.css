@@ -1,0 +1,94 @@
+/* Page Panier */
+
+.panier-head { text-align: center; margin-bottom: var(--sp-7); }
+.panier-head h1 { margin: var(--sp-2) 0 var(--sp-3); }
+
+.panier-layout {
+  display: grid; grid-template-columns: 1fr 340px; gap: var(--sp-6); align-items: start;
+}
+.panier-count { margin-bottom: var(--sp-3); }
+.panier-grid { display: flex; flex-direction: column; gap: var(--sp-4); }
+
+/* --- Carte d'un livret --- */
+.panier-item {
+  display: flex; gap: var(--sp-4); padding: var(--sp-4);
+  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
+}
+.panier-item-cover { flex: none; width: 108px; }
+.panier-item-cover .lv-thumb {
+  border-radius: 6px; overflow: hidden; box-shadow: var(--shadow-sm);
+}
+.panier-item-body { flex: 1; min-width: 0; }
+.panier-item-head { display: flex; justify-content: space-between; gap: var(--sp-3); align-items: flex-start; }
+.panier-item-head h3 { margin: 6px 0 2px; font-size: 1.2rem; }
+.panier-item-price { font-size: 1.1rem; white-space: nowrap; color: var(--ink); }
+
+.panier-item-opts {
+  display: grid; grid-template-columns: 90px 1fr 1fr; gap: var(--sp-3); margin: var(--sp-4) 0 var(--sp-3);
+}
+.panier-item-opts label {
+  display: flex; flex-direction: column; gap: 4px;
+  font-family: var(--font-ui); font-size: .72rem; letter-spacing: .04em;
+  text-transform: uppercase; color: var(--ink-faint);
+}
+.panier-item-opts input, .panier-item-opts select {
+  width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--paper); color: var(--ink); font-size: var(--fs-sm); font-family: var(--font-ui);
+}
+.panier-item-bat { margin-bottom: var(--sp-3); font-size: var(--fs-sm); }
+.panier-item-actions { display: flex; align-items: center; gap: var(--sp-4); }
+
+/* .btn-link-danger est défini dans components.css (partagé avec la page commande). */
+
+/* --- Récapitulatif (colonne droite) --- */
+.panier-summary {
+  position: sticky; top: 92px;
+  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
+  padding: var(--sp-5);
+}
+.panier-summary h2 { font-size: 1.3rem; margin-bottom: var(--sp-4); }
+.panier-total {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding-bottom: var(--sp-3); margin-bottom: var(--sp-3); border-bottom: 1px solid var(--border-soft);
+}
+.panier-total-val { font-family: var(--font-display); font-size: 1.7rem; color: var(--gold-deep, var(--gold)); }
+.panier-vider { color: var(--ink-soft); }
+
+/* --- Code de reprise --- */
+.panier-code {
+  margin-top: var(--sp-5); padding-top: var(--sp-4); border-top: 1px solid var(--border-soft);
+}
+.panier-code-row { display: flex; gap: var(--sp-2); align-items: center; }
+.panier-code-val {
+  flex: 1; padding: 8px 12px; background: var(--paper); border: 1px dashed var(--gold);
+  border-radius: var(--radius-sm); font-family: var(--font-ui); font-weight: 600;
+  letter-spacing: .12em; color: var(--ink); text-align: center;
+}
+
+/* --- Reprendre un panier --- */
+.panier-recover {
+  text-align: center; margin-top: var(--sp-7); padding: var(--sp-6);
+  background: var(--surface-alt, rgba(0,0,0,.02)); border: 1px solid var(--border-soft); border-radius: var(--radius);
+}
+.panier-recover h3 { margin-bottom: var(--sp-2); }
+.panier-recover-row { display: flex; gap: var(--sp-2); justify-content: center; max-width: 380px; margin: 0 auto; }
+.panier-recover-row input {
+  flex: 1; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--paper); color: var(--ink); font-family: var(--font-ui);
+  letter-spacing: .1em; text-transform: uppercase;
+}
+
+/* --- État vide --- */
+.panier-vide { text-align: center; padding: var(--sp-7) var(--sp-4); }
+.panier-vide .vide-icon { display: inline-block; width: 54px; color: var(--gold); margin-bottom: var(--sp-3); }
+.panier-vide h2 { margin-bottom: var(--sp-2); }
+
+@media (max-width: 900px) {
+  .panier-layout { grid-template-columns: 1fr; }
+  .panier-summary { position: static; }
+}
+@media (max-width: 540px) {
+  .panier-item { flex-direction: column; }
+  .panier-item-cover { width: 96px; }
+  .panier-item-opts { grid-template-columns: 1fr 1fr; }
+}

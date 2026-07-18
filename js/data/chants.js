@@ -29,8 +29,9 @@ export const CHANTS = [
   /* ---------------- Chant d'entrée ---------------- */
   {
     id: 'entree-veni-creator', titre: 'Veni Creator Spiritus', categorie: 'entree',
-    origine: 'Hymne grégorienne (IXᵉ s.)', cote: null, complet: true,
-    paroles: "Veni, creator Spiritus,\nmentes tuorum visita,\nimple superna gratia,\nquae tu creasti pectora.\n\nQui diceris Paraclitus,\ndonum Dei altissimi,\nfons vivus, ignis, caritas,\net spiritalis unctio.\n\nDeo Patri sit gloria,\net Filio, qui a mortuis\nsurrexit, ac Paraclito,\nin saeculorum saecula. Amen.",
+    origine: 'Hymne grégorienne (IXᵉ s.)', cote: null, complet: false,
+    paroles: "Veni, creator Spiritus,\nmentes tuorum visita,\nimple superna gratia,\nquae tu creasti pectora.\n\nQui diceris Paraclitus,\ndonum Dei altissimi,\nfons vivus, ignis, caritas,\net spiritalis unctio.\n\n(…)\n\nDeo Patri sit gloria,\net Filio, qui a mortuis\nsurrexit, ac Paraclito,\nin saeculorum saecula. Amen.",
+    note: 'Extrait (1ʳᵉ, 2ᵉ strophes et doxologie) — insérez les 7 strophes complètes dans le configurateur.',
   },
   {
     id: 'entree-peuple-de-dieu', titre: 'Peuple de Dieu, marche joyeux', categorie: 'entree',
@@ -195,8 +196,9 @@ export const CHANTS = [
   /* ---------------- Action de grâce ---------------- */
   {
     id: 'grace-magnificat', titre: 'Magnificat (grégorien)', categorie: 'action-grace',
-    origine: 'Cantique de Marie — Lc 1', cote: null, complet: true,
-    paroles: "Magníficat ánima mea Dóminum,\net exsultávit spíritus meus\nin Deo salutári meo.\nQuia respéxit humilitátem ancíllae suae ;\necce enim ex hoc beátam me dicent\nomnes generatiónes.\nQuia fecit mihi magna qui potens est,\net sanctum nomen eius.",
+    origine: 'Cantique de Marie — Lc 1', cote: null, complet: false,
+    paroles: "Magníficat ánima mea Dóminum,\net exsultávit spíritus meus\nin Deo salutári meo.\nQuia respéxit humilitátem ancíllae suae ;\necce enim ex hoc beátam me dicent\nomnes generatiónes.\nQuia fecit mihi magna qui potens est,\net sanctum nomen eius.\n(…)",
+    note: 'Extrait (versets 1 à 4) — insérez le cantique complet (Lc 1, 46-55 + doxologie) dans le configurateur.',
   },
   {
     id: 'grace-ave-maria-lourdes', titre: 'Ave Maria de Lourdes', categorie: 'action-grace',

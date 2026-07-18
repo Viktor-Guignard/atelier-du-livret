@@ -18,6 +18,13 @@ const loginError = qs('#login-error');
 
 let orders = [];
 let activeNumero = null;
+let activeItemIndex = 0;
+
+/* Une commande = un ou plusieurs livrets. Compat mono-livret (anciennes commandes). */
+const orderItemsOf = (o) => (o.items?.length ? o.items : [{ projet: o.projet, commande: o.commande }]);
+const tokenFor = (o, i) => o.batTokens?.[i] ?? (i === 0 ? o.batToken : null);
+/* Vue « livret actif » : projet/commande/batToken du livret i — pour buildPrintKit sans le modifier. */
+const viewFor = (o, i) => { const it = orderItemsOf(o)[i] || {}; return { ...o, projet: it.projet, commande: it.commande, batToken: tokenFor(o, i) }; };
 
 /* ---------------- Connexion ---------------- */
 
@@ -81,7 +88,8 @@ function renderOrderList() {
 
   const filtered = orders.filter((o) => {
     if (!filtre) return true;
-    const hay = `${o.numero} ${o.contact?.prenom} ${o.contact?.nom} ${o.contact?.email} ${o.projet?.nom}`.toLowerCase();
+    const noms = orderItemsOf(o).map((it) => it.projet?.nom).filter(Boolean).join(' ');
+    const hay = `${o.numero} ${o.contact?.prenom} ${o.contact?.nom} ${o.contact?.email} ${noms}`.toLowerCase();
     return hay.includes(filtre);
   });
 
@@ -93,7 +101,8 @@ function renderOrderList() {
   }
 
   for (const o of filtered) {
-    const montant = o.commande?.estimation?.total;
+    const montant = o.montantTotal ?? o.commande?.estimation?.total;
+    const nbLivrets = orderItemsOf(o).length;
     const item = el('button', {
       class: `admin-order${o.numero === activeNumero ? ' is-active' : ''}`,
       type: 'button', role: 'listitem',
@@ -104,7 +113,10 @@ function renderOrderList() {
         el('span', { class: `admin-order-intent${o.intent === 'devis' ? ' is-devis' : ''}` },
           o.intent === 'devis' ? 'Devis' : 'Commande'),
       ]),
-      el('div', { class: 'admin-order-client' }, `${o.contact?.prenom || ''} ${o.contact?.nom || ''}`.trim() || '—'),
+      el('div', { class: 'admin-order-client' }, [
+        `${o.contact?.prenom || ''} ${o.contact?.nom || ''}`.trim() || '—',
+        nbLivrets > 1 ? el('span', { class: 'admin-order-nb' }, ` · ${nbLivrets} livrets`) : null,
+      ]),
       el('div', { class: 'admin-order-meta' }, [
         el('span', {}, orderDate(o)),
         el('span', { class: 'admin-order-montant' }, montant != null ? `${montant.toFixed(2).replace('.', ',')} €` : ''),
@@ -120,13 +132,40 @@ qs('#admin-search').addEventListener('input', renderOrderList);
 
 function selectOrder(numero) {
   activeNumero = numero;
+  activeItemIndex = 0;
   renderOrderList();
   const order = orders.find((o) => o.numero === numero);
   if (!order) return;
 
   qs('#detail-panel').hidden = false;
-  renderBatShare(order);
-  renderPrint(order);
+  renderItemSwitcher(order);
+  renderBatShare(order, activeItemIndex);
+  renderPrint(order, activeItemIndex);
+}
+
+/* Sélecteur de livret pour les commandes multi-livrets (chaque livret a son BAT + PDF). */
+function renderItemSwitcher(order) {
+  const zone = qs('#item-switcher');
+  zone.textContent = '';
+  const items = orderItemsOf(order);
+  if (items.length <= 1) { zone.hidden = true; return; }
+  zone.hidden = false;
+  zone.append(
+    el('p', { class: 'small muted', style: 'margin:0 0 8px' },
+      `Cette commande contient ${items.length} livrets — préparez le BAT et le PDF de chacun :`),
+    el('div', { class: 'admin-items-chips' }, items.map((it, i) => {
+      const done = tokenFor(order, i) ? ' · BAT créé' : '';
+      return el('button', {
+        class: `chip${i === activeItemIndex ? ' is-active' : ''}`, type: 'button',
+        onclick: () => {
+          activeItemIndex = i;
+          renderItemSwitcher(order);
+          renderBatShare(order, i);
+          renderPrint(order, i);
+        },
+      }, `${i + 1}. ${it.projet?.nom || 'Livret'}${done}`);
+    })),
+  );
 }
 
 /* ---------------- BAT 3D partageable ---------------- */
@@ -135,20 +174,27 @@ function batLink(token) {
   return new URL(`bat.html?b=${token}`, location.href).href;
 }
 
-async function renderBatShare(order) {
+async function renderBatShare(order, itemIndex = 0) {
   const zone = qs('#bat-share');
   zone.textContent = '';
-  zone.append(el('h3', { class: 'admin-bat-title' }, 'Bon à tirer 3D à envoyer au client'));
+  const livret = orderItemsOf(order)[itemIndex]?.projet;
+  const multi = orderItemsOf(order).length > 1;
+  zone.append(el('h3', { class: 'admin-bat-title' },
+    multi ? `Bon à tirer 3D — ${livret?.nom || 'livret ' + (itemIndex + 1)}` : 'Bon à tirer 3D à envoyer au client'));
 
-  if (!order.batToken) {
+  const token = tokenFor(order, itemIndex);
+  if (!token) {
     const btn = el('button', { class: 'btn btn-gold btn-sm', type: 'button' }, 'Créer le lien du BAT 3D');
     btn.addEventListener('click', async () => {
       btn.disabled = true; btn.textContent = 'Création…';
       try {
-        const token = await createBatShare(order);
-        order.batToken = token;                    // maj locale immédiate
+        const tok = await createBatShare(order, itemIndex);
+        order.batTokens = order.batTokens || {};
+        order.batTokens[itemIndex] = tok;          // maj locale immédiate
+        if (itemIndex === 0) order.batToken = tok;
         showToast('Lien du BAT créé.', 'success');
-        renderBatShare(order);
+        renderItemSwitcher(order);
+        renderBatShare(order, itemIndex);
       } catch (err) {
         console.error(err);
         btn.disabled = false; btn.textContent = 'Créer le lien du BAT 3D';
@@ -159,13 +205,13 @@ async function renderBatShare(order) {
     });
     zone.append(
       el('p', { class: 'small muted', style: 'margin:0 0 12px' },
-        'Génère un lien privé où le client feuillette son livret en 3D et clique « Je valide ». Vous êtes prévenu dès validation.'),
+        'Génère un lien privé où le client feuillette ce livret en 3D et clique « Je valide ». Vous êtes prévenu dès validation.'),
       btn,
     );
     return;
   }
 
-  const link = batLink(order.batToken);
+  const link = batLink(token);
   const linkRow = el('div', { class: 'admin-bat-linkrow' }, [
     el('input', { type: 'text', readonly: '', value: link, 'aria-label': 'Lien du BAT', onclick: (e) => e.target.select() }),
     el('button', {
@@ -191,7 +237,7 @@ async function renderBatShare(order) {
   );
 
   try {
-    const bat = await getBat(order.batToken);
+    const bat = await getBat(token);
     if (bat?.valide) {
       const d = bat.valideLe?.toDate ? bat.valideLe.toDate() : (bat.valideLe ? new Date(bat.valideLe) : null);
       statusEl.className = 'admin-bat-status small is-valide';
@@ -208,10 +254,10 @@ async function renderBatShare(order) {
   }
 }
 
-function renderPrint(order) {
+function renderPrint(order, itemIndex = 0) {
   const isBat = qs('#mode-bat').checked;
 
-  const { ficheNode, sheetsNode } = buildPrintKit(order, { mode: isBat ? 'bat' : 'production' });
+  const { ficheNode, sheetsNode } = buildPrintKit(viewFor(order, itemIndex), { mode: isBat ? 'bat' : 'production' });
 
   const fiche = qs('#fiche');
   fiche.hidden = false;
@@ -228,7 +274,7 @@ function renderPrint(order) {
 
 qs('#mode-bat').addEventListener('change', () => {
   const order = orders.find((o) => o.numero === activeNumero);
-  if (order) renderPrint(order);
+  if (order) renderPrint(order, activeItemIndex);
 });
 qs('#btn-print').addEventListener('click', () => {
   if (!activeNumero) { showToast('Choisissez une commande à imprimer.', 'error'); return; }
@@ -244,7 +290,9 @@ downloadBtn.addEventListener('click', async () => {
   if (!activeNumero) { showToast('Choisissez une commande à télécharger.', 'error'); return; }
   const isBat = qs('#mode-bat').checked;
   const suffix = isBat ? 'BAT' : 'impression';
-  const filename = `${activeNumero}-${suffix}.pdf`;
+  const ord = orders.find((o) => o.numero === activeNumero);
+  const multi = ord && orderItemsOf(ord).length > 1;
+  const filename = `${activeNumero}${multi ? '-livret' + (activeItemIndex + 1) : ''}-${suffix}.pdf`;
 
   downloadBtn.disabled = true;
   const label = downloadBtn.textContent;

@@ -29,12 +29,51 @@
   letter-spacing: .18em; text-transform: uppercase; color: var(--ink-faint);
 }
 
+.site-header-right { display: flex; align-items: center; gap: var(--sp-4); }
 .site-nav { display: flex; align-items: center; gap: var(--sp-5); }
-.site-nav a {
+
+/* --- Panier (icône + pastille) --- */
+.cart-link {
+  position: relative; flex: none;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; border-radius: var(--radius-sm);
+  color: var(--ink-soft);
+}
+.cart-link:hover, .cart-link.is-active { color: var(--ink); }
+.cart-icon { display: inline-flex; }
+.cart-badge {
+  position: absolute; top: 5px; right: 3px;
+  min-width: 18px; height: 18px; padding: 0 4px;
+  display: none; align-items: center; justify-content: center;
+  background: var(--gold); color: #FFF;
+  font-family: var(--font-ui); font-size: 11px; font-weight: 600; line-height: 1;
+  border-radius: 999px; box-shadow: 0 0 0 2px rgba(250, 247, 241, .92);
+}
+.cart-link.has-items .cart-badge { display: inline-flex; }
+
+/* Ligne case à cocher + libellé (partagée : commande, panier, BAT, admin). */
+.checkbox-row {
+  display: flex; align-items: flex-start; gap: var(--sp-3);
+  font-size: var(--fs-sm); color: var(--ink-soft);
+  margin-bottom: var(--sp-4); cursor: pointer;
+}
+.checkbox-row input {
+  width: 20px; height: 20px; min-height: 0; margin-top: 2px;
+  accent-color: var(--gold); cursor: pointer; flex: none;
+}
+
+/* Bouton-lien discret d'action destructive (retirer du panier…) */
+.btn-link-danger {
+  background: none; border: none; padding: 0; cursor: pointer;
+  color: var(--danger, #B23B3B); font-family: var(--font-ui); font-size: var(--fs-sm);
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.btn-link-danger:hover { opacity: .78; }
+.site-nav a:not(.btn) {
   color: var(--ink-soft); font-size: var(--fs-sm); font-weight: 500;
   padding: var(--sp-2) 2px; position: relative;
 }
-.site-nav a:hover { color: var(--ink); }
+.site-nav a:not(.btn):hover { color: var(--ink); }
 .site-nav a.is-active { color: var(--ink); }
 .site-nav a.is-active::after {
   content: ""; position: absolute; left: 0; right: 0; bottom: -4px;

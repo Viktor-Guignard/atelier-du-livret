@@ -532,3 +532,14 @@
   .cfg-preview-toolbar { padding: var(--sp-2) var(--sp-3); }
   .cfg-page-nav { display: none; }
 }
+
+/* --- Barre supérieure : éviter le débordement horizontal sur mobile --- */
+@media (max-width: 720px) {
+  .cfg-topbar { flex-wrap: wrap; row-gap: var(--sp-2); }
+  .cfg-actions { flex-wrap: wrap; justify-content: flex-end; }
+}
+@media (max-width: 480px) {
+  /* Boutons à icône : masquer le libellé (font-size:0), garder l'icône (SVG à
+     dimensions fixes) — la barre reste sur une ligne, « Commander » lisible. */
+  #cfg-save, #cfg-add-cart { font-size: 0; gap: 0; padding-inline: 12px; }
+}

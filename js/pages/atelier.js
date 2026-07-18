@@ -13,12 +13,18 @@
  * le moteur de rendu, partagé avec admin.html.
  */
 
-import { qs } from '../core/utils.js';
+import { qs, el } from '../core/utils.js';
 import { buildPrintKit } from '../components/printKit.js';
 import { exportSheetsToPDF } from '../components/pdfExport.js';
 import { showToast } from '../components/toast.js';
 
-let commande = null;   // { intent, contact, commande, message, projet } | { projet } seul
+let commande = null;   // v2 { items:[{projet,commande}], … } | v1 { projet,… } | { projet } seul
+let activeItemIndex = 0;
+
+/* Un fichier de commande = un ou plusieurs livrets. Compat mono-livret. */
+const atelierItems = (c) => (c?.items?.length ? c.items : (c?.projet ? [{ projet: c.projet, commande: c.commande }] : []));
+/* Vue « livret actif » : projet/commande du livret i, pour buildPrintKit sans le modifier. */
+const viewFor = (c, i) => { const it = atelierItems(c)[i] || {}; return { ...c, projet: it.projet, commande: it.commande }; };
 
 /* ---------------- Chargement du fichier ---------------- */
 
@@ -36,13 +42,14 @@ function parsePayload(text) {
   try { data = JSON.parse(text); }
   catch { return fail('Ce fichier n\'est pas un JSON valide.'); }
 
-  if (data?.type === 'commande-atelier-livret' && data.projet?.pages) {
-    commande = data;
+  if (data?.type === 'commande-atelier-livret' && (Array.isArray(data.items) ? data.items.length : data.projet?.pages)) {
+    commande = data;                                 // v2 (items[]) ou v1 (projet racine)
   } else if (data?.pages && data?.fields) {
     commande = { projet: data };                     // projet seul (sans bon de commande)
   } else {
     return fail('Format inattendu — chargez un fichier « commande-….json » ou « livret-….json » du site.');
   }
+  activeItemIndex = 0;
   loadError.hidden = true;
   render();
 }
@@ -63,10 +70,29 @@ qs('#paste-load').addEventListener('click', () => parsePayload(qs('#paste-input'
 
 /* ---------------- Rendu ---------------- */
 
+/* Sélecteur de livret (commandes multi-livrets) inséré avant la fiche. */
+function renderItemSwitcher(items) {
+  let zone = qs('#atelier-items');
+  if (!zone) { zone = el('div', { id: 'atelier-items', style: 'margin:0 0 var(--sp-4)' }); qs('#fiche').before(zone); }
+  zone.textContent = '';
+  if (items.length <= 1) { zone.hidden = true; return; }
+  zone.hidden = false;
+  zone.append(
+    el('p', { class: 'small muted', style: 'margin:0 0 8px' }, `${items.length} livrets — préparez chacun :`),
+    el('div', { style: 'display:flex;flex-wrap:wrap;gap:8px' }, items.map((it, i) =>
+      el('button', {
+        class: `chip${i === activeItemIndex ? ' is-active' : ''}`, type: 'button',
+        onclick: () => { activeItemIndex = i; render(); },
+      }, `${i + 1}. ${it.projet?.nom || 'Livret'}`))),
+  );
+}
+
 function render() {
   const isBat = qs('#mode-bat').checked;
+  const items = atelierItems(commande);
+  renderItemSwitcher(items);
 
-  const { ficheNode, sheetsNode } = buildPrintKit(commande, { mode: isBat ? 'bat' : 'production' });
+  const { ficheNode, sheetsNode } = buildPrintKit(viewFor(commande, activeItemIndex), { mode: isBat ? 'bat' : 'production' });
 
   const fiche = qs('#fiche');
   fiche.hidden = false;
@@ -94,8 +120,11 @@ const progress = qs('#pdf-progress');
 downloadBtn.addEventListener('click', async () => {
   if (!commande) return;
   const isBat = qs('#mode-bat').checked;
-  const base = (commande.numero || commande.projet.nom || 'livret').toLowerCase().replace(/[^a-z0-9]+/gi, '-');
-  const filename = `${base}-${isBat ? 'BAT' : 'impression'}.pdf`;
+  const items = atelierItems(commande);
+  const nom = items[activeItemIndex]?.projet?.nom;
+  const base = (commande.numero || nom || 'livret').toLowerCase().replace(/[^a-z0-9]+/gi, '-');
+  const suffixLivret = items.length > 1 ? `-livret${activeItemIndex + 1}` : '';
+  const filename = `${base}${suffixLivret}-${isBat ? 'BAT' : 'impression'}.pdf`;
 
   downloadBtn.disabled = true;
   const label = downloadBtn.textContent;

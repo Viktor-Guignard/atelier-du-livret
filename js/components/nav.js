@@ -2,6 +2,7 @@
 
 import { el, qs } from '../core/utils.js';
 import { CATEGORIES } from '../data/categories.js';
+import { itemCount, onCartChange } from '../core/cart.js';
 
 const BRAND_MARK =
   '<svg width="34" height="34" viewBox="0 0 48 48" fill="none" stroke="currentColor" ' +
@@ -9,12 +10,36 @@ const BRAND_MARK =
   '<path d="M24 13c-4-3-10-3.5-15-2v26c5-1.5 11-1 15 2 4-3 10-3.5 15-2V11c-5-1.5-11-1-15 2Z"/>' +
   '<path d="M24 13v26M24 5v4M21 7h6"/></svg>';
 
+const CART_ICON =
+  '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+  'stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+  '<path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>';
+
 const NAV_LINKS = [
   { href: 'index.html', label: 'Accueil', id: 'accueil' },
   { href: 'categories.html', label: 'Cérémonies', id: 'categories' },
   { href: 'modeles.html', label: 'Modèles', id: 'modeles' },
   { href: 'index.html#fonctionnement', label: 'Comment ça marche', id: 'fonctionnement' },
 ];
+
+/** Lien « Panier » avec pastille de compteur, réactif aux changements du panier. */
+function cartLink(active) {
+  const label = (n) => `Panier — ${n} livret${n > 1 ? 's' : ''}`;
+  const n0 = itemCount();
+  const badge = el('span', { class: 'cart-badge', 'aria-hidden': 'true' }, String(n0));
+  const link = el('a', {
+    class: 'cart-link' + (active === 'panier' ? ' is-active' : '') + (n0 ? ' has-items' : ''),
+    href: 'panier.html', 'aria-label': label(n0),
+  }, [el('span', { class: 'cart-icon', html: CART_ICON }), badge]);
+
+  onCartChange((cart) => {
+    const n = cart.items.length;
+    badge.textContent = String(n);
+    link.classList.toggle('has-items', n > 0);
+    link.setAttribute('aria-label', label(n));
+  });
+  return link;
+}
 
 export function initSite({ active = '' } = {}) {
   /* ---------------- Header ---------------- */
@@ -27,22 +52,25 @@ export function initSite({ active = '' } = {}) {
           el('span', { class: 'brand-tagline' }, 'Personnalisés · imprimés en France'),
         ]),
       ]),
-      el('nav', { class: 'site-nav', id: 'site-nav', 'aria-label': 'Navigation principale' }, [
-        ...NAV_LINKS.map((link) =>
-          el('a', { href: link.href, class: active === link.id ? 'is-active' : null }, link.label)),
-        el('a', { class: 'btn btn-gold btn-sm', href: 'categories.html' }, 'Créer mon livret'),
+      el('div', { class: 'site-header-right' }, [
+        el('nav', { class: 'site-nav', id: 'site-nav', 'aria-label': 'Navigation principale' }, [
+          ...NAV_LINKS.map((link) =>
+            el('a', { href: link.href, class: active === link.id ? 'is-active' : null }, link.label)),
+          el('a', { class: 'btn btn-gold btn-sm', href: 'categories.html' }, 'Créer mon livret'),
+        ]),
+        cartLink(active),
+        el('button', {
+          class: 'nav-toggle', 'aria-expanded': 'false', 'aria-controls': 'site-nav',
+          'aria-label': 'Ouvrir le menu',
+          html: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
+          onclick: (e) => {
+            const nav = qs('#site-nav');
+            const open = nav.classList.toggle('is-open');
+            e.currentTarget.setAttribute('aria-expanded', String(open));
+            e.currentTarget.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu');
+          },
+        }),
       ]),
-      el('button', {
-        class: 'nav-toggle', 'aria-expanded': 'false', 'aria-controls': 'site-nav',
-        'aria-label': 'Ouvrir le menu',
-        html: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
-        onclick: (e) => {
-          const nav = qs('#site-nav');
-          const open = nav.classList.toggle('is-open');
-          e.currentTarget.setAttribute('aria-expanded', String(open));
-          e.currentTarget.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu');
-        },
-      }),
     ]),
   ]);
 

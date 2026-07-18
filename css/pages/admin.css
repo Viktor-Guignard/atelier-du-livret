@@ -101,7 +101,7 @@
   background: var(--gold-soft);
   color: var(--gold-deep);
 }
-.admin-order-intent.is-devis { background: var(--muted); color: var(--ink-soft); }
+.admin-order-intent.is-devis { background: var(--paper-soft); color: var(--ink-soft); }
 
 .admin-order-client { font-weight: 600; font-size: var(--fs-sm); color: var(--ink); }
 .admin-order-meta {
@@ -171,3 +171,9 @@
 @media print {
   #login-view, .admin-layout, .admin-orders { display: none !important; }
 }
+
+/* --- Sélecteur de livret (commandes multi-livrets) --- */
+.admin-items { margin-bottom: var(--sp-4); }
+.admin-items[hidden] { display: none; }
+.admin-items-chips { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.admin-order-nb { color: var(--ink-faint); font-weight: 400; }

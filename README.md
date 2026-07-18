@@ -45,7 +45,7 @@ js/
   core/api.js         Adaptateur commande (mailto + export JSON aujourd'hui ; backend demain)
   data/categories.js  CATEGORIES (8 cérémonies)
   data/chants.js      CATEGORIES_LITURGIQUES (11) + CHANTS (bibliothèque) + recherche
-  data/modeles.js     THEMES (palettes), FONTS (polices autorisées), MODELES (24), buildDefaultProject()
+  data/modeles.js     THEMES (palettes), FONTS (polices autorisées), MODELES (25), buildDefaultProject()
   components/ornaments.js  SVG line-art (croix, colombe, rameau, anneaux, coquille, lys…)
   components/pageRenderer.js  renderPage(page, project) → élément .lv-page (aspect A5)
   components/book3d.js     createBook3D(container, pagesProvider, opts) → API feuilletage/rotation/zoom/modes
@@ -99,10 +99,10 @@ remerciement { texte }
 
 ## Commandes réelles & flux BAT
 
-1. **Activer l'envoi réel** : créez un formulaire gratuit sur [formspree.io](https://formspree.io)
-   avec votre adresse de réception, activez son option *auto-response* (c'est l'accusé de
-   réception envoyé au client), puis collez l'URL du formulaire dans `ORDER_ENDPOINT`
-   (`js/core/api.js`). Sans endpoint, le site se replie sur un e-mail pré-rempli (démo).
+1. **Envoi réel** : les e-mails partent via **EmailJS** (client-side, gratuit ~200/mois).
+   Le service, le template et la clé publique sont configurés dans `EMAILJS` (`js/core/api.js`) ;
+   à chaque commande, deux e-mails partent — la notification à l'atelier et l'accusé de réception
+   au client. Si EmailJS échoue, le site se replie sur un e-mail pré-rempli (`mailto`).
 2. **Réception** : chaque commande vous arrive par e-mail avec le récapitulatif et le
    projet complet en JSON ; le client télécharge aussi sa copie `commande-….json`
    et reçoit l'accusé de réception automatique.

@@ -251,7 +251,7 @@ const PAGE_BUILDERS = {
   'mariage': () => [
     [cover('Célébration du mariage', '{{prenom}} & {{prenom2}}')],
     [heading('Accueil'),
-     txt("{{prenom}} et {{prenom2}} sont heureux de vous accueillir\nen l'église {{lieu}}, à {{ville}},\npour célébrer leur mariage devant Dieu."),
+     txt("{{prenom}} et {{prenom2}} sont heureux de vous accueillir\npour célébrer leur mariage devant Dieu.\n\n{{lieu}} — {{ville}}"),
      chant('entree', 'entree-peuple-de-dieu'),
      chant('gloria', 'gloria-lourdes')],
     [heading('Liturgie de la Parole'),

@@ -111,9 +111,25 @@ export function devisNumber() {
 
 const RULE = '─'.repeat(38);
 
+/* --- Helpers multi-livrets (une commande = un panier de livrets) --- */
+
+/** Liste des livrets de la commande (compat mono-livret des anciennes commandes). */
+function orderItems(payload) {
+  if (Array.isArray(payload.items) && payload.items.length) return payload.items;
+  if (payload.projet) return [{ projet: payload.projet, commande: payload.commande || {} }];
+  return [];
+}
+/** Montant total TTC de la commande. */
+function orderTotal(payload) {
+  if (typeof payload.montantTotal === 'number') return payload.montantTotal;
+  return Math.round(orderItems(payload).reduce((s, it) => s + (it.commande?.estimation?.total || 0), 0) * 100) / 100;
+}
+const papierNom = (id) => TARIFS.papiers[id]?.nom || id;
+
 /** Récapitulatif COURT, à votre usage (voie normale) : la commande est déjà en base. */
 function orderBodyShort(payload, numero, adminUrl) {
-  const { projet, contact, commande } = payload;
+  const { contact } = payload;
+  const items = orderItems(payload);
   const lignes = [
     RULE,
     `  ${payload.intent === 'devis' ? 'NOUVELLE DEMANDE DE DEVIS' : 'NOUVELLE COMMANDE'}`,
@@ -123,24 +139,24 @@ function orderBodyShort(payload, numero, adminUrl) {
     `Client          ${contact.prenom} ${contact.nom}`,
     `Contact         ${contact.email}${contact.telephone ? ' · ' + contact.telephone : ''}`,
     '',
-    'PROJET',
-    `  ${projet.nom}`,
-    `  ${projet.pages.length} pages`,
-    '',
-    'IMPRESSION',
-    `  Quantité       ${commande.quantite} exemplaires`,
-    `  Format         ${(commande.format || 'a5').toUpperCase()} · ${TARIFS.papiers[commande.papier]?.nom || commande.papier}`,
-    `  Montant TTC    ${commande.estimation.total.toFixed(2)} €`,
-    commande.bat ? '  BAT numérique demandé avant impression' : null,
-    '',
-    adminUrl ? `${RULE}\nDossier complet & PDF d'impression → ${adminUrl}` : null,
-  ].filter((l) => l !== null);
-  return lignes.join('\n');
+    `${items.length} livret${items.length > 1 ? 's' : ''} commandé${items.length > 1 ? 's' : ''} :`,
+  ];
+  items.forEach((it, i) => {
+    const c = it.commande || {};
+    lignes.push(
+      `  ${i + 1}. ${it.projet?.nom || 'Livret'} — ${it.projet?.pages?.length || '?'} pages`,
+      `      ${c.quantite} ex. · ${(c.format || 'a5').toUpperCase()} · ${papierNom(c.papier)}${c.bat ? ' · BAT' : ''} · ${(c.estimation?.total ?? 0).toFixed(2)} € TTC`,
+    );
+  });
+  lignes.push('', `MONTANT TOTAL TTC   ${orderTotal(payload).toFixed(2)} €`, '');
+  if (adminUrl) lignes.push(`${RULE}\nDossier complet & BAT/PDF par livret → ${adminUrl}`);
+  return lignes.filter((l) => l !== null).join('\n');
 }
 
 /** Message chaleureux destiné au CLIENT — à coller dans Formspree (Autoresponse) via {{message_client}}. */
 function clientMessage(payload, numero) {
-  const { projet, contact, commande } = payload;
+  const { contact } = payload;
+  const items = orderItems(payload);
   const lignes = [
     `Bonjour ${contact.prenom},`,
     '',
@@ -149,26 +165,32 @@ function clientMessage(payload, numero) {
       : 'Nous avons bien reçu votre commande — merci de votre confiance.',
     '',
     RULE,
-    `  Votre livret          ${projet.nom}`,
-    numero ? `  Numéro de suivi       ${numero}` : null,
-    `  Quantité              ${commande.quantite} exemplaires`,
-    `  Montant TTC           ${commande.estimation.total.toFixed(2)} €`,
+    numero ? `  Numéro de suivi   ${numero}` : null,
+    `  ${items.length} livret${items.length > 1 ? 's' : ''} :`,
+  ];
+  items.forEach((it) => {
+    const c = it.commande || {};
+    lignes.push(`   • ${it.projet?.nom || 'Livret'} — ${c.quantite} ex. (${(c.estimation?.total ?? 0).toFixed(2)} €)`);
+  });
+  lignes.push(
+    `  Montant total TTC ${orderTotal(payload).toFixed(2)} €`,
     RULE,
     '',
-    commande.bat
-      ? 'Un bon à tirer (BAT) numérique vous sera envoyé avant toute impression : rien ne part sans votre validation.'
+    items.some((it) => it.commande?.bat)
+      ? 'Un bon à tirer (BAT) numérique vous sera envoyé pour chaque livret avant toute impression : rien ne part sans votre validation.'
       : null,
     'Nous revenons vers vous sous 24 h ouvrées.',
     '',
     'À très bientôt,',
     'Livrets de messe · créé par VIKTO LABS · imaginé et imprimé par Imprigraphic',
-  ].filter((l) => l !== null);
-  return lignes.join('\n');
+  );
+  return lignes.filter((l) => l !== null).join('\n');
 }
 
 /** Récapitulatif COMPLET, à votre usage (voie de secours, si l'enregistrement en base a échoué). */
 function orderBodyFull(payload) {
-  const { projet, contact, commande, message } = payload;
+  const { contact, message } = payload;
+  const items = orderItems(payload);
   const lignes = [
     RULE,
     `  ${payload.intent === 'devis' ? 'DEMANDE DE DEVIS' : 'DEMANDE DE COMMANDE'}`,
@@ -176,32 +198,43 @@ function orderBodyFull(payload) {
     '',
     '⚠ L\'enregistrement dans l\'espace privé a échoué : ce message contient donc le dossier complet en secours.',
     '',
-    `Projet : ${projet.nom} (réf. ${projet.id})`,
-    `Modèle : ${projet.modeleId} — cérémonie : ${projet.categorieId}`,
-    `Pages : ${projet.pages.length}`,
-    projet.fields?.date ? `Date de la cérémonie : ${formatDateFr(projet.fields.date)}` : null,
-    projet.fields?.lieu ? `Lieu : ${projet.fields.lieu}${projet.fields.ville ? ', ' + projet.fields.ville : ''}` : null,
-    '',
-    commande.devisNumero ? `Devis en ligne : ${commande.devisNumero}` : null,
-    `Quantité : ${commande.quantite} exemplaires`,
-    `Format : ${commande.format.toUpperCase()} — papier : ${TARIFS.papiers[commande.papier]?.nom || commande.papier}`,
-    commande.options?.length ? `Finitions : ${commande.options.map((o) => TARIFS.options[o]?.nom || o).join(', ')}` : null,
-    `Montant du devis : ${commande.estimation.total.toFixed(2)} € TTC (${commande.estimation.unitaire.toFixed(2)} €/ex.)`,
-    `BAT numérique avant impression : ${commande.bat ? 'oui' : 'non'}`,
-    '',
     `Contact : ${contact.prenom} ${contact.nom}`,
     `E-mail : ${contact.email}`,
     contact.telephone ? `Téléphone : ${contact.telephone}` : null,
     '',
+    `${items.length} livret${items.length > 1 ? 's' : ''} :`,
+  ];
+  items.forEach((it, i) => {
+    const p = it.projet || {};
+    const c = it.commande || {};
+    lignes.push(
+      '',
+      `— Livret ${i + 1} —`,
+      `Projet : ${p.nom} (réf. ${p.id})`,
+      `Modèle : ${p.modeleId} — cérémonie : ${p.categorieId} — ${p.pages?.length || '?'} pages`,
+      p.fields?.date ? `Date : ${formatDateFr(p.fields.date)}` : null,
+      p.fields?.lieu ? `Lieu : ${p.fields.lieu}${p.fields.ville ? ', ' + p.fields.ville : ''}` : null,
+      `Quantité : ${c.quantite} ex. · Format ${(c.format || 'a5').toUpperCase()} · ${papierNom(c.papier)}`,
+      `BAT avant impression : ${c.bat ? 'oui' : 'non'}`,
+      `Montant : ${(c.estimation?.total ?? 0).toFixed(2)} € TTC`,
+    );
+  });
+  lignes.push(
+    '',
+    RULE,
+    `MONTANT TOTAL TTC : ${orderTotal(payload).toFixed(2)} €`,
+    payload.devisNumero ? `Devis en ligne : ${payload.devisNumero}` : null,
+    RULE,
+    '',
     message ? `Informations complémentaires :\n${message}` : null,
     '',
-    '— Le projet complet (JSON) figure plus bas dans ce message : copiez-le dans atelier.html pour préparer l\'impression. —',
-  ].filter((l) => l !== null);
-  return lignes.join('\n');
+    '— Le dossier complet (JSON) vient d\'être téléchargé sur votre appareil : copiez son contenu dans atelier.html pour préparer l\'impression. —',
+  );
+  return lignes.filter((l) => l !== null).join('\n');
 }
 
 function orderFileName(projet) {
-  return `commande-${(projet.nom || 'livret').toLowerCase().replace(/[^a-z0-9]+/gi, '-')}.json`;
+  return `commande-${((projet?.nom) || 'livret').toLowerCase().replace(/[^a-z0-9]+/gi, '-')}.json`;
 }
 
 /**
@@ -215,34 +248,42 @@ function orderFileName(projet) {
  */
 export async function submitOrder(payload, { numero, adminUrl } = {}) {
   const type = payload.intent === 'devis' ? 'Demande de devis' : 'Demande de commande';
-  const subjectAtelier = numero
-    ? `${type} ${numero} — ${payload.projet.nom} (${payload.commande.quantite} ex.)`
-    : `${type} — ${payload.projet.nom} (${payload.commande.quantite} ex.)`;
+  const nb = orderItems(payload).length;
+  const resume = `${nb} livret${nb > 1 ? 's' : ''} · ${orderTotal(payload).toFixed(2)} €`;
+  const subjectAtelier = numero ? `${type} ${numero} — ${resume}` : `${type} — ${resume}`;
   const messageAtelier = numero ? orderBodyShort(payload, numero, adminUrl) : orderBodyFull(payload);
 
+  // 1. Notification à l'ATELIER — c'est l'envoi CRITIQUE. Si LUI échoue, on
+  //    bascule sur un e-mail pré-rempli (mailto) pour ne jamais perdre la demande.
   try {
-    // 1. Notification à l'atelier (réponse → e-mail du client).
     await sendEmail({
       to_email: CONTACT_EMAIL,
       reply_to: payload.contact.email,
       subject: subjectAtelier,
       message: messageAtelier,
     });
-    // 2. Accusé de réception au client (réponse → atelier).
+  } catch (err) {
+    console.error('Envoi EmailJS (atelier) impossible, repli mailto :', err);
+    const mailto = `mailto:${CONTACT_EMAIL}`
+      + `?subject=${encodeURIComponent(subjectAtelier)}`
+      + `&body=${encodeURIComponent(messageAtelier)}`;
+    return { ok: true, method: 'mailto', mailto };
+  }
+
+  // 2. Accusé de réception au CLIENT — best-effort : un échec ici (quota,
+  //    adresse rejetée par le service) ne doit PAS rejouer tout le flux : la
+  //    commande est déjà transmise à l'atelier (et enregistrée en base).
+  try {
     await sendEmail({
       to_email: payload.contact.email,
       reply_to: CONTACT_EMAIL,
       subject: `${payload.intent === 'devis' ? 'Votre demande de devis' : 'Votre commande'} — Livrets de messe`,
       message: clientMessage(payload, numero),
     });
-    return { ok: true, method: 'emailjs' };
   } catch (err) {
-    console.error('Envoi EmailJS impossible, repli mailto :', err);
-    const mailto = `mailto:${CONTACT_EMAIL}`
-      + `?subject=${encodeURIComponent(subjectAtelier)}`
-      + `&body=${encodeURIComponent(messageAtelier)}`;
-    return { ok: true, method: 'mailto', mailto };
+    console.warn('Accusé de réception client non envoyé (best-effort) :', err);
   }
+  return { ok: true, method: 'emailjs' };
 }
 
 /**
@@ -312,21 +353,23 @@ export async function confirmBatToClient({ email, prenom, numero }) {
  * le PDF d'impression (traits de coupe, fond perdu, sans filigrane).
  */
 export function downloadOrderJSON(payload) {
+  const items = orderItems(payload);
   const data = {
     type: 'commande-atelier-livret',
-    version: 1,
+    version: 2,
     creeLe: new Date().toISOString(),
     intent: payload.intent,
     contact: payload.contact,
-    commande: payload.commande,
+    devisNumero: payload.devisNumero || null,
+    montantTotal: orderTotal(payload),
     message: payload.message,
-    projet: payload.projet,
+    items,
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = orderFileName(payload.projet);
+  a.download = orderFileName(items[0]?.projet);
   document.body.append(a);
   a.click();
   a.remove();

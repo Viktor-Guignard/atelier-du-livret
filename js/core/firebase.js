@@ -16,7 +16,7 @@ import {
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {
   getFirestore, doc, runTransaction, getDoc, getDocs, setDoc, updateDoc,
-  collection, query, orderBy, serverTimestamp,
+  collection, query, where, limit, orderBy, serverTimestamp,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 const firebaseConfig = {
@@ -46,8 +46,17 @@ export const onAuthChange = (callback) => onAuthStateChanged(auth, callback);
  * en même temps ne peuvent jamais recevoir le même numéro.
  */
 export async function saveOrder(orderData) {
+  // Garde de taille : Firestore limite un document à 1 Mo. Une commande multi-
+  // livrets avec photos peut le dépasser → on prévient clairement (l'appelant
+  // bascule alors sur un e-mail de secours) plutôt que d'échouer en silence.
+  if (JSON.stringify(orderData).length > 900_000) throw new Error('COMMANDE_TROP_LOURDE');
+
   const year = new Date().getFullYear();
   const counterRef = doc(db, 'counters', String(year));
+  // ID de document ALÉATOIRE (non devinable) : empêche un tiers de pré-créer le
+  // prochain numéro pour bloquer définitivement la transaction de numérotation.
+  // Le numéro lisible (CMD-AAAA-NNNN) reste un CHAMP du document.
+  const orderRef = doc(collection(db, 'commandes'));
 
   return runTransaction(db, async (tx) => {
     const snap = await tx.get(counterRef);
@@ -55,7 +64,7 @@ export async function saveOrder(orderData) {
     const numero = `CMD-${year}-${String(next).padStart(4, '0')}`;
 
     tx.set(counterRef, { n: next });
-    tx.set(doc(db, 'commandes', numero), {
+    tx.set(orderRef, {
       ...orderData,
       numero,
       creeLe: serverTimestamp(),
@@ -73,8 +82,9 @@ export async function listOrders() {
 
 /** Une commande précise, par son numéro (réservé aux comptes connectés). */
 export async function getOrder(numero) {
-  const snap = await getDoc(doc(db, 'commandes', numero));
-  return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+  // Le numéro est un champ (l'ID du document est aléatoire) → recherche par champ.
+  const snap = await getDocs(query(collection(db, 'commandes'), where('numero', '==', numero), limit(1)));
+  return snap.empty ? null : { id: snap.docs[0].id, ...snap.docs[0].data() };
 }
 
 /* ---------------- BAT en ligne (bon à tirer 3D partageable) ---------------- */
@@ -93,9 +103,12 @@ function randomToken(len = 22) {
  * L'instantané rend le BAT consultable par le client sans lui donner accès à
  * la commande elle-même (contact, prix… restent privés).
  */
-export async function createBatShare(order) {
+export async function createBatShare(order, itemIndex = 0) {
   const token = randomToken();
-  const projet = order.projet;
+  // Commande multi-livrets : chaque livret a son propre BAT. Repli sur order.projet
+  // pour les anciennes commandes (mono-livret) enregistrées avant le panier.
+  const projet = order.items?.[itemIndex]?.projet || order.projet;
+  if (!projet) throw new Error('PROJET_INTROUVABLE');
 
   // Firestore limite un document à 1 Mo. Un projet lourd en photos peut le
   // dépasser : on prévient clairement plutôt que d'échouer de façon cryptique.
@@ -106,6 +119,8 @@ export async function createBatShare(order) {
   await setDoc(doc(db, 'bats', token), {
     token,
     numero: order.numero || null,
+    itemIndex,
+    livretNom: projet.nom || '',
     contactPrenom: order.contact?.prenom || '',
     contactNom: order.contact?.nom || '',
     contactEmail: order.contact?.email || '',   // pour l'accusé de validation au client
@@ -115,9 +130,13 @@ export async function createBatShare(order) {
     valideParNom: null,
     creeLe: serverTimestamp(),
   });
-  // Mémoriser le jeton sur la commande (pour retrouver le statut côté atelier).
-  if (order.numero) {
-    try { await updateDoc(doc(db, 'commandes', order.numero), { batToken: token }); } catch { /* non bloquant */ }
+  // Mémoriser le jeton sur la commande, par livret (batTokens.{i}) — pour retrouver
+  // le statut côté atelier. On garde aussi batToken pour le livret 0 (compat).
+  if (order.id || order.numero) {
+    const patch = { [`batTokens.${itemIndex}`]: token };
+    if (itemIndex === 0) patch.batToken = token;
+    // order.id = ID (aléatoire) du document ; repli sur numero pour d'anciennes commandes.
+    try { await updateDoc(doc(db, 'commandes', order.id || order.numero), patch); } catch { /* non bloquant */ }
   }
   return token;
 }
@@ -141,4 +160,25 @@ export async function validateBat(token, nom, appareil, lieu) {
     valideAppareil: appareil || '',   // navigateur/appareil (traçabilité)
     valideLieu: lieu || '',           // lieu approximatif (ville/région/pays)
   });
+}
+
+/* ---------------- Panier partageable (reprise par code, sans compte) ---------------- */
+
+/**
+ * Écrit/écrase un panier sous son code (« PAN-XXXXXX »). Le client détient le
+ * code : c'est une URL-capacité, comme les BAT. Aucune donnée personnelle n'est
+ * stockée (uniquement des livrets), et les règles Firestore limitent la taille.
+ */
+export async function saveCart(code, data) {
+  if (JSON.stringify(data.items || []).length > 900_000) throw new Error('PANIER_TROP_LOURD');
+  await setDoc(doc(db, 'paniers', code), {
+    items: data.items || [],
+    majLe: serverTimestamp(),
+  });
+}
+
+/** Lit un panier par son code (accès public : il faut connaître le code). */
+export async function getCart(code) {
+  const snap = await getDoc(doc(db, 'paniers', code));
+  return snap.exists() ? snap.data() : null;
 }
