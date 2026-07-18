@@ -20,11 +20,11 @@ export function initSite({ active = '' } = {}) {
   /* ---------------- Header ---------------- */
   const header = el('header', { class: 'site-header' }, [
     el('div', { class: 'container site-header-inner' }, [
-      el('a', { class: 'brand', href: 'index.html', 'aria-label': "L'Atelier du Livret — accueil" }, [
+      el('a', { class: 'brand', href: 'index.html', 'aria-label': 'Livrets de messe — accueil' }, [
         el('span', { class: 'brand-mark', html: BRAND_MARK }),
         el('span', {}, [
-          el('span', { class: 'brand-name' }, "L'Atelier du Livret"),
-          el('span', { class: 'brand-tagline' }, 'Livrets de messe personnalisés'),
+          el('span', { class: 'brand-name' }, 'Livrets de messe'),
+          el('span', { class: 'brand-tagline' }, 'Personnalisés · imprimés en France'),
         ]),
       ]),
       el('nav', { class: 'site-nav', id: 'site-nav', 'aria-label': 'Navigation principale' }, [
@@ -64,7 +64,7 @@ export function initSite({ active = '' } = {}) {
         el('div', { class: 'footer-brand' }, [
           el('span', { class: 'brand', style: 'color:#F5F1E6' }, [
             el('span', { class: 'brand-mark', html: BRAND_MARK }),
-            el('span', { class: 'brand-name' }, "L'Atelier du Livret"),
+            el('span', { class: 'brand-name' }, 'Livrets de messe'),
           ]),
           el('p', { class: 'small', style: 'margin-top:12px;max-width:34ch' },
             'Des livrets de célébration élégants, personnalisés en ligne et imprimés avec soin en France.'),
@@ -90,7 +90,7 @@ export function initSite({ active = '' } = {}) {
         ]),
       ]),
       el('div', { class: 'footer-bottom' }, [
-        el('span', {}, `© ${new Date().getFullYear()} L'Atelier du Livret`),
+        el('span', {}, `© ${new Date().getFullYear()} Livrets de messe — créé par VIKTO LABS · imaginé et imprimé par Imprigraphic`),
         el('a', { href: 'confidentialite.html' }, 'Confidentialité & données'),
         el('span', {}, 'Textes liturgiques contemporains : à insérer selon votre licence SECLI.'),
       ]),

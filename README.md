@@ -1,4 +1,8 @@
-# L'Atelier du Livret — Livrets de messe personnalisés
+# Livrets de messe
+
+> **© 2026 VIKTO LABS — Tous droits réservés.** Code propriétaire, réutilisation
+> interdite sans autorisation écrite (voir [LICENSE](LICENSE)). Créé par **VIKTO LABS**
+> · imaginé et imprimé par **Imprigraphic**.
 
 Site statique (HTML/CSS/JS modules natifs, zéro build, zéro dépendance) permettant de
 choisir un modèle de livret de messe, de le **personnaliser en ligne avec aperçu temps
@@ -110,7 +114,7 @@ remerciement { texte }
    (feuille 160 × 222 mm), précédé d'une fiche de fabrication (quantité, papier,
    format, contact). Export : bouton Imprimer → « Enregistrer au format PDF ».
 
-Un filigrane « APERÇU · ATELIER DU LIVRET » protège tous les rendus à l'écran
+Un filigrane « APERÇU · LIVRETS DE MESSE » protège tous les rendus à l'écran
 (configurateur, 3D, vignettes) ; seul l'atelier produit des pages propres.
 
 ## Évolution prévue

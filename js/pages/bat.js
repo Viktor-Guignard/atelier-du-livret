@@ -48,7 +48,7 @@ function render(bat) {
   view.textContent = '';
 
   const prenom = bat.contactPrenom || projet.fields?.prenom || '';
-  document.title = `Bon à tirer${bat.numero ? ' ' + bat.numero : ''} — L'Atelier du Livret`;
+  document.title = `Bon à tirer${bat.numero ? ' ' + bat.numero : ''} — Livrets de messe`;
 
   /* --- En-tête --- */
   view.append(el('div', { class: 'bat-intro' }, [

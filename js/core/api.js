@@ -161,7 +161,7 @@ function clientMessage(payload, numero) {
     'Nous revenons vers vous sous 24 h ouvrées.',
     '',
     'À très bientôt,',
-    'L\'Atelier du Livret',
+    'Livrets de messe · créé par VIKTO LABS · imaginé et imprimé par Imprigraphic',
   ].filter((l) => l !== null);
   return lignes.join('\n');
 }
@@ -232,7 +232,7 @@ export async function submitOrder(payload, { numero, adminUrl } = {}) {
     await sendEmail({
       to_email: payload.contact.email,
       reply_to: CONTACT_EMAIL,
-      subject: `${payload.intent === 'devis' ? 'Votre demande de devis' : 'Votre commande'} — L'Atelier du Livret`,
+      subject: `${payload.intent === 'devis' ? 'Votre demande de devis' : 'Votre commande'} — Livrets de messe`,
       message: clientMessage(payload, numero),
     });
     return { ok: true, method: 'emailjs' };
@@ -266,7 +266,7 @@ export async function notifyBatValidated({ numero, nom, appareil, lieu, adminUrl
   try {
     await sendEmail({
       to_email: CONTACT_EMAIL,
-      subject: `BAT validé${numero ? ' — ' + numero : ''} — L'Atelier du Livret`,
+      subject: `BAT validé${numero ? ' — ' + numero : ''} — Livrets de messe`,
       message,
     });
     return { ok: true, method: 'emailjs' };
@@ -291,13 +291,13 @@ export async function confirmBatToClient({ email, prenom, numero }) {
     'Nous revenons vers vous pour la livraison.',
     '',
     'À très bientôt,',
-    'L\'Atelier du Livret',
+    'Livrets de messe · créé par VIKTO LABS · imaginé et imprimé par Imprigraphic',
   ].filter((l) => l !== null).join('\n');
   try {
     await sendEmail({
       to_email: email,
       reply_to: CONTACT_EMAIL,
-      subject: 'Bon à tirer validé — L\'Atelier du Livret',
+      subject: 'Bon à tirer validé — Livrets de messe',
       message,
     });
     return { ok: true, method: 'emailjs' };

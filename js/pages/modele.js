@@ -25,7 +25,7 @@ if (!modele) {
   const categorie = categorieById(modele.categorieId);
   const theme = themeById(modele.themeId);
   const font = fontById(modele.fontId);
-  document.title = `Modèle ${modele.nom} (${categorie?.nom || ''}) — L'Atelier du Livret`;
+  document.title = `Modèle ${modele.nom} (${categorie?.nom || ''}) — Livrets de messe`;
 
   /* ---------------- Panneau ---------------- */
 

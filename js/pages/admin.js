@@ -175,8 +175,8 @@ async function renderBatShare(order) {
   ]);
 
   const prenom = order.contact?.prenom || '';
-  const mailBody = `Bonjour ${prenom},\n\nVotre bon à tirer est prêt. Feuilletez votre livret en 3D et validez-le en un clic ici :\n${link}\n\nÀ très bientôt,\nL'Atelier du Livret`;
-  const mailtoHref = `mailto:${order.contact?.email || ''}?subject=${encodeURIComponent('Votre bon à tirer — L\'Atelier du Livret')}&body=${encodeURIComponent(mailBody)}`;
+  const mailBody = `Bonjour ${prenom},\n\nVotre bon à tirer est prêt. Feuilletez votre livret en 3D et validez-le en un clic ici :\n${link}\n\nÀ très bientôt,\nLivrets de messe · créé par VIKTO LABS · imaginé et imprimé par Imprigraphic`;
+  const mailtoHref = `mailto:${order.contact?.email || ''}?subject=${encodeURIComponent('Votre bon à tirer — Livrets de messe')}&body=${encodeURIComponent(mailBody)}`;
 
   const statusEl = el('p', { class: 'admin-bat-status small' }, 'Vérification du statut…');
 

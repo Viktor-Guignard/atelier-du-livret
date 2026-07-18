@@ -147,7 +147,7 @@ if (!projet) {
     const client = [inPrenom.value, inNom.value].filter(Boolean).join(' ');
     const doc = el('div', { id: 'devis-print', 'aria-hidden': 'true' }, [
       el('header', {}, [
-        el('div', { class: 'dp-brand' }, "L'Atelier du Livret"),
+        el('div', { class: 'dp-brand' }, 'Livrets de messe'),
         el('div', { class: 'dp-sub' }, 'Livrets de cérémonie personnalisés — création, BAT & impression'),
       ]),
       el('div', { class: 'dp-meta' }, [
@@ -174,6 +174,7 @@ if (!projet) {
         el('li', {}, 'Bon à tirer numérique inclus : aucune impression sans votre validation écrite.'),
         el('li', {}, 'Impression et façonnage en France — livraison 5 à 7 jours ouvrés après validation du BAT.'),
         el('li', {}, `Devis ferme pendant ${TARIFS.validiteDevisJours} jours. Pour l'accepter : bouton « Envoyer ma demande de commande » ou réponse à ${CONTACT_EMAIL}.`),
+        el('li', {}, '« Livrets de messe » — créé par VIKTO LABS · imaginé et imprimé par Imprigraphic.'),
       ]),
     ]);
     document.body.append(doc);

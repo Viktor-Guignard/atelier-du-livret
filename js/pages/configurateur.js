@@ -935,4 +935,4 @@ renderEdition();
 renderThumbs();
 setStatus(getParam('projet') ? 'Projet chargé' : 'Nouveau projet — enregistrement automatique activé');
 qs('#cfg-commander').href = `commande.html?projet=${project().id}`;
-document.title = `${project().nom} — Configurateur — L'Atelier du Livret`;
+document.title = `${project().nom} — Configurateur — Livrets de messe`;

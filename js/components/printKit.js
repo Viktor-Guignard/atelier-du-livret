@@ -110,7 +110,7 @@ export function buildPrintKit(commande, { mode = 'production' } = {}) {
   // à ne pas envoyer au client dans un BAT).
   if (!isBat) {
     const ficheTable = el('div', {}, [
-      el('h2', {}, 'L\'Atelier du Livret — fiche de fabrication'),
+      el('h2', {}, 'Livrets de messe — fiche de fabrication'),
       el('p', { class: 'fiche-sub' }, 'Document d\'impression — A5, fond perdu 3 mm, traits de coupe.'),
       el('table', {}, rows.map(([dt, dd]) => el('tr', {}, [el('td', {}, dt), el('td', {}, dd)]))),
     ]);
