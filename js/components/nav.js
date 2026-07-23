@@ -15,8 +15,8 @@ const CART_ICON =
   'stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
   '<path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>';
 
-/* Pages cérémonie (SEO) — cibles des liens du pied de page. */
-const CEREMONIE_PAGES = {
+/* Pages cérémonie (SEO) — cibles des liens du pied de page et de l'accueil. */
+export const CEREMONIE_PAGES = {
   'bapteme': 'livret-messe-bapteme.html',
   'communion': 'livret-messe-communion.html',
   'profession-foi': 'livret-messe-profession-de-foi.html',
@@ -124,6 +124,7 @@ export function initSite({ active = '' } = {}) {
           el('ul', {}, [
             el('li', {}, [el('a', { href: 'index.html#fonctionnement' }, 'Comment ça marche')]),
             el('li', {}, [el('a', { href: 'modeles.html' }, 'Tous les modèles')]),
+            el('li', {}, [el('a', { href: 'papiers.html' }, 'Nos papiers')]),
             el('li', {}, [el('a', { href: 'categories.html' }, 'Créer mon livret')]),
             el('li', {}, [el('a', { href: 'commande.html' }, 'Demander un devis')]),
           ]),

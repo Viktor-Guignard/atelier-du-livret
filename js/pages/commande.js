@@ -273,7 +273,19 @@ function renderLivret(item, refreshTotal, livretsWrap, livretsSection) {
   const papier = el('select', { 'aria-label': 'Papier' },
     Object.entries(TARIFS.papiers).map(([id, p]) =>
       el('option', { value: id, selected: papierActuel === id ? '' : null }, p.nom)));
-  papier.addEventListener('change', () => { updateItem(item.id, { papier: papier.value }); item.commande.papier = papier.value; onChange(); });
+
+  // Toucher le papier avant de payer : notre page matière + la vraie fiche fabricant.
+  const papierLien = el('a', { class: 'papier-lien', target: '_blank', rel: 'noopener' });
+  const majPapierLien = () => {
+    const p = TARIFS.papiers[papier.value];
+    papierLien.href = p.url;
+    papierLien.textContent = `Voir ${p.fabricant} ↗`;
+  };
+  majPapierLien();
+  const papierLiens = el('p', { class: 'small papier-liens' }, [
+    el('a', { href: 'papiers.html' }, 'Nos papiers'), ' · ', papierLien,
+  ]);
+  papier.addEventListener('change', () => { updateItem(item.id, { papier: papier.value }); item.commande.papier = papier.value; majPapierLien(); onChange(); });
 
   const bat = el('input', { type: 'checkbox', ...(item.commande.bat ? { checked: '' } : {}) });
   bat.addEventListener('change', () => { updateItem(item.id, { bat: bat.checked }); item.commande.bat = bat.checked; });
@@ -295,6 +307,7 @@ function renderLivret(item, refreshTotal, livretsWrap, livretsSection) {
         el('label', {}, ['Papier', papier]),
         el('label', {}, ['Impression', impression]),
       ]),
+      papierLiens,
       el('label', { class: 'checkbox-row commande-livret-bat' }, [bat, el('span', {}, 'Bon à tirer avant impression (recommandé)')]),
       el('div', { class: 'commande-livret-actions' }, [
         el('a', { class: 'btn btn-ghost btn-sm', href: `configurateur.html?projet=${projet.id}` }, 'Modifier le contenu'),

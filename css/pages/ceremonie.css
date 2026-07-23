@@ -1,6 +1,13 @@
 /* Pages cérémonie (SEO) — contenu éditorial + FAQ. */
 
 .ceremonie-head { padding-bottom: var(--sp-6); }
+.breadcrumb {
+  font-family: var(--font-ui); font-size: var(--fs-xs); color: var(--ink-faint);
+  margin-bottom: var(--sp-4); display: flex; gap: 6px; flex-wrap: wrap;
+}
+.breadcrumb a { color: var(--ink-soft); text-decoration: underline; text-underline-offset: 3px; }
+.breadcrumb a:hover { color: var(--ink); }
+.breadcrumb [aria-current] { color: var(--gold-deep, var(--gold)); }
 .ceremonie-head .container { max-width: 820px; }
 .ceremonie-head h1 { margin: var(--sp-2) 0 var(--sp-4); }
 .lead-left {

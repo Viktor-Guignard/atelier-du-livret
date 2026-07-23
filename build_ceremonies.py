@@ -328,6 +328,16 @@ def page_html(cid, c):
         ],
     }, ensure_ascii=False, indent=2)
 
+    breadcrumb_ld = json.dumps({
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Accueil", "item": DOMAIN + "/"},
+            {"@type": "ListItem", "position": 2, "name": "Cérémonies", "item": DOMAIN + "/categories.html"},
+            {"@type": "ListItem", "position": 3, "name": c["nom"], "item": url},
+        ],
+    }, ensure_ascii=False)
+
     autres = [(k, v) for k, v in CEREMONIES.items() if k != cid]
     liens_autres = " · ".join(
         f'<a href="{v["slug"]}.html">{esc(v["nom"])}</a>' for k, v in autres)
@@ -365,6 +375,9 @@ def page_html(cid, c):
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <meta name="theme-color" content="#FAF7F1">
   <meta name="description" content="{esc(c["description"])}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -378,12 +391,20 @@ def page_html(cid, c):
   <script type="application/ld+json">
 {faq_ld}
   </script>
+  <script type="application/ld+json">
+{breadcrumb_ld}
+  </script>
 </head>
 <body data-categorie="{cid}">
   <main id="main">
 
     <section class="section page-head ceremonie-head">
       <div class="container">
+        <nav class="breadcrumb" aria-label="Fil d'Ariane">
+          <a href="index.html">Accueil</a> <span aria-hidden="true">›</span>
+          <a href="categories.html">Cérémonies</a> <span aria-hidden="true">›</span>
+          <span aria-current="page">{esc(c["nom"])}</span>
+        </nav>
         <p class="eyebrow">{esc(c["nom"])}</p>
         <h1>{esc(c["h1"])}</h1>
 {intro_html}

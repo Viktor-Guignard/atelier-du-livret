@@ -73,8 +73,18 @@ export const TARIFS = {
   minQuantite: 50,                         // 1er palier du devis Imprigraphic
   marge: 1.8,                              // prix client = coût TTC × marge
   papiers: {
-    'couche':   { nom: 'Couché demi-mat 150 g — Condat Silk' },
-    'creation': { nom: 'Création 160 g Premium White — Old Mill' },
+    'couche': {
+      nom: 'Couché demi-mat 150 g — Condat Silk',
+      fabricant: 'Condat Silk chez Lecta',
+      url: 'https://www.lecta.com/fr/produits/papier-couche-2-faces/condat-silk',
+      ancre: 'papiers.html#condat-silk',
+    },
+    'creation': {
+      nom: 'Création 160 g Premium White — Old Mill',
+      fabricant: 'Old Mill chez Fedrigoni',
+      url: 'https://specialpapers.fedrigoni.com/fra/serie/old-mill/',
+      ancre: 'papiers.html#old-mill',
+    },
   },
   options: {},                             // finitions optionnelles — désactivées pour l'instant
   fraisCreation: 120,                      // mise en page personnalisée + BAT

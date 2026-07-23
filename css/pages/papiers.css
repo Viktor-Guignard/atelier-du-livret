@@ -1,0 +1,89 @@
+/* Page « Nos papiers » — présentation matière, façon papetier de création. */
+
+.papiers-head .container { max-width: 780px; }
+.papiers-head h1 { margin: var(--sp-2) 0 var(--sp-3); }
+
+.papiers-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-6);
+  max-width: 1040px;
+}
+
+.papier-card {
+  background: var(--surface); border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm);
+  display: flex; flex-direction: column;
+}
+
+/* ---------- Échantillons (textures génératives, aucun asset externe) ---------- */
+
+.papier-swatch { position: relative; height: 300px; }
+
+/* Condat Silk : surface satinée — reflet doux en diagonale + grain très fin. */
+.papier-swatch--silk {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.55 0 0 0 0 0.52 0 0 0 0 0.47 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23g)'/%3E%3C/svg%3E"),
+    linear-gradient(118deg, #F2EFE8 0%, #FBFAF6 34%, #EFECE3 50%, #FCFBF8 66%, #F1EEE6 100%);
+}
+.papier-swatch--silk::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(118deg, transparent 42%, rgba(255,255,255,.55) 50%, transparent 58%);
+}
+
+/* Old Mill : surface feutrée, martelée — grain marqué + micro-relief. */
+.papier-swatch--oldmill {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='h'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.16' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.62 0 0 0 0 0.58 0 0 0 0 0.5 0 0 0 0.12 0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23h)'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 0.98 0 0 0 0.14 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23f)'/%3E%3C/svg%3E"),
+    linear-gradient(150deg, #FDFDFB 0%, #F6F5F0 55%, #FDFDFA 100%);
+}
+
+.papier-badge {
+  position: absolute; top: var(--sp-4); left: var(--sp-4);
+  background: var(--night, #1F2933); color: #F5F1E6;
+  font-family: var(--font-ui); font-size: 11px; font-weight: 600;
+  letter-spacing: .12em; text-transform: uppercase;
+  padding: 6px 12px; border-radius: 999px;
+}
+.papier-badge--premium { background: var(--gold-deep, var(--gold)); color: #FFF; }
+
+/* ---------- Corps ---------- */
+
+.papier-body { padding: var(--sp-5); display: flex; flex-direction: column; flex: 1; }
+.papier-marque {
+  font-family: var(--font-ui); font-size: 11px; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--gold-deep, var(--gold)); margin-bottom: var(--sp-2);
+}
+.papier-body h2 { font-size: 1.7rem; line-height: 1.15; margin-bottom: var(--sp-4); }
+.papier-blanc { white-space: nowrap; }
+.papier-finition {
+  display: block; font-family: var(--font-ui); font-size: var(--fs-sm);
+  font-weight: 400; color: var(--ink-faint); letter-spacing: .02em; margin-top: 4px;
+}
+
+.papier-specs {
+  display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3) var(--sp-4);
+  margin: 0 0 var(--sp-4); padding: var(--sp-4) 0;
+  border-top: 1px solid var(--border-soft); border-bottom: 1px solid var(--border-soft);
+}
+.papier-specs dt {
+  font-family: var(--font-ui); font-size: 10.5px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--ink-faint); margin-bottom: 2px;
+}
+.papier-specs dd { margin: 0; font-weight: 600; color: var(--ink); font-size: var(--fs-sm); }
+
+.papier-desc { color: var(--ink-soft); line-height: 1.7; margin-bottom: var(--sp-3); }
+.papier-usage { color: var(--ink-soft); font-size: var(--fs-sm); margin-bottom: var(--sp-4); }
+.papier-prix {
+  margin-top: auto; padding-top: var(--sp-3);
+  font-size: var(--fs-sm); color: var(--ink-soft);
+}
+.papier-prix strong { font-family: var(--font-display); font-size: 1.25rem; color: var(--gold-deep, var(--gold)); }
+.papier-fabricant { margin-top: var(--sp-3); align-self: flex-start; }
+
+.papiers-fab-grid { margin-top: var(--sp-6); }
+.papiers-fab-grid h3 { margin-bottom: var(--sp-2); }
+
+@media (max-width: 860px) {
+  .papiers-grid { grid-template-columns: 1fr; }
+  .papier-swatch { height: 220px; }
+}

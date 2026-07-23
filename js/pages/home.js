@@ -1,6 +1,6 @@
 /* Accueil : héros (vraies couvertures), catégories, exemples, avis. */
 
-import { initSite } from '../components/nav.js';
+import { initSite, CEREMONIE_PAGES } from '../components/nav.js';
 import { el } from '../core/utils.js';
 import { CATEGORIES } from '../data/categories.js';
 import { buildDefaultProject, modeleById } from '../data/modeles.js';
@@ -24,7 +24,7 @@ for (const modeleId of HERO_MODELES) {
 
 const catGrid = document.getElementById('home-categories');
 for (const cat of CATEGORIES) {
-  catGrid.append(el('a', { class: 'card cat-card', href: `modeles.html?categorie=${cat.id}` }, [
+  catGrid.append(el('a', { class: 'card cat-card', href: CEREMONIE_PAGES[cat.id] || `modeles.html?categorie=${cat.id}` }, [
     el('div', { class: 'card-body' }, [
       el('span', { class: 'cat-card-medaillon', html: ornament(cat.ornement) }),
       el('h3', {}, cat.nom),
