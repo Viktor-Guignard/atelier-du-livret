@@ -62,7 +62,7 @@ function render() {
         el('div', { class: 'panier-total' }, [el('span', {}, 'Total estimé TTC'), totalEl]),
         el('p', { class: 'small muted', style: 'margin:0 0 var(--sp-4)' },
           `BAT et accompagnement inclus · devis ferme ${TARIFS.validiteDevisJours} jours. Le montant définitif figure sur votre devis.`),
-        el('a', { class: 'btn btn-gold btn-lg', href: 'commande.html', style: 'width:100%' }, 'Demander un devis groupé'),
+        el('a', { class: 'btn btn-gold btn-lg', href: 'commande.html', style: 'width:100%' }, 'Commander ou demander un devis'),
         el('a', { class: 'btn btn-ghost btn-sm', href: 'categories.html', style: 'width:100%;margin-top:var(--sp-3)' }, 'Continuer ma sélection'),
         el('button', {
           class: 'btn btn-light btn-sm panier-vider', type: 'button', style: 'width:100%;margin-top:var(--sp-3)',
