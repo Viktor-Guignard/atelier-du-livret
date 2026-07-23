@@ -66,7 +66,8 @@ export function ficheRows(commande) {
       ['Type', commande.intent === 'devis' ? 'Demande de devis' : 'Commande'],
       ['Quantité', `${c.quantite} exemplaires`],
       ['Format final', 'A5 (14,8 × 21 cm) à la française'],
-      ['Papier', c.papier ? (TARIFS.papiers[papierId(c.papier)]?.nom || c.papier) + ' · couverture 250 g rainée' : '—'],
+      ['Papier', c.papier ? (TARIFS.papiers[papierId(c.papier)]?.nom || c.papier) : '—'],
+      ...(c.papier ? [['Couverture', TARIFS.papiers[papierId(c.papier)]?.couverture || 'même papier 250 g, rainée']] : []),
       ['BAT demandé', c.bat ? 'Oui — envoyer le BAT avant impression' : 'Non'],
       c.estimation ? ['Montant du devis', `${(c.estimation.total ?? 0).toFixed(2)} €${c.estimation.unitaire != null ? ` (${c.estimation.unitaire.toFixed(2)} €/ex.)` : ''}`] : null,
     );

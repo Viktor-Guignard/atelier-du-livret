@@ -356,7 +356,7 @@ function printDevis() {
     const est = lineEstimate(it);
     return el('tr', {}, [
       el('td', {}, [el('strong', {}, `${i + 1}. ${it.projet.nom}`), el('br'),
-        el('span', { class: 'dp-small' }, `${c.quantite} ex. · A5 · ${est.pagesFacturees} pages · ${TARIFS.papiers[papierId(c.papier)]?.nom || c.papier} · couverture 250 g · piqûre métal 2 points`)]),
+        el('span', { class: 'dp-small' }, `${c.quantite} ex. · A5 · ${est.pagesFacturees} pages · ${TARIFS.papiers[papierId(c.papier)]?.nom || c.papier} · couverture 250 g même papier · piqûre métal 2 points`)]),
       el('td', {}, euro(est.total)),
     ]);
   });

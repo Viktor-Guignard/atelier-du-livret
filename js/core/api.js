@@ -73,14 +73,18 @@ export const TARIFS = {
   minQuantite: 50,                         // 1er palier du devis Imprigraphic
   marge: 1.8,                              // prix client = coût TTC × marge
   papiers: {
+    // Libellés EXACTS du devis Imprigraphic n°0726-052812. La couverture 4 pages
+    // est dans LE MÊME papier en 250 g (Condat Silk 250 g / Old Mill 250 g).
     'couche': {
-      nom: 'Couché demi-mat 150 g — Condat Silk',
+      nom: 'Couché moderne demi-mat 150 g — Condat Silk',
+      couverture: 'Couché moderne demi-mat 250 g Condat Silk, rainée',
       fabricant: 'Condat Silk chez Lecta',
       url: 'https://www.lecta.com/fr/produits/papier-couche-2-faces/condat-silk',
       ancre: 'papiers.html#condat-silk',
     },
     'creation': {
-      nom: 'Création 160 g Premium White — Old Mill',
+      nom: 'Papier de création 160 g Premium White — Old Mill',
+      couverture: 'Papier de création 250 g Premium White Old Mill, rainée',
       fabricant: 'Old Mill chez Fedrigoni',
       url: 'https://specialpapers.fedrigoni.com/fra/serie/old-mill/',
       ancre: 'papiers.html#old-mill',
@@ -140,7 +144,7 @@ export function estimateOrder({ papier = 'couche', quantite = 100, nbPages = 12,
 
   const lignes = [{
     label: `${quantite} livrets A5 · ${pagesFacturees} pages · ${infoPapier.nom}`
-      + ` · couverture 250 g · piqûre métal`,
+      + ` · couverture 250 g même papier · piqûre métal`,
     montant: coutTTC(idPapier, pagesFacturees, quantite) * TARIFS.marge,
   }];
   for (const opt of options) {
