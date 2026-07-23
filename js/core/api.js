@@ -227,8 +227,12 @@ function orderBodyShort(payload, numero, adminUrl) {
   return lignes.filter((l) => l !== null).join('\n');
 }
 
-/** Message chaleureux destiné au CLIENT — à coller dans Formspree (Autoresponse) via {{message_client}}. */
-function clientMessage(payload, numero) {
+/**
+ * Message chaleureux destiné au CLIENT — à coller dans Formspree (Autoresponse)
+ * via {{message_client}}. `paiementUrl` (best-effort, peut être absent si la
+ * génération auto du lien Stripe a échoué) propose de régler dès maintenant.
+ */
+function clientMessage(payload, numero, paiementUrl) {
   const { contact } = payload;
   const items = orderItems(payload);
   const lignes = [
@@ -253,6 +257,9 @@ function clientMessage(payload, numero) {
     items.some((it) => it.commande?.bat)
       ? 'Un bon à tirer (BAT) numérique vous sera envoyé pour chaque livret avant toute impression : rien ne part sans votre validation.'
       : null,
+    paiementUrl ? '' : null,
+    paiementUrl ? 'Vous pouvez régler dès maintenant si vous le souhaitez (sinon, le lien vous sera renvoyé après validation du BAT) :' : null,
+    paiementUrl || null,
     'Nous revenons vers vous sous 24 h ouvrées.',
     '',
     'À très bientôt,',
@@ -320,7 +327,7 @@ function orderFileName(projet) {
  * vers l'atelier, pour ne jamais perdre la demande.
  * Retourne { ok, method: 'emailjs' | 'mailto', mailto? }.
  */
-export async function submitOrder(payload, { numero, adminUrl } = {}) {
+export async function submitOrder(payload, { numero, adminUrl, paiementUrl } = {}) {
   const type = payload.intent === 'devis' ? 'Demande de devis' : 'Demande de commande';
   const nb = orderItems(payload).length;
   const resume = `${nb} livret${nb > 1 ? 's' : ''} · ${orderTotal(payload).toFixed(2)} €`;
@@ -352,7 +359,7 @@ export async function submitOrder(payload, { numero, adminUrl } = {}) {
       to_email: payload.contact.email,
       reply_to: CONTACT_EMAIL,
       subject: `${payload.intent === 'devis' ? 'Votre demande de devis' : 'Votre commande'} — Livrets de messe`,
-      message: clientMessage(payload, numero),
+      message: clientMessage(payload, numero, paiementUrl),
     });
   } catch (err) {
     console.warn('Accusé de réception client non envoyé (best-effort) :', err);
@@ -392,6 +399,39 @@ export async function sendFactureToClient({ email, prenom, numeroFacture, numero
     subject: `Votre facture ${numeroFacture} — Livrets de messe`,
     message,
   });
+}
+
+/**
+ * Envoie au CLIENT le lien de paiement Stripe, après validation du bon à
+ * tirer — pour ceux qui n'ont pas payé dès la commande. Best-effort (appelé
+ * juste après confirmBatToClient) : ne doit jamais bloquer le parcours client.
+ */
+export async function sendPaymentLinkToClient({ email, prenom, numero, url }) {
+  if (!email || !url) return { ok: false, method: 'none' };
+  const message = [
+    `Bonjour ${(prenom || '').trim()},`.replace(' ,', ','),
+    '',
+    'Votre bon à tirer est validé — voici le lien pour régler votre commande'
+      + `${numero ? ' ' + numero : ''} :`,
+    '',
+    url,
+    '',
+    'Dès réception du règlement, vous recevrez votre facture et la fabrication sera lancée.',
+    '',
+    'À très bientôt,',
+    'Livrets de messe · créé par VIKTO LABS · imaginé et imprimé par Imprigraphic',
+  ].join('\n');
+  try {
+    await sendEmail({
+      to_email: email,
+      reply_to: CONTACT_EMAIL,
+      subject: `Régler votre commande${numero ? ' ' + numero : ''} — Livrets de messe`,
+      message,
+    });
+    return { ok: true, method: 'emailjs' };
+  } catch {
+    return { ok: false, method: 'none' };
+  }
 }
 
 /**

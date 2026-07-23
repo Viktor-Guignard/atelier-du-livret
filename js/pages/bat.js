@@ -6,8 +6,8 @@
  */
 
 import { qs, el, getParam, describeDevice, getApproxLocation } from '../core/utils.js';
-import { getBat, validateBat } from '../core/firebase.js';
-import { notifyBatValidated, confirmBatToClient } from '../core/api.js';
+import { getBat, validateBat, createStripeCheckoutPublic } from '../core/firebase.js';
+import { notifyBatValidated, confirmBatToClient, sendPaymentLinkToClient } from '../core/api.js';
 import { renderAllPages, renderPageThumb } from '../components/pageRenderer.js';
 import { createBook3D } from '../components/book3d.js';
 import { categorieById } from '../data/categories.js';
@@ -181,6 +181,14 @@ function renderValidation(bat, zone) {
         prenom: bat.contactPrenom,
         numero: bat.numero,
       });
+      // Lien de paiement, best-effort : si le client n'a pas déjà réglé à la
+      // commande, on le lui envoie maintenant. Si la commande est déjà payée,
+      // create-checkout-public répond 409 et on n'envoie simplement rien.
+      if (bat.numero) {
+        createStripeCheckoutPublic(bat.numero)
+          .then((url) => sendPaymentLinkToClient({ email: bat.contactEmail, prenom: bat.contactPrenom, numero: bat.numero, url }))
+          .catch((err) => console.warn('Lien de paiement post-BAT non envoyé (déjà payé, ou best-effort) :', err));
+      }
       const fresh = { ...bat, valide: true, valideParNom: nomInput.value.trim(), valideLe: new Date() };
       renderValidation(fresh, zone);
       zone.scrollIntoView({ behavior: 'smooth', block: 'center' });

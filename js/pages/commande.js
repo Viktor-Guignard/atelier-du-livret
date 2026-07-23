@@ -8,7 +8,7 @@ import { initSite } from '../components/nav.js';
 import { el, qs, getParam } from '../core/utils.js';
 import { loadProject, listProjects } from '../core/store.js';
 import { estimateOrder, pagesImprimees, papierId, submitOrder, downloadOrderJSON, devisNumber, TARIFS, CONTACT_EMAIL } from '../core/api.js';
-import { saveOrder } from '../core/firebase.js';
+import { saveOrder, createStripeCheckoutPublic } from '../core/firebase.js';
 import { categorieById } from '../data/categories.js';
 import { renderPageThumb } from '../components/pageRenderer.js';
 import { ORNAMENTS } from '../components/ornaments.js';
@@ -197,8 +197,18 @@ function buildOrderPage() {
     catch (err) { console.error('Échec de l\'enregistrement Firestore :', err); }
     const adminUrl = new URL('admin.html', location.href).href;
 
+    /* 1bis. Lien de paiement Stripe, best-effort : le client peut payer dès
+     * maintenant s'il le souhaite. Une vraie commande seulement (pas un devis,
+     * pas de montant ferme) ; un échec ici ne bloque jamais la confirmation —
+     * le lien sera de toute façon renvoyé après validation du BAT (bat.js). */
+    let paiementUrl = null;
+    if (numero && lastIntent !== 'devis') {
+      try { paiementUrl = await createStripeCheckoutPublic(numero); }
+      catch (err) { console.warn('Lien de paiement immédiat non généré (best-effort) :', err); }
+    }
+
     /* 2. E-mails (court si numero, complet en secours). */
-    const result = await submitOrder(payload, { numero, adminUrl });
+    const result = await submitOrder(payload, { numero, adminUrl, paiementUrl });
     downloadOrderJSON(payload);
     if (result.method === 'mailto' && result.mailto) window.location.href = result.mailto;
 
@@ -239,6 +249,9 @@ function buildOrderPage() {
           el('a', { href: `mailto:${CONTACT_EMAIL}` }, CONTACT_EMAIL),
           ' en joignant le fichier téléchargé.',
         ]),
+        paiementUrl ? el('a', { class: 'btn btn-gold btn-lg', href: paiementUrl, style: 'margin-top: var(--sp-4)' }, 'Payer maintenant') : null,
+        paiementUrl ? el('p', { class: 'small muted', style: 'margin-top: var(--sp-2)' },
+          'Vous préférez régler plus tard ? Le lien vous sera renvoyé par e-mail après validation de votre bon à tirer.') : null,
         el('a', { class: 'btn btn-ghost', href: 'index.html', style: 'margin-top: var(--sp-4)' }, 'Retour à l\'accueil'),
       ]),
     ]));

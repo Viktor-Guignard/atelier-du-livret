@@ -258,6 +258,24 @@ export async function createStripeCheckout(numero) {
   return url;
 }
 
+/**
+ * Version PUBLIQUE (fonction Netlify `create-checkout-public`, sans
+ * authentification) : appelée juste après l'enregistrement d'une commande
+ * (le client peut payer tout de suite s'il le souhaite) puis à nouveau après
+ * validation du bon à tirer s'il ne l'a pas fait. Best-effort côté appelant —
+ * un échec ici ne doit jamais bloquer la commande ou le BAT.
+ */
+export async function createStripeCheckoutPublic(numero) {
+  const resp = await fetch(`${NETLIFY_FUNCTIONS_URL}/create-checkout-public`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ numero }),
+  });
+  if (!resp.ok) throw new Error(`create-checkout-public ${resp.status} : ${await resp.text()}`);
+  const { url } = await resp.json();
+  return url;
+}
+
 /* ---------------- Panier partageable (reprise par code, sans compte) ---------------- */
 
 /**
