@@ -6,7 +6,7 @@
  */
 
 import { el, formatDateFr } from '../core/utils.js';
-import { TARIFS } from '../core/api.js';
+import { TARIFS, pagesImprimees, papierId } from '../core/api.js';
 import { themeById } from '../data/modeles.js';
 import { categorieById } from '../data/categories.js';
 import { renderPage } from './pageRenderer.js';
@@ -56,7 +56,8 @@ export function ficheRows(commande) {
     commande.numero ? ['Numéro de commande', commande.numero] : null,
     ['Projet', `${p.nom} — réf. ${p.id}`],
     ['Cérémonie', categorieById(p.categorieId)?.nom || p.categorieId],
-    ['Pages', `${p.pages.length} pages · coupe A5 148 × 210 mm · fond perdu 3 mm`],
+    ['Pages', `${p.pages.length} pages créées → imprimé en ${pagesImprimees(p.pages.length)} pages`
+      + ` (cahiers de 4, piqûre métal 2 points) · coupe A5 148 × 210 mm · fond perdu 3 mm`],
     p.fields?.date ? ['Date de la cérémonie', formatDateFr(p.fields.date)] : null,
   ].filter(Boolean);
 
@@ -64,8 +65,8 @@ export function ficheRows(commande) {
     rows.push(
       ['Type', commande.intent === 'devis' ? 'Demande de devis' : 'Commande'],
       ['Quantité', `${c.quantite} exemplaires`],
-      ['Format final', (c.format || 'a5').toUpperCase()],
-      ['Papier', TARIFS.papiers[c.papier]?.nom || c.papier || '—'],
+      ['Format final', 'A5 (14,8 × 21 cm) à la française'],
+      ['Papier', c.papier ? (TARIFS.papiers[papierId(c.papier)]?.nom || c.papier) + ' · couverture 250 g rainée' : '—'],
       ['BAT demandé', c.bat ? 'Oui — envoyer le BAT avant impression' : 'Non'],
       c.estimation ? ['Montant du devis', `${(c.estimation.total ?? 0).toFixed(2)} €${c.estimation.unitaire != null ? ` (${c.estimation.unitaire.toFixed(2)} €/ex.)` : ''}`] : null,
     );

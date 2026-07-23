@@ -329,7 +329,7 @@ function renderInfosPane() {
 
 const TYPE_LABELS = {
   cover: 'Couverture', heading: 'Titre', subheading: 'Sous-titre', text: 'Texte',
-  chant: 'Chant', lecture: 'Lecture', priere: 'Prière', photo: 'Photo',
+  chant: 'Chant', lecture: 'Lecture', priere: 'Prière', photo: 'Photo', logo: 'Logo',
   ornament: 'Ornement', spacer: 'Espace', deroulement: 'Déroulé', remerciement: 'Remerciements',
 };
 
@@ -349,6 +349,7 @@ function blockSummary(block) {
     case 'lecture': return block.titre || block.reference || '';
     case 'priere': return block.titre || '';
     case 'photo': return block.caption || (block.src ? 'Photo' : 'Photo à ajouter');
+    case 'logo': return block.src ? 'Logo' : 'Logo à ajouter';
     case 'ornament': return (ORNEMENT_OPTIONS.find(([id]) => id === block.motif) || ['', 'Motif'])[1];
     case 'spacer': return ({ s: 'petit', m: 'moyen', l: 'grand' })[block.size] || '';
     case 'deroulement': return `${(block.items || []).length} étapes`;
@@ -384,21 +385,21 @@ function boundInput(pageId, block, key, kind = 'text', options = null) {
   return input;
 }
 
-function photoField(pageId, block, key = 'src') {
+function photoField(pageId, block, key = 'src', labelText = 'Photo') {
   const wrap = el('div', { class: 'field' });
-  const file = el('input', { type: 'file', accept: 'image/*', 'aria-label': 'Choisir une photo' });
+  const file = el('input', { type: 'file', accept: 'image/*', 'aria-label': `Choisir : ${labelText}` });
   file.addEventListener('change', async () => {
     const f = file.files?.[0];
     if (!f) return;
     try {
       const src = await fileToDataURL(f);
       store.updateBlock(pageId, block.id, { [key]: src });
-      showToast('Photo ajoutée.', 'success');
+      showToast(`${labelText} ajouté${labelText === 'Photo' ? 'e' : ''}.`, 'success');
       renderPagesPane();
       openBlockEditor(block.id);
     } catch { showToast('Impossible de lire cette image.', 'error'); }
   });
-  wrap.append(el('label', {}, 'Photo'), file);
+  wrap.append(el('label', {}, labelText), file);
   if (block[key]) {
     wrap.append(el('button', {
       class: 'btn btn-ghost btn-sm', type: 'button', style: 'margin-top:8px',
@@ -407,7 +408,7 @@ function photoField(pageId, block, key = 'src') {
         renderPagesPane();
         openBlockEditor(block.id);
       },
-    }, 'Retirer la photo'));
+    }, `Retirer (${labelText.toLowerCase()})`));
   }
   return wrap;
 }
@@ -519,6 +520,15 @@ function blockEditorBody(pageId, block) {
         ])),
       );
       break;
+    case 'logo':
+      b.append(
+        photoField(pageId, block, 'src', 'Logo'),
+        fieldRow('Taille', boundInput(pageId, block, 'size', 'select', [
+          ['s', 'Petit'], ['m', 'Moyen'], ['l', 'Grand'],
+        ])),
+        fieldRow('Description (accessibilité)', boundInput(pageId, block, 'alt')),
+      );
+      break;
     case 'ornament': b.append(fieldRow('Motif', boundInput(pageId, block, 'motif', 'select', ORNEMENT_OPTIONS))); break;
     case 'spacer': b.append(fieldRow('Hauteur', boundInput(pageId, block, 'size', 'select', [['s', 'Petite'], ['m', 'Moyenne'], ['l', 'Grande']]))); break;
     case 'deroulement': b.append(deroulementEditor(pageId, block)); break;
@@ -557,6 +567,7 @@ function blockEditorBody(pageId, block) {
 const ADDABLE_TYPES = [
   ['heading', 'Titre de section'], ['subheading', 'Sous-titre'], ['text', 'Texte libre'],
   ['chant', 'Chant'], ['lecture', 'Lecture'], ['priere', 'Prière'], ['photo', 'Photo'],
+  ['logo', 'Logo (paroisse, monogramme…)'],
   ['ornament', 'Ornement'], ['spacer', 'Espace'], ['deroulement', 'Déroulé horaire'],
   ['remerciement', 'Remerciements'],
 ];
@@ -570,6 +581,7 @@ function defaultBlock(type) {
     case 'lecture': return { type, reference: 'Lecture', titre: 'Titre du texte', extrait: '' };
     case 'priere': return { type, titre: 'Prière', texte: '' };
     case 'photo': return { type, src: null, caption: '', shape: 'arch' };
+    case 'logo': return { type, src: null, size: 'm', alt: '' };
     case 'ornament': return { type, motif: 'croix' };
     case 'spacer': return { type, size: 'm' };
     case 'deroulement': return { type, items: [{ heure: '15 h 00', label: 'Accueil' }] };
@@ -585,6 +597,16 @@ function renderPagesPane() {
 
   /* --- Liste des pages --- */
   pane.append(el('h3', {}, `Pages du livret (${pages.length})`));
+
+  // Impression en cahiers piqués : toujours un multiple de 4 pages, minimum 12
+  // (même règle que le moteur de devis — pagesImprimees dans core/api.js ;
+  // recalculé ici pour ne pas charger le module e-mail dans le configurateur).
+  const nbImprime = Math.max(12, Math.ceil(pages.length / 4) * 4);
+  if (nbImprime !== pages.length) {
+    pane.append(el('p', { class: 'small muted', style: 'margin:-6px 0 10px' },
+      `Imprimé en ${nbImprime} pages — cahiers de 4 (${nbImprime - pages.length} page${nbImprime - pages.length > 1 ? 's' : ''} `
+      + 'blanche' + (nbImprime - pages.length > 1 ? 's' : '') + ' en fin de livret, ou ajoutez des pages).'));
+  }
   const list = el('div', { class: 'cfg-pagelist' });
   pages.forEach((page, i) => {
     const first = page.blocks[0];

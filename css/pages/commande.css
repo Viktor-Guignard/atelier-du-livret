@@ -268,6 +268,12 @@
   width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm);
   background: var(--paper); color: var(--ink); font-size: var(--fs-sm); font-family: var(--font-ui);
 }
+/* Info d'impression (lecture seule) : A5 · N pages, alignée sur les champs. */
+.commande-livret-print {
+  padding: 8px 10px; border: 1px dashed var(--border); border-radius: var(--radius-sm);
+  color: var(--ink-soft); font-size: var(--fs-sm); font-family: var(--font-ui);
+  text-transform: none; letter-spacing: 0;
+}
 .commande-livret-bat { margin-bottom: var(--sp-3); font-size: var(--fs-sm); }
 .commande-livret-actions { display: flex; align-items: center; gap: var(--sp-4); }
 

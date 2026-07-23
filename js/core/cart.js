@@ -60,7 +60,7 @@ export function onCartChange(fn) {
 
 /** Options de commande par défaut d'un nouveau livret ajouté au panier. */
 export function defaultCommande() {
-  return { quantite: 100, format: 'a5', papier: 'classique', options: [], bat: true };
+  return { quantite: 100, format: 'a5', papier: 'couche', options: [], bat: true };
 }
 
 /* ---------------- Mutations ---------------- */

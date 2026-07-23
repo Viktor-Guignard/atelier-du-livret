@@ -7,7 +7,7 @@
 import { initSite } from '../components/nav.js';
 import { el, qs, getParam } from '../core/utils.js';
 import { loadProject, listProjects } from '../core/store.js';
-import { estimateOrder, submitOrder, downloadOrderJSON, devisNumber, TARIFS, CONTACT_EMAIL } from '../core/api.js';
+import { estimateOrder, pagesImprimees, papierId, submitOrder, downloadOrderJSON, devisNumber, TARIFS, CONTACT_EMAIL } from '../core/api.js';
 import { saveOrder } from '../core/firebase.js';
 import { categorieById } from '../data/categories.js';
 import { renderPageThumb } from '../components/pageRenderer.js';
@@ -263,15 +263,16 @@ function renderLivret(item, refreshTotal, livretsWrap, livretsSection) {
     updateItem(item.id, { quantite: v }); item.commande.quantite = v; onChange();
   });
 
-  const format = el('select', { 'aria-label': 'Format' }, [
-    el('option', { value: 'a5', selected: item.commande.format === 'a5' ? '' : null }, 'A5 (14,8 × 21 cm)'),
-    el('option', { value: 'a6', selected: item.commande.format === 'a6' ? '' : null }, 'A6 (format poche)'),
-  ]);
-  format.addEventListener('change', () => { updateItem(item.id, { format: format.value }); item.commande.format = format.value; onChange(); });
+  // A5 uniquement (format du devis Imprigraphic) — impression en cahiers piqués :
+  // toujours un multiple de 4 pages, minimum 12.
+  const nbImprime = pagesImprimees(projet.pages.length);
+  const impression = el('div', { class: 'commande-livret-print', 'aria-label': 'Impression' },
+    `A5 · ${nbImprime} pages`);
 
+  const papierActuel = papierId(item.commande.papier);
   const papier = el('select', { 'aria-label': 'Papier' },
     Object.entries(TARIFS.papiers).map(([id, p]) =>
-      el('option', { value: id, selected: item.commande.papier === id ? '' : null }, p.nom)));
+      el('option', { value: id, selected: papierActuel === id ? '' : null }, p.nom)));
   papier.addEventListener('change', () => { updateItem(item.id, { papier: papier.value }); item.commande.papier = papier.value; onChange(); });
 
   const bat = el('input', { type: 'checkbox', ...(item.commande.bat ? { checked: '' } : {}) });
@@ -284,14 +285,15 @@ function renderLivret(item, refreshTotal, livretsWrap, livretsSection) {
         el('div', {}, [
           el('span', { class: 'badge' }, categorie?.nom || 'Cérémonie'),
           el('h3', {}, projet.nom),
-          el('p', { class: 'small muted' }, `${projet.pages.length} page${projet.pages.length > 1 ? 's' : ''}`),
+          el('p', { class: 'small muted' }, `${projet.pages.length} page${projet.pages.length > 1 ? 's' : ''} créée${projet.pages.length > 1 ? 's' : ''}`
+            + (nbImprime > projet.pages.length ? ` · imprimé en ${nbImprime} pages (cahiers de 4)` : '')),
         ]),
         priceEl,
       ]),
       el('div', { class: 'commande-livret-opts' }, [
         el('label', {}, ['Quantité', qte]),
-        el('label', {}, ['Format', format]),
         el('label', {}, ['Papier', papier]),
+        el('label', {}, ['Impression', impression]),
       ]),
       el('label', { class: 'checkbox-row commande-livret-bat' }, [bat, el('span', {}, 'Bon à tirer avant impression (recommandé)')]),
       el('div', { class: 'commande-livret-actions' }, [
@@ -341,7 +343,7 @@ function printDevis() {
     const est = lineEstimate(it);
     return el('tr', {}, [
       el('td', {}, [el('strong', {}, `${i + 1}. ${it.projet.nom}`), el('br'),
-        el('span', { class: 'dp-small' }, `${c.quantite} ex. · ${c.format.toUpperCase()} · ${TARIFS.papiers[c.papier]?.nom || c.papier} · ${it.projet.pages.length} pages`)]),
+        el('span', { class: 'dp-small' }, `${c.quantite} ex. · A5 · ${est.pagesFacturees} pages · ${TARIFS.papiers[papierId(c.papier)]?.nom || c.papier} · couverture 250 g · piqûre métal 2 points`)]),
       el('td', {}, euro(est.total)),
     ]);
   });
@@ -364,6 +366,7 @@ function printDevis() {
       el('tfoot', {}, [el('tr', {}, [el('td', {}, `Total — ${items.length} livret${items.length > 1 ? 's' : ''}`), el('td', {}, euro(total))])]),
     ]),
     el('ul', { class: 'dp-mentions' }, [
+      el('li', {}, 'Impression en cahiers piqués (piqûre métal 2 points) : le nombre de pages est arrondi au multiple de 4 supérieur, couverture 4 pages 250 g rainée incluse.'),
       el('li', {}, 'Bon à tirer numérique inclus pour chaque livret : aucune impression sans votre validation écrite.'),
       el('li', {}, 'Impression et façonnage en France — livraison 5 à 7 jours ouvrés après validation des BAT.'),
       el('li', {}, `Devis ferme pendant ${TARIFS.validiteDevisJours} jours. Pour l'accepter : bouton « Envoyer ma commande » ou réponse à ${CONTACT_EMAIL}.`),

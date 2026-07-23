@@ -2,7 +2,7 @@
 
 import { initSite } from '../components/nav.js';
 import { el, qs } from '../core/utils.js';
-import { estimateOrder, TARIFS } from '../core/api.js';
+import { estimateOrder, pagesImprimees, papierId, TARIFS } from '../core/api.js';
 import { renderPageThumb } from '../components/pageRenderer.js';
 import { categorieById } from '../data/categories.js';
 import { ORNAMENTS } from '../components/ornaments.js';
@@ -98,15 +98,16 @@ function renderItem(item, refreshTotal) {
     onChange();
   });
 
-  const format = el('select', { 'aria-label': 'Format' }, [
-    el('option', { value: 'a5', selected: item.commande.format === 'a5' ? '' : null }, 'A5 (14,8 × 21 cm)'),
-    el('option', { value: 'a6', selected: item.commande.format === 'a6' ? '' : null }, 'A6 (format poche)'),
-  ]);
-  format.addEventListener('change', () => { item.commande.format = format.value; updateItem(item.id, { format: format.value }); onChange(); });
+  // A5 uniquement (format du devis Imprigraphic) — l'impression se fait en
+  // cahiers piqués : toujours un multiple de 4 pages, minimum 12.
+  const nbImprime = pagesImprimees(projet.pages.length);
+  const impression = el('div', { class: 'panier-item-print', 'aria-label': 'Impression' },
+    `A5 · ${nbImprime} pages`);
 
+  const papierActuel = papierId(item.commande.papier);
   const papier = el('select', { 'aria-label': 'Papier' },
     Object.entries(TARIFS.papiers).map(([id, p]) =>
-      el('option', { value: id, selected: item.commande.papier === id ? '' : null }, p.nom)));
+      el('option', { value: id, selected: papierActuel === id ? '' : null }, p.nom)));
   papier.addEventListener('change', () => { item.commande.papier = papier.value; updateItem(item.id, { papier: papier.value }); onChange(); });
 
   const bat = el('input', { type: 'checkbox', ...(item.commande.bat ? { checked: '' } : {}) });
@@ -119,14 +120,16 @@ function renderItem(item, refreshTotal) {
         el('div', {}, [
           el('span', { class: 'badge' }, categorie?.nom || 'Cérémonie'),
           el('h3', {}, projet.nom),
-          el('p', { class: 'small muted' }, `${projet.pages.length} page${projet.pages.length > 1 ? 's' : ''} · réf. ${projet.id}`),
+          el('p', { class: 'small muted' }, `${projet.pages.length} page${projet.pages.length > 1 ? 's' : ''} créée${projet.pages.length > 1 ? 's' : ''}`
+            + (nbImprime > projet.pages.length ? ` · imprimé en ${nbImprime} pages (cahiers de 4)` : '')
+            + ` · réf. ${projet.id}`),
         ]),
         priceEl,
       ]),
       el('div', { class: 'panier-item-opts' }, [
         el('label', {}, ['Quantité', qte]),
-        el('label', {}, ['Format', format]),
         el('label', {}, ['Papier', papier]),
+        el('label', {}, ['Impression', impression]),
       ]),
       el('label', { class: 'checkbox-row panier-item-bat' }, [bat, el('span', {}, 'Bon à tirer avant impression (recommandé)')]),
       el('div', { class: 'panier-item-actions' }, [

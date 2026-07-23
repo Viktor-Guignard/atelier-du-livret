@@ -217,6 +217,18 @@
 .lv-ornament { display: flex; justify-content: center; margin: 2cqw 0 3cqw; color: var(--lv-accent); }
 .lv-ornament svg { width: 12cqw; height: auto; }
 
+/* Logo (paroisse, monogramme, entreprise…) — image centrée, sans cadre. */
+.lv-logo { display: flex; justify-content: center; margin: 2.5cqw auto 3cqw; }
+.lv-logo img { width: 100%; height: auto; object-fit: contain; }
+.lv-logo--s { width: 16cqw; }
+.lv-logo--m { width: 26cqw; }
+.lv-logo--l { width: 40cqw; }
+.lv-logo-placeholder {
+  font-family: var(--font-ui, sans-serif); font-size: 2.6cqw; letter-spacing: .08em;
+  color: var(--lv-accent); border: 1px dashed var(--lv-accent-45);
+  border-radius: 4px; padding: 2cqw 3cqw; white-space: nowrap;
+}
+
 .lv-spacer--s { height: 2cqw; flex: none; }
 .lv-spacer--m { height: 5cqw; flex: none; }
 .lv-spacer--l { height: 10cqw; flex: none; }

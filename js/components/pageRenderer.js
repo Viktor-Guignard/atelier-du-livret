@@ -145,6 +145,14 @@ const BLOCK_RENDERERS = {
   ornament: (block) =>
     el('div', { class: 'lv-ornament', html: ornament(block.motif) }),
 
+  // Logo (paroisse, monogramme, entreprise…) : image centrée sans cadre,
+  // trois tailles. Distinct du bloc photo (pas d'arche ni de fond).
+  logo: (block) => el('figure', { class: `lv-logo lv-logo--${block.size || 'm'}` }, [
+    block.src
+      ? el('img', { src: block.src, alt: escapeHtml(block.alt || 'Logo') })
+      : el('span', { class: 'lv-logo-placeholder' }, 'Logo — ajoutez votre image'),
+  ]),
+
   spacer: (block) =>
     el('div', { class: `lv-spacer--${block.size || 'm'}`, 'aria-hidden': 'true' }),
 

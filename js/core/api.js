@@ -34,54 +34,97 @@ async function sendEmail({ to_email, reply_to, subject, message }) {
 }
 
 /*
- * Grille tarifaire — positionnement haut de gamme (grandes célébrations).
+ * Grille tarifaire — CALÉE SUR LE DEVIS IMPRIGRAPHIC n°0726-052812 (20/07/2026) :
+ * livrets A5 (14,8 × 21 à la française), quadri R°/V°, piqûre métal 2 points,
+ * couverture 4 pages 250 g rainée. Un livret s'imprime en CAHIERS : le nombre
+ * total de pages est toujours un MULTIPLE DE 4 (minimum 12 = cahier 8 p. +
+ * couverture 4 p.). Prix de vente = coût réel TTC × MARGE + frais de création.
  * Toute la logique de prix vit ici : les pages ne calculent jamais elles-mêmes.
  */
+
+/*
+ * Coûts TTC Imprigraphic par palier de quantité (50 → 300 ex.), pour un livret
+ * 12 pages et 16 pages. Entre les paliers : interpolation linéaire ; au-delà de
+ * 300 ex. et de 16 pages : extrapolation (pente du dernier palier / +4 pages).
+ * NB : « couché 16 pages » n'est pas au devis — estimé par le ratio 16/12 du
+ * papier création (à recaler quand Imprigraphic fournira le chiffre exact).
+ */
+const QTE_PALIERS = [50, 100, 150, 200, 250, 300];
+const COUTS_TTC = {
+  couche:   { p12: [216, 264, 312, 360, 408, 456], p16: [246, 289, 369, 429, 499, 550] },
+  creation: { p12: [264, 384, 456, 564, 648, 756], p16: [300, 420, 540, 672, 792, 912] },
+};
+
 export const TARIFS = {
-  minQuantite: 20,
-  base: { a5: 6.9, a6: 5.4 },              // €/exemplaire, 8 pages incluses
-  pageSupp: 0.45,                          // €/exemplaire par page au-delà de 8
+  minQuantite: 50,                         // 1er palier du devis Imprigraphic
+  marge: 1.8,                              // prix client = coût TTC × marge
   papiers: {
-    'classique':  { nom: 'Édition mate 135 g', coef: 1 },
-    'creation':   { nom: 'Création ivoire 170 g', coef: 1.2 },
-    'nacre':      { nom: 'Nacré grand luxe 250 g', coef: 1.45 },
+    'couche':   { nom: 'Couché demi-mat 150 g — Condat Silk' },
+    'creation': { nom: 'Création 160 g Premium White — Old Mill' },
   },
-  options: {},                             // finitions optionnelles (dorure, coins…) — désactivées pour l'instant
+  options: {},                             // finitions optionnelles — désactivées pour l'instant
   fraisCreation: 120,                      // mise en page personnalisée + BAT
   seuilFraisOfferts: 800,                  // frais de création offerts au-delà
-  remises: [ [300, .88], [150, .92], [75, .96] ],   // [quantité mini, coefficient]
   validiteDevisJours: 30,
 };
 
-/**
- * Devis en ligne détaillé, TTC.
- * Renvoie { lignes: [{label, montant}], sousTotal, remisePct, fraisCreation,
- *           total, unitaire, quantite } — total/unitaire restent compatibles
- * avec l'atelier et les récapitulatifs existants.
- */
-export function estimateOrder({ format = 'a5', papier = 'classique', quantite = 100, nbPages = 8, options = [] }) {
-  quantite = Math.max(TARIFS.minQuantite, quantite || 0);
-  const infoPapier = TARIFS.papiers[papier] ?? TARIFS.papiers.classique;
-  const base = (TARIFS.base[format] ?? TARIFS.base.a5) * infoPapier.coef;
-  const pagesSupp = Math.max(0, nbPages - 8);
+/* Les anciens identifiants de papier (paniers/commandes déjà enregistrés) sont
+   rabattus sur les papiers réels du devis. */
+const PAPIER_ALIAS = { classique: 'couche', nacre: 'creation' };
+export const papierId = (id) => (TARIFS.papiers[id] ? id : (PAPIER_ALIAS[id] || 'couche'));
 
-  const lignes = [
-    { label: `${quantite} livrets ${format.toUpperCase()} · ${infoPapier.nom} (8 pages)`, montant: base * quantite },
-  ];
-  if (pagesSupp > 0) {
-    lignes.push({ label: `${pagesSupp} page${pagesSupp > 1 ? 's' : ''} supplémentaire${pagesSupp > 1 ? 's' : ''} × ${quantite} ex.`, montant: pagesSupp * TARIFS.pageSupp * quantite });
+/** Nombre de pages réellement imprimées : multiple de 4, minimum 12. */
+export function pagesImprimees(nbPages) {
+  return Math.max(12, Math.ceil((nbPages || 0) / 4) * 4);
+}
+
+/** Interpolation linéaire du coût sur la grille quantités. */
+function coutPalier(grille, quantite) {
+  const q = Math.max(QTE_PALIERS[0], quantite);
+  const last = QTE_PALIERS.length - 1;
+  if (q >= QTE_PALIERS[last]) {
+    // Au-delà de 300 ex. : pente du dernier segment (€ / exemplaire).
+    const pente = (grille[last] - grille[last - 1]) / (QTE_PALIERS[last] - QTE_PALIERS[last - 1]);
+    return grille[last] + (q - QTE_PALIERS[last]) * pente;
   }
+  const i = QTE_PALIERS.findIndex((p, j) => q >= p && q <= QTE_PALIERS[j + 1]);
+  const t = (q - QTE_PALIERS[i]) / (QTE_PALIERS[i + 1] - QTE_PALIERS[i]);
+  return grille[i] + t * (grille[i + 1] - grille[i]);
+}
+
+/** Coût TTC Imprigraphic pour (papier, pages imprimées, quantité). */
+function coutTTC(papier, pages, quantite) {
+  const g = COUTS_TTC[papierId(papier)];
+  const c12 = coutPalier(g.p12, quantite);
+  const c16 = coutPalier(g.p16, quantite);
+  const deltaPar4 = c16 - c12;                       // coût d'un cahier de 4 pages en plus
+  return c12 + Math.max(0, (pages - 12) / 4) * deltaPar4;
+}
+
+/**
+ * Devis en ligne détaillé, TTC — le client voit le prix se recalculer à chaque
+ * choix (papier, quantité, pages). Renvoie { lignes, sousTotal, fraisCreation,
+ * total, unitaire, quantite, pagesFacturees, pagesBlanches } — total/unitaire
+ * restent compatibles avec l'atelier et les récapitulatifs existants.
+ */
+export function estimateOrder({ papier = 'couche', quantite = 100, nbPages = 12, options = [] } = {}) {
+  quantite = Math.max(TARIFS.minQuantite, quantite || 0);
+  const idPapier = papierId(papier);
+  const infoPapier = TARIFS.papiers[idPapier];
+  const pagesFacturees = pagesImprimees(nbPages);
+  const pagesBlanches = Math.max(0, pagesFacturees - (nbPages || 0));
+
+  const lignes = [{
+    label: `${quantite} livrets A5 · ${pagesFacturees} pages · ${infoPapier.nom}`
+      + ` · couverture 250 g · piqûre métal`,
+    montant: coutTTC(idPapier, pagesFacturees, quantite) * TARIFS.marge,
+  }];
   for (const opt of options) {
     const o = TARIFS.options[opt];
     if (o) lignes.push({ label: `${o.nom} × ${quantite} ex.`, montant: o.parEx * quantite });
   }
 
-  let sousTotal = lignes.reduce((s, l) => s + l.montant, 0);
-  const coefRemise = (TARIFS.remises.find(([min]) => quantite >= min) || [0, 1])[1];
-  const remise = sousTotal * (1 - coefRemise);
-  if (remise > 0) lignes.push({ label: `Remise volume (−${Math.round((1 - coefRemise) * 100)} %)`, montant: -remise });
-  sousTotal -= remise;
-
+  const sousTotal = lignes.reduce((s, l) => s + l.montant, 0);
   const fraisCreation = sousTotal >= TARIFS.seuilFraisOfferts ? 0 : TARIFS.fraisCreation;
   lignes.push({
     label: fraisCreation === 0
@@ -94,9 +137,11 @@ export function estimateOrder({ format = 'a5', papier = 'classique', quantite = 
   return {
     lignes: lignes.map((l) => ({ label: l.label, montant: Math.round(l.montant * 100) / 100 })),
     sousTotal: Math.round(sousTotal * 100) / 100,
-    remisePct: Math.round((1 - coefRemise) * 100),
+    remisePct: 0,                          // remises volume désormais intégrées à la grille
     fraisCreation,
     quantite,
+    pagesFacturees,
+    pagesBlanches,
     total,
     unitaire: Math.round((total / quantite) * 100) / 100,
   };
