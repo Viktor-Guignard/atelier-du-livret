@@ -6,7 +6,7 @@
  */
 
 import { qs, el } from '../core/utils.js';
-import { onAuthChange, signIn, signOutAdmin, listOrders, createBatShare, getBat, createFacture, savePaymentLink } from '../core/firebase.js';
+import { onAuthChange, signIn, signOutAdmin, listOrders, createBatShare, getBat, createFacture, savePaymentLink, createStripeCheckout } from '../core/firebase.js';
 import { sendFactureToClient } from '../core/api.js';
 import { buildPrintKit } from '../components/printKit.js';
 import { exportSheetsToPDF } from '../components/pdfExport.js';
@@ -190,9 +190,9 @@ function renderPaiement(order) {
     return;
   }
 
-  /* --- En attente : lien Stripe + marquage payé --- */
+  /* --- En attente : génération auto du lien Stripe (repli : coller un lien à la main) --- */
   const lienInput = el('input', {
-    type: 'url', placeholder: 'https://buy.stripe.com/…',
+    type: 'url', placeholder: 'https://checkout.stripe.com/…',
     value: order.paiementLien || '', 'aria-label': 'Lien de paiement Stripe',
   });
   const saveBtn = el('button', { class: 'btn btn-light btn-sm', type: 'button' }, 'Enregistrer');
@@ -203,6 +203,21 @@ function renderPaiement(order) {
       showToast('Lien de paiement enregistré.', 'success');
       renderPaiement(order);
     } catch { showToast('Enregistrement impossible — vérifiez les règles Firestore.', 'error'); }
+  });
+
+  const genererBtn = el('button', { class: 'btn btn-gold btn-sm', type: 'button' }, 'Générer le lien de paiement');
+  genererBtn.addEventListener('click', async () => {
+    genererBtn.disabled = true; genererBtn.textContent = 'Génération…';
+    try {
+      const url = await createStripeCheckout(order.numero);
+      order.paiementLien = url;
+      showToast('Lien Stripe généré avec le panier exact de la commande.', 'success');
+      renderPaiement(order);
+    } catch (err) {
+      console.error(err);
+      genererBtn.disabled = false; genererBtn.textContent = 'Générer le lien de paiement';
+      showToast('Génération impossible — voir functions/README.md (Cloud Function déployée ?).', 'error');
+    }
   });
 
   const prenom = order.contact?.prenom || '';
@@ -241,7 +256,8 @@ function renderPaiement(order) {
 
   zone.append(
     el('p', { class: 'small muted', style: 'margin:0 0 10px' },
-      `Montant de la commande : ${totalTTC.toFixed(2)} € TTC. Créez un lien de paiement dans le tableau de bord Stripe (Imprigraphic), collez-le ici, envoyez-le au client. Une fois le paiement visible dans Stripe, marquez la commande payée : la facture ${''}est générée et envoyée automatiquement.`),
+      `Montant de la commande : ${totalTTC.toFixed(2)} € TTC. Cliquez « Générer le lien de paiement » pour créer automatiquement une session Stripe avec le panier exact de la commande, puis envoyez-le au client. Dès que le client paie, la facture est créée et envoyée sans action de votre part — le bouton « Marquer payée » ci-dessous reste un repli manuel si besoin.`),
+    el('div', { class: 'admin-bat-actions', style: 'margin-bottom:10px' }, [genererBtn]),
     el('div', { class: 'admin-bat-linkrow' }, [lienInput, saveBtn]),
     el('div', { class: 'admin-bat-actions' }, [
       el('a', { class: `btn btn-ghost btn-sm${order.paiementLien ? '' : ' is-disabled'}`, href: mailtoHref }, 'Préparer l\'e-mail de paiement'),

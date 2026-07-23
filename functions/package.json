@@ -1,0 +1,17 @@
+{
+  "name": "livrets-de-messe-functions",
+  "description": "Cloud Functions — création de session Stripe Checkout à partir du panier + webhook de confirmation de paiement",
+  "private": true,
+  "engines": { "node": "20" },
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^6.3.2",
+    "stripe": "^17.5.0"
+  }
+}

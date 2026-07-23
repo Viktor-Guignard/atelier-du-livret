@@ -18,6 +18,9 @@ import {
   getFirestore, doc, runTransaction, getDoc, getDocs, setDoc, updateDoc,
   collection, query, where, limit, orderBy, serverTimestamp,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import {
+  getFunctions, httpsCallable,
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyBmEcAAkKSLtb54P7jHFWkBaET_fU6k8UQ',
@@ -31,6 +34,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+const functions = getFunctions(app, 'europe-west1');
 
 /* ---------------- Authentification (espace privé) ---------------- */
 
@@ -232,6 +236,18 @@ export async function savePaymentLink(order, lien) {
     paiementLien: lien,
     paiementStatut: order.paiementStatut || 'en_attente',
   });
+}
+
+/**
+ * Génère automatiquement un lien de paiement Stripe pour la commande (Cloud
+ * Function `createStripeCheckout`, voir functions/index.js) : le panier exact
+ * (un livret = une ligne) est repris depuis Firestore, plus besoin de créer le
+ * lien à la main dans le tableau de bord Stripe. Réservé au compte atelier.
+ */
+export async function createStripeCheckout(numero) {
+  const call = httpsCallable(functions, 'createCheckoutSession');
+  const { data } = await call({ numero });
+  return data.url;
 }
 
 /* ---------------- Panier partageable (reprise par code, sans compte) ---------------- */
