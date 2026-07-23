@@ -15,6 +15,18 @@ const CART_ICON =
   'stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
   '<path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>';
 
+/* Pages cérémonie (SEO) — cibles des liens du pied de page. */
+const CEREMONIE_PAGES = {
+  'bapteme': 'livret-messe-bapteme.html',
+  'communion': 'livret-messe-communion.html',
+  'profession-foi': 'livret-messe-profession-de-foi.html',
+  'confirmation': 'livret-messe-confirmation.html',
+  'mariage': 'livret-messe-mariage.html',
+  'funerailles': 'livret-messe-funerailles.html',
+  'messe-anniversaire': 'livret-messe-anniversaire.html',
+  'jubile': 'livret-messe-jubile.html',
+};
+
 const NAV_LINKS = [
   { href: 'index.html', label: 'Accueil', id: 'accueil' },
   { href: 'categories.html', label: 'Cérémonies', id: 'categories' },
@@ -100,12 +112,12 @@ export function initSite({ active = '' } = {}) {
         el('div', {}, [
           el('h4', {}, 'Cérémonies'),
           el('ul', {}, CATEGORIES.slice(0, 4).map((c) =>
-            el('li', {}, [el('a', { href: `modeles.html?categorie=${c.id}` }, c.nom)]))),
+            el('li', {}, [el('a', { href: CEREMONIE_PAGES[c.id] || `modeles.html?categorie=${c.id}` }, c.nom)]))),
         ]),
         el('div', {}, [
           el('h4', {}, ' '),
           el('ul', {}, CATEGORIES.slice(4).map((c) =>
-            el('li', {}, [el('a', { href: `modeles.html?categorie=${c.id}` }, c.nom)]))),
+            el('li', {}, [el('a', { href: CEREMONIE_PAGES[c.id] || `modeles.html?categorie=${c.id}` }, c.nom)]))),
         ]),
         el('div', {}, [
           el('h4', {}, 'Le service'),
