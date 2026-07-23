@@ -1,5 +1,5 @@
 .DS_Store
 standalone/
 .claude/
-functions/node_modules/
-.firebase/
+netlify/functions/node_modules/
+.netlify/

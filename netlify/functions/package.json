@@ -1,0 +1,8 @@
+{
+  "name": "livrets-de-messe-netlify-functions",
+  "private": true,
+  "dependencies": {
+    "firebase-admin": "^12.7.0",
+    "stripe": "^17.5.0"
+  }
+}

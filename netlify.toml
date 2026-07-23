@@ -1,0 +1,8 @@
+[build]
+  base = "netlify"
+  publish = "public"
+  functions = "functions"
+  command = "npm install --prefix functions"
+
+[functions]
+  node_bundler = "esbuild"

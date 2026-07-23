@@ -1,38 +1,16 @@
 /*
- * Cloud Functions — pont entre le panier (Firestore) et Stripe.
- *
- *  - createCheckoutSession : appelée depuis l'admin (Firebase Auth requis).
- *    Lit la commande dans Firestore, reconstruit les lignes exactement comme
- *    l'admin les affiche (voir factureLignes, dupliqué de js/pages/admin.js —
- *    à garder synchronisé si la logique de facturation change côté site) et
- *    crée une session Stripe Checkout avec le VRAI panier (un livret = une
- *    ligne). Le lien généré est enregistré sur la commande (paiementLien),
- *    exactement comme le lien collé à la main aujourd'hui — rien d'autre ne
- *    change côté admin.js.
- *
- *  - stripeWebhook : appelée par Stripe dès qu'un paiement passe
- *    (checkout.session.completed). Marque la commande payée, crée la facture
- *    et l'envoie au client — sans action manuelle dans l'admin. Idempotente
- *    (Stripe peut livrer le même événement plusieurs fois).
- *
- * Secrets requis (voir functions/README.md) : STRIPE_SECRET_KEY,
- * STRIPE_WEBHOOK_SECRET. Le reste (EmailJS, config Firebase) est public par
- * conception, comme dans le reste du site.
+ * Aide partagée par les deux fonctions Netlify (create-checkout, stripe-webhook).
+ * Logique de facturation dupliquée de js/pages/admin.js + js/core/firebase.js —
+ * à garder synchronisée si la façon de calculer une commande change côté site.
  */
 
-const { onCall, onRequest, HttpsError } = require('firebase-functions/v2/https');
-const { defineSecret } = require('firebase-functions/params');
-const { setGlobalOptions } = require('firebase-functions/v2');
 const admin = require('firebase-admin');
-const crypto = require('crypto');
 
-admin.initializeApp();
-const db = admin.firestore();
-
-setGlobalOptions({ region: 'europe-west1' });
-
-const stripeSecretKey = defineSecret('STRIPE_SECRET_KEY');
-const stripeWebhookSecret = defineSecret('STRIPE_WEBHOOK_SECRET');
+function initAdmin() {
+  if (admin.apps.length) return admin.app();
+  const json = JSON.parse(Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_B64, 'base64').toString('utf8'));
+  return admin.initializeApp({ credential: admin.credential.cert(json) });
+}
 
 const SITE_URL = 'https://livretsdemesse.fr';
 const CONTACT_EMAIL = 'viktor.guignard@gmail.com';
@@ -42,8 +20,6 @@ const EMAILJS = {
   serviceId: 'service_r8cydnk',
   templateId: 'template_90sttdl',
 };
-
-/* ---------------- Helpers communs (repris de js/pages/admin.js & firebase.js) ---------------- */
 
 const orderItemsOf = (o) => (o.items?.length ? o.items : [{ projet: o.projet, commande: o.commande }]);
 
@@ -65,11 +41,11 @@ function factureLignes(order) {
 
 function randomToken(len = 22) {
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-  const bytes = crypto.randomBytes(len);
+  const bytes = require('crypto').randomBytes(len);
   return Array.from(bytes, (b) => chars[b % chars.length]).join('');
 }
 
-async function nextFactureNumber() {
+async function nextFactureNumber(db) {
   const year = new Date().getFullYear();
   const ref = db.collection('counters').doc(`factures-${year}`);
   return db.runTransaction(async (tx) => {
@@ -122,53 +98,8 @@ async function sendFactureEmail({ email, prenom, numeroFacture, numeroCommande, 
   if (!resp.ok) throw new Error(`EmailJS ${resp.status} : ${await resp.text()}`);
 }
 
-/* ---------------- 1. Créer la session de paiement (appelée depuis l'admin) ---------------- */
-
-exports.createCheckoutSession = onCall({ secrets: [stripeSecretKey] }, async (request) => {
-  if (!request.auth) throw new HttpsError('unauthenticated', 'Connexion à l\'espace privé requise.');
-
-  const numero = request.data?.numero;
-  if (!numero) throw new HttpsError('invalid-argument', 'Numéro de commande manquant.');
-
-  const snap = await db.collection('commandes').where('numero', '==', numero).limit(1).get();
-  if (snap.empty) throw new HttpsError('not-found', 'Commande introuvable.');
-  const orderDoc = snap.docs[0];
-  const order = orderDoc.data();
-
-  const { lignes, totalTTC } = factureLignes(order);
-  if (!lignes.length || totalTTC <= 0) throw new HttpsError('failed-precondition', 'Montant de commande invalide.');
-
-  const stripe = require('stripe')(stripeSecretKey.value());
-  const line_items = lignes.map((l) => ({
-    price_data: {
-      currency: 'eur',
-      product_data: { name: l.label.slice(0, 500) },
-      unit_amount: Math.round(l.ttc * 100),
-    },
-    quantity: 1,
-  }));
-
-  const session = await stripe.checkout.sessions.create({
-    mode: 'payment',
-    line_items,
-    customer_email: order.contact?.email || undefined,
-    metadata: { numero, commandeId: orderDoc.id },
-    success_url: `${SITE_URL}/commande.html?paiement=ok&numero=${encodeURIComponent(numero)}`,
-    cancel_url: `${SITE_URL}/commande.html?paiement=annule&numero=${encodeURIComponent(numero)}`,
-  });
-
-  await orderDoc.ref.update({
-    paiementLien: session.url,
-    paiementSessionId: session.id,
-    paiementStatut: order.paiementStatut || 'en_attente',
-  });
-
-  return { url: session.url };
-});
-
-/* ---------------- 2. Webhook Stripe : paiement confirmé → facture auto ---------------- */
-
-async function markOrderPaid(numero, session) {
+/** Marque une commande payée, crée sa facture et l'envoie. Idempotent. */
+async function markOrderPaid(db, numero, session) {
   const snap = await db.collection('commandes').where('numero', '==', numero).limit(1).get();
   if (snap.empty) { console.warn(`Webhook : commande ${numero} introuvable.`); return; }
   const orderDoc = snap.docs[0];
@@ -177,7 +108,7 @@ async function markOrderPaid(numero, session) {
 
   const { lignes, totalTTC } = factureLignes(order);
   const token = randomToken();
-  const numeroFacture = await nextFactureNumber();
+  const numeroFacture = await nextFactureNumber(db);
   const totalHT = Math.round((totalTTC / 1.2) * 100) / 100;
 
   await db.collection('factures').doc(token).set({
@@ -216,30 +147,8 @@ async function markOrderPaid(numero, session) {
       url: `${SITE_URL}/facture.html?f=${token}`,
     });
   } catch (err) {
-    // La facture existe et la commande est marquée payée dans tous les cas :
-    // un échec d'e-mail se rattrape depuis l'admin (le lien de facture y est visible).
     console.error(`Facture ${numeroFacture} créée mais e-mail non envoyé :`, err);
   }
 }
 
-exports.stripeWebhook = onRequest({ secrets: [stripeSecretKey, stripeWebhookSecret] }, async (req, res) => {
-  const stripe = require('stripe')(stripeSecretKey.value());
-  let event;
-  try {
-    event = stripe.webhooks.constructEvent(req.rawBody, req.headers['stripe-signature'], stripeWebhookSecret.value());
-  } catch (err) {
-    console.error('Signature webhook Stripe invalide :', err.message);
-    res.status(400).send(`Webhook Error: ${err.message}`);
-    return;
-  }
-
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object;
-    const numero = session.metadata?.numero;
-    if (numero) {
-      try { await markOrderPaid(numero, session); } catch (err) { console.error('Échec markOrderPaid :', err); }
-    }
-  }
-
-  res.json({ received: true });
-});
+module.exports = { initAdmin, admin, SITE_URL, factureLignes, markOrderPaid };
