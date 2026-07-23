@@ -29,9 +29,8 @@ export const CHANTS = [
   /* ---------------- Chant d'entrée ---------------- */
   {
     id: 'entree-veni-creator', titre: 'Veni Creator Spiritus', categorie: 'entree',
-    origine: 'Hymne grégorienne (IXᵉ s.)', cote: null, complet: false,
-    paroles: "Veni, creator Spiritus,\nmentes tuorum visita,\nimple superna gratia,\nquae tu creasti pectora.\n\nQui diceris Paraclitus,\ndonum Dei altissimi,\nfons vivus, ignis, caritas,\net spiritalis unctio.\n\n(…)\n\nDeo Patri sit gloria,\net Filio, qui a mortuis\nsurrexit, ac Paraclito,\nin saeculorum saecula. Amen.",
-    note: 'Extrait (1ʳᵉ, 2ᵉ strophes et doxologie) — insérez les 7 strophes complètes dans le configurateur.',
+    origine: 'Hymne grégorienne (IXᵉ s.)', cote: null, complet: true,
+    paroles: "Veni, creátor Spíritus,\nmentes tuórum vísita,\nimple supérna grátia,\nquae tu creásti péctora.\n\nQui díceris Paráclitus,\ndonum Dei altíssimi,\nfons vivus, ignis, cáritas,\net spiritális únctio.\n\nTu septifórmis múnere,\ndéxterae Dei tu dígitus,\ntu rite promíssum Patris,\nsermóne ditans gúttura.\n\nAccénde lumen sénsibus,\ninfúnde amórem córdibus,\ninfírma nostri córporis\nvirtúte firmans pérpeti.\n\nHostem repéllas lóngius\npacémque dones prótinus ;\nductóre sic te praévio\nvitémus omne nóxium.\n\nPer te sciámus da Patrem,\nnoscámus atque Fílium,\nte utriúsque Spíritum\ncredámus omni témpore.\n\nDeo Patri sit glória,\net Fílio, qui a mórtuis\nsurréxit, ac Paráclito,\nin saeculórum saécula. Amen.",
   },
   {
     id: 'entree-peuple-de-dieu', titre: 'Peuple de Dieu, marche joyeux', categorie: 'entree',
@@ -52,6 +51,55 @@ export const CHANTS = [
     note: "Chant d'accueil traditionnel des funérailles. Paroles complètes à insérer.",
   },
 
+  {
+    id: 'entree-ecoute-la-voix', titre: 'Écoute la voix du Seigneur', categorie: 'entree',
+    origine: 'D. Rimaud / J. Berthier', cote: 'A 548', complet: false,
+    paroles: "Écoute la voix du Seigneur,\nprête l'oreille de ton cœur…\n…",
+    note: 'Paroles complètes à insérer (licence SECLI de votre paroisse).',
+  },
+  {
+    id: 'entree-jubilez', titre: 'Jubilez ! Criez de joie', categorie: 'entree',
+    origine: 'Communauté du Chemin Neuf', cote: null, complet: false,
+    paroles: "R/ Jubilez ! Criez de joie !\nAcclamez le Dieu trois fois Saint !…\n…",
+    note: 'Paroles complètes à insérer (licence SECLI de votre paroisse).',
+  },
+  {
+    id: 'entree-venez-chantons', titre: 'Venez, chantons notre Dieu', categorie: 'entree',
+    origine: 'Communauté de l\'Emmanuel', cote: null, complet: false,
+    paroles: "R/ Venez, chantons notre Dieu,\nlui, le Roi des cieux…\n…",
+    note: 'Paroles complètes à insérer (licence SECLI de votre paroisse).',
+  },
+  {
+    id: 'entree-chantez-priez', titre: 'Chantez, priez, célébrez le Seigneur', categorie: 'entree',
+    origine: 'Contemporain', cote: null, complet: false,
+    paroles: "R/ Chantez, priez, célébrez le Seigneur,\nDieu nous accueille, peuple du monde…\n…",
+    note: 'Paroles complètes à insérer (licence SECLI de votre paroisse).',
+  },
+  {
+    id: 'entree-si-le-pere', titre: 'Si le Père vous appelle', categorie: 'entree',
+    origine: 'D. Rimaud / J. Berthier', cote: null, complet: false,
+    paroles: "Si le Père vous appelle à aimer comme il vous aime…\nR/ Tressaillez de joie ! Tressaillez de joie !…\n…",
+    note: 'Paroles complètes à insérer (licence SECLI de votre paroisse).',
+  },
+  {
+    id: 'entree-enfant-de-dieu', titre: 'Tu es devenu enfant de Dieu', categorie: 'entree',
+    origine: 'Contemporain — baptême', cote: null, complet: false,
+    paroles: "Tu es devenu enfant de Dieu\net frère de Jésus, alléluia !…\n…",
+    note: 'Chant de baptême. Paroles complètes à insérer (licence SECLI de votre paroisse).',
+  },
+  {
+    id: 'entree-viens-esprit-saintete', titre: 'Viens, Esprit de sainteté', categorie: 'entree',
+    origine: 'Communauté de l\'Emmanuel — confirmation', cote: null, complet: false,
+    paroles: "R/ Viens, Esprit de sainteté,\nviens, Esprit de lumière,\nviens, Esprit de feu,\nviens nous embraser.\n…",
+    note: 'Paroles complètes à insérer (licence SECLI de votre paroisse).',
+  },
+  {
+    id: 'entree-souffle-imprevisible', titre: 'Souffle imprévisible', categorie: 'entree',
+    origine: 'C. Singer / J. Berthier — confirmation', cote: 'K 28-44', complet: false,
+    paroles: "Souffle imprévisible, Esprit de Dieu,\nvent qui fait revivre, Esprit de Dieu…\n…",
+    note: 'Paroles complètes à insérer (licence SECLI de votre paroisse).',
+  },
+
   /* ---------------- Kyrie ---------------- */
   {
     id: 'kyrie-xviii', titre: 'Kyrie XVIII (grégorien)', categorie: 'kyrie',
@@ -70,6 +118,13 @@ export const CHANTS = [
     note: 'Paroles complètes à insérer (licence SECLI de votre paroisse).',
   },
 
+  {
+    id: 'kyrie-taize', titre: 'Kyrie eleison (Taizé)', categorie: 'kyrie',
+    origine: 'Communauté de Taizé', cote: null, complet: false,
+    paroles: "Kýrie eléison, Kýrie eléison…\n…",
+    note: 'Partition et texte complets auprès de votre paroisse (© Ateliers et Presses de Taizé).',
+  },
+
   /* ---------------- Gloria ---------------- */
   {
     id: 'gloria-viii', titre: 'Gloria VIII « de Angelis » (grégorien)', categorie: 'gloria',
@@ -86,6 +141,13 @@ export const CHANTS = [
     id: 'gloria-saint-boniface', titre: 'Gloire à Dieu — Messe de Saint-Boniface', categorie: 'gloria',
     origine: 'N. Tarralle', cote: null, complet: false,
     paroles: "Gloire à Dieu au plus haut des cieux…\n…",
+    note: 'Paroles complètes à insérer (licence SECLI de votre paroisse).',
+  },
+
+  {
+    id: 'gloria-trinite', titre: 'Gloire à Dieu — Messe de la Trinité', categorie: 'gloria',
+    origine: 'Communauté de l\'Emmanuel', cote: null, complet: false,
+    paroles: "Gloire à Dieu au plus haut des cieux\net paix sur la terre aux hommes qu'il aime !…\n…",
     note: 'Paroles complètes à insérer (licence SECLI de votre paroisse).',
   },
 
@@ -109,6 +171,31 @@ export const CHANTS = [
     note: 'Adapter le texte des strophes à la traduction liturgique retenue par le célébrant.',
   },
 
+  {
+    id: 'psaume-26', titre: 'Psaume 26 — « Le Seigneur est ma lumière »', categorie: 'psaume',
+    origine: 'Psautier', cote: null, complet: false,
+    paroles: "R/ Le Seigneur est ma lumière et mon salut.\n\n(Strophes selon la traduction liturgique en usage.)",
+    note: 'Adapter le texte des strophes à la traduction liturgique retenue par le célébrant.',
+  },
+  {
+    id: 'psaume-102', titre: 'Psaume 102 — « Le Seigneur est tendresse et pitié »', categorie: 'psaume',
+    origine: 'Psautier', cote: null, complet: false,
+    paroles: "R/ Le Seigneur est tendresse et pitié.\n\n(Strophes selon la traduction liturgique en usage.)",
+    note: 'Adapter le texte des strophes à la traduction liturgique retenue par le célébrant.',
+  },
+  {
+    id: 'psaume-115', titre: 'Psaume 115 — « Je marcherai en présence du Seigneur »', categorie: 'psaume',
+    origine: 'Psautier — souvent choisi pour les funérailles', cote: null, complet: false,
+    paroles: "R/ Je marcherai en présence du Seigneur\nsur la terre des vivants.\n\n(Strophes selon la traduction liturgique en usage.)",
+    note: 'Adapter le texte des strophes à la traduction liturgique retenue par le célébrant.',
+  },
+  {
+    id: 'psaume-129', titre: 'Psaume 129 — « Des profondeurs, je crie vers toi »', categorie: 'psaume',
+    origine: 'Psautier — funérailles et temps de l\'attente', cote: null, complet: false,
+    paroles: "R/ Je mets mon espoir dans le Seigneur,\nje suis sûr de sa parole.\n\n(Strophes selon la traduction liturgique en usage.)",
+    note: 'Adapter le texte des strophes à la traduction liturgique retenue par le célébrant.',
+  },
+
   /* ---------------- Alléluia ---------------- */
   {
     id: 'alleluia-irlandais', titre: 'Alléluia irlandais', categorie: 'alleluia',
@@ -120,6 +207,13 @@ export const CHANTS = [
     origine: 'Contemporain', cote: null, complet: false,
     paroles: "Alléluia ! Alléluia ! Alléluia !\n…",
     note: "Verset de l'Évangile proclamé par le célébrant ou la chorale.",
+  },
+
+  {
+    id: 'alleluia-taize', titre: 'Alléluia (Taizé)', categorie: 'alleluia',
+    origine: 'Communauté de Taizé', cote: null, complet: false,
+    paroles: "Allelúia, allelúia, allelúia…\n…",
+    note: 'Partition et texte complets auprès de votre paroisse (© Ateliers et Presses de Taizé).',
   },
 
   /* ---------------- Offertoire ---------------- */
@@ -139,6 +233,19 @@ export const CHANTS = [
     paroles: "— Temps de musique et de recueillement —\n(Indiquer ici l'œuvre et l'interprète si vous le souhaitez.)",
   },
 
+  {
+    id: 'offertoire-humblement', titre: 'Humblement, dans le silence', categorie: 'offertoire',
+    origine: 'Communauté de l\'Emmanuel', cote: null, complet: false,
+    paroles: "R/ Humblement, dans le silence de mon cœur,\nje me donne à toi, mon Seigneur.\n…",
+    note: 'Paroles complètes à insérer (licence SECLI de votre paroisse).',
+  },
+  {
+    id: 'offertoire-je-viens-vers-toi', titre: 'Je viens vers toi, Jésus', categorie: 'offertoire',
+    origine: 'Communauté de l\'Emmanuel', cote: null, complet: false,
+    paroles: "R/ Je viens vers toi, Jésus. (×4)\n…",
+    note: 'Paroles complètes à insérer (licence SECLI de votre paroisse).',
+  },
+
   /* ---------------- Sanctus ---------------- */
   {
     id: 'sanctus-xviii', titre: 'Sanctus XVIII (grégorien)', categorie: 'sanctus',
@@ -149,6 +256,13 @@ export const CHANTS = [
     id: 'sanctus-saint-severin', titre: 'Sanctus — Messe de Saint-Séverin', categorie: 'sanctus',
     origine: 'M. Wackenheim', cote: null, complet: false,
     paroles: "Saint ! Saint ! Saint, le Seigneur, Dieu de l'univers !\n…",
+    note: 'Paroles complètes à insérer (licence SECLI de votre paroisse).',
+  },
+
+  {
+    id: 'sanctus-trinite', titre: 'Sanctus — Messe de la Trinité', categorie: 'sanctus',
+    origine: 'Communauté de l\'Emmanuel', cote: null, complet: false,
+    paroles: "Saint, Saint, Saint le Seigneur,\nle Dieu de l'univers !…\n…",
     note: 'Paroles complètes à insérer (licence SECLI de votre paroisse).',
   },
 
@@ -164,6 +278,13 @@ export const CHANTS = [
     paroles: "Agneau de Dieu, qui enlèves les péchés du monde,\nprends pitié de nous. (bis)\n\nAgneau de Dieu, qui enlèves les péchés du monde,\ndonne-nous la paix.",
   },
 
+  {
+    id: 'agnus-trinite', titre: 'Agneau de Dieu — Messe de la Trinité', categorie: 'agneau',
+    origine: 'Communauté de l\'Emmanuel', cote: null, complet: false,
+    paroles: "Agneau de Dieu, envoyé par le Père…\n…",
+    note: 'Paroles complètes à insérer (licence SECLI de votre paroisse).',
+  },
+
   /* ---------------- Communion ---------------- */
   {
     id: 'communion-panis-angelicus', titre: 'Panis angelicus', categorie: 'communion',
@@ -173,7 +294,7 @@ export const CHANTS = [
   {
     id: 'communion-adoro-te', titre: 'Adoro te devote', categorie: 'communion',
     origine: 'Saint Thomas d\'Aquin', cote: null, complet: true,
-    paroles: "Adóro te devóte, latens Déitas,\nquae sub his figúris vere látitas ;\ntibi se cor meum totum súbiicit,\nquia te contémplans totum déficit.\n\nVisus, tactus, gustus in te fállitur,\nsed audítu solo tuto créditur.\nCredo quidquid dixit Dei Fílius :\nnil hoc verbo veritátis vérius.",
+    paroles: "Adóro te devóte, latens Déitas,\nquae sub his figúris vere látitas ;\ntibi se cor meum totum súbiicit,\nquia te contémplans totum déficit.\n\nVisus, tactus, gustus in te fállitur,\nsed audítu solo tuto créditur.\nCredo quidquid dixit Dei Fílius :\nnil hoc verbo veritátis vérius.\n\nIn cruce latébat sola Déitas,\nat hic latet simul et humánitas ;\nambo tamen credens atque cónfitens,\npeto quod petívit latro paénitens.\n\nPlagas, sicut Thomas, non intúeor ;\nDeum tamen meum te confíteor.\nFac me tibi semper magis crédere,\nin te spem habére, te dilígere.\n\nO memoriále mortis Dómini !\npanis vivus, vitam praestans hómini !\nPraesta meae menti de te vívere\net te illi semper dulce sápere.\n\nPie pellicáne, Iesu Dómine,\nme immúndum munda tuo sánguine ;\ncuius una stilla salvum fácere\ntotum mundum quit ab omni scélere.\n\nIesu, quem velátum nunc aspício,\noro fiat illud quod tam sítio :\nut te reveláta cernens fácie,\nvisu sim beátus tuae glóriae. Amen.",
   },
   {
     id: 'communion-anima-christi', titre: 'Anima Christi', categorie: 'communion',
@@ -193,23 +314,80 @@ export const CHANTS = [
     note: 'Paroles complètes à insérer (licence SECLI de votre paroisse).',
   },
 
+  {
+    id: 'communion-ave-verum', titre: 'Ave verum corpus', categorie: 'communion',
+    origine: 'Motet eucharistique (XIVᵉ s.)', cote: null, complet: true,
+    paroles: "Ave, verum corpus natum\nde María Vírgine,\nvere passum, immolátum\nin cruce pro hómine,\ncuius latus perforátum\nfluxit aqua et sánguine :\nesto nobis praegustátum\nin mortis exámine.\nO Iesu dulcis, o Iesu pie,\no Iesu, fili Maríae.",
+  },
+  {
+    id: 'communion-o-salutaris', titre: 'O salutaris Hostia', categorie: 'communion',
+    origine: 'Saint Thomas d\'Aquin', cote: null, complet: true,
+    paroles: "O salutáris Hóstia,\nquae caeli pandis óstium :\nbella premunt hostília,\nda robur, fer auxílium.\n\nUni trinóque Dómino\nsit sempitérna glória,\nqui vitam sine término\nnobis donet in pátria. Amen.",
+  },
+  {
+    id: 'communion-tantum-ergo', titre: 'Tantum ergo', categorie: 'communion',
+    origine: 'Saint Thomas d\'Aquin — hymne Pange lingua', cote: null, complet: true,
+    paroles: "Tantum ergo Sacraméntum\nvenerémur cérnui :\net antíquum documéntum\nnovo cedat rítui ;\npraestet fides suppleméntum\nsénsuum deféctui.\n\nGenitóri Genitóque\nlaus et iubilátio,\nsalus, honor, virtus quoque\nsit et benedíctio ;\nprocedénti ab utróque\ncompar sit laudátio. Amen.",
+  },
+  {
+    id: 'communion-approchons', titre: 'Venez, approchons-nous de la table', categorie: 'communion',
+    origine: 'Communauté de l\'Emmanuel', cote: null, complet: false,
+    paroles: "R/ Venez, approchons-nous de la table du Christ…\n…",
+    note: 'Paroles complètes à insérer (licence SECLI de votre paroisse).',
+  },
+  {
+    id: 'communion-recevez', titre: 'Recevez le Christ', categorie: 'communion',
+    origine: 'Communauté de l\'Emmanuel', cote: null, complet: false,
+    paroles: "R/ Recevez le Christ doux et humble,\nDieu caché en cette hostie…\n…",
+    note: 'Paroles complètes à insérer (licence SECLI de votre paroisse).',
+  },
+  {
+    id: 'communion-voici-le-corps', titre: 'Voici le Corps et le Sang du Seigneur', categorie: 'communion',
+    origine: 'Contemporain', cote: 'D 44-80', complet: false,
+    paroles: "R/ Voici le Corps et le Sang du Seigneur,\nla coupe du salut et le pain de la vie…\n…",
+    note: 'Paroles complètes à insérer (licence SECLI de votre paroisse).',
+  },
+
   /* ---------------- Action de grâce ---------------- */
   {
     id: 'grace-magnificat', titre: 'Magnificat (grégorien)', categorie: 'action-grace',
-    origine: 'Cantique de Marie — Lc 1', cote: null, complet: false,
-    paroles: "Magníficat ánima mea Dóminum,\net exsultávit spíritus meus\nin Deo salutári meo.\nQuia respéxit humilitátem ancíllae suae ;\necce enim ex hoc beátam me dicent\nomnes generatiónes.\nQuia fecit mihi magna qui potens est,\net sanctum nomen eius.\n(…)",
-    note: 'Extrait (versets 1 à 4) — insérez le cantique complet (Lc 1, 46-55 + doxologie) dans le configurateur.',
+    origine: 'Cantique de Marie — Lc 1, 46-55', cote: null, complet: true,
+    paroles: "Magníficat ánima mea Dóminum,\net exsultávit spíritus meus\nin Deo salutári meo.\n\nQuia respéxit humilitátem ancíllae suae ;\necce enim ex hoc beátam me dicent\nomnes generatiónes.\n\nQuia fecit mihi magna qui potens est,\net sanctum nomen eius.\nEt misericórdia eius a progénie in progénies\ntiméntibus eum.\n\nFecit poténtiam in bráchio suo ;\ndispérsit supérbos mente cordis sui.\nDepósuit poténtes de sede,\net exaltávit húmiles.\n\nEsuriéntes implévit bonis,\net dívites dimísit inánes.\nSuscépit Israel púerum suum,\nrecordátus misericórdiae suae.\n\nSicut locútus est ad patres nostros,\nAbraham et sémini eius in saécula.\n\nGlória Patri et Fílio\net Spirítui Sancto,\nsicut erat in princípio et nunc et semper,\net in saécula saeculórum. Amen.",
   },
   {
     id: 'grace-ave-maria-lourdes', titre: 'Ave Maria de Lourdes', categorie: 'action-grace',
-    origine: 'Traditionnel (1873)', cote: null, complet: false,
-    paroles: "R/ Ave, ave, ave Maria !\nAve, ave, ave Maria !\n\n(Couplets au choix de la paroisse.)",
-    note: 'Choisir les couplets avec l\'équipe liturgique.',
+    origine: 'Cantique traditionnel (1873)', cote: null, complet: true,
+    paroles: "R/ Ave, ave, ave María !\nAve, ave, ave María !\n\n1. Ô Vierge Marie,\nle peuple chrétien\nà Lourdes vous prie,\nchez vous il revient.\n\n2. Le fond de la roche\ns'éclaire à l'instant ;\nla Dame s'approche,\nfait signe à l'enfant.\n\n3. Venez, je vous prie,\nici quinze fois,\navec vos amies,\nentendre ma voix.\n\n(Parmi la soixantaine de couplets du cantique — ajoutez ceux de votre choix.)",
   },
   {
     id: 'grace-je-vous-salue', titre: 'Je vous salue, Marie (prière)', categorie: 'action-grace',
     origine: 'Prière traditionnelle', cote: null, complet: true,
     paroles: "Je vous salue, Marie, pleine de grâce.\nLe Seigneur est avec vous.\nVous êtes bénie entre toutes les femmes,\net Jésus, le fruit de vos entrailles, est béni.\nSainte Marie, Mère de Dieu,\npriez pour nous, pauvres pécheurs,\nmaintenant et à l'heure de notre mort.\nAmen.",
+  },
+
+  {
+    id: 'grace-premiere-en-chemin', titre: 'La première en chemin', categorie: 'action-grace',
+    origine: 'Sr M.-C. Guédon / G. Lefebvre', cote: 'V 565', complet: false,
+    paroles: "La première en chemin, Marie, tu nous entraînes…\nR/ Marche avec nous, Marie…\n…",
+    note: 'Paroles complètes à insérer (licence SECLI de votre paroisse).',
+  },
+  {
+    id: 'grace-vierge-sainte', titre: 'Vierge Sainte, Dieu t\'a choisie', categorie: 'action-grace',
+    origine: 'J.-P. Lécot', cote: 'V 136', complet: false,
+    paroles: "Vierge Sainte, Dieu t'a choisie…\nR/ Ave, ave, ave María.\n…",
+    note: 'Paroles complètes à insérer (licence SECLI de votre paroisse).',
+  },
+  {
+    id: 'grace-regarde-etoile', titre: 'Regarde l\'étoile', categorie: 'action-grace',
+    origine: 'Communauté de l\'Emmanuel — d\'après saint Bernard', cote: null, complet: false,
+    paroles: "R/ Regarde l'étoile, invoque Marie,\nsi tu la suis, tu ne crains rien…\n…",
+    note: 'Paroles complètes à insérer (licence SECLI de votre paroisse).',
+  },
+  {
+    id: 'grace-que-ma-bouche', titre: 'Que ma bouche chante ta louange', categorie: 'action-grace',
+    origine: 'Communauté de l\'Emmanuel', cote: null, complet: false,
+    paroles: "R/ Que ma bouche chante ta louange…\n…",
+    note: 'Paroles complètes à insérer (licence SECLI de votre paroisse).',
   },
 
   /* ---------------- Chant final ---------------- */
@@ -225,9 +403,8 @@ export const CHANTS = [
   },
   {
     id: 'final-chez-nous', titre: 'Chez nous, soyez Reine', categorie: 'final',
-    origine: 'Cantique traditionnel', cote: null, complet: false,
-    paroles: "R/ Chez nous, soyez Reine,\nnous sommes à vous ;\nrégnez en souveraine,\nchez nous, chez nous !\nSoyez la Madone\nqu'on prie à genoux,\nqui sourit et pardonne,\nchez nous, chez nous !\n\n(Couplets au choix.)",
-    note: 'Choisir les couplets avec l\'équipe liturgique.',
+    origine: 'Cantique traditionnel', cote: null, complet: true,
+    paroles: "R/ Chez nous, soyez Reine,\nnous sommes à vous ;\nrégnez en souveraine,\nchez nous, chez nous !\nSoyez la Madone\nqu'on prie à genoux,\nqui sourit et pardonne,\nchez nous, chez nous !\n\n1. Vous êtes notre Mère,\ndaignez à votre Fils\noffrir l'humble prière\nde vos enfants chéris.\n\n2. Gardez, ô Vierge pure,\nô Cœur doux entre tous,\nnos âmes sans souillure,\nnos cœurs vaillants et doux.\n\n(Autres couplets au choix de la paroisse.)",
   },
   {
     id: 'final-couronnee', titre: 'Couronnée d\'étoiles', categorie: 'final',
@@ -239,6 +416,35 @@ export const CHANTS = [
     id: 'final-quexulte', titre: 'Qu\'exulte tout l\'univers', categorie: 'final',
     origine: 'Communauté de l\'Emmanuel', cote: 'DEV 44-72', complet: false,
     paroles: "R/ Qu'exulte tout l'univers,\nque soit chantée en tous lieux\nla puissance de Dieu…\n…",
+    note: 'Paroles complètes à insérer (licence SECLI de votre paroisse).',
+  },
+  {
+    id: 'final-pie-jesu', titre: 'Pie Jesu', categorie: 'final',
+    origine: 'Conclusion de la séquence Dies irae — funérailles', cote: null, complet: true,
+    paroles: "Pie Iesu Dómine,\ndona eis réquiem. (bis)\n\nPie Iesu Dómine,\ndona eis réquiem sempitérnam.",
+  },
+  {
+    id: 'final-allez-dire', titre: 'Allez dire à tous les hommes', categorie: 'final',
+    origine: 'D. Rimaud / J. Berthier', cote: null, complet: false,
+    paroles: "R/ Allez dire à tous les hommes :\nle Royaume est parmi vous…\n…",
+    note: 'Paroles complètes à insérer (licence SECLI de votre paroisse).',
+  },
+  {
+    id: 'final-christ-appelle', titre: 'Christ aujourd\'hui nous appelle', categorie: 'final',
+    origine: 'M. Scouarnec / J. Akepsimas', cote: 'T 176', complet: false,
+    paroles: "R/ Christ aujourd'hui nous appelle,\nChrist aujourd'hui nous envoie…\n…",
+    note: 'Paroles complètes à insérer (licence SECLI de votre paroisse).',
+  },
+  {
+    id: 'final-rendons-gloire', titre: 'Rendons gloire à notre Dieu', categorie: 'final',
+    origine: 'Communauté de l\'Emmanuel', cote: null, complet: false,
+    paroles: "R/ Rendons gloire à notre Dieu,\nlui qui fit des merveilles !…\n…",
+    note: 'Paroles complètes à insérer (licence SECLI de votre paroisse).',
+  },
+  {
+    id: 'final-peuple-de-freres', titre: 'Peuple de frères', categorie: 'final',
+    origine: 'G. de Courrèges', cote: 'T 122', complet: false,
+    paroles: "R/ Peuple de frères, peuple du partage,\nporte l'Évangile et la paix de Dieu…\n…",
     note: 'Paroles complètes à insérer (licence SECLI de votre paroisse).',
   },
 ];

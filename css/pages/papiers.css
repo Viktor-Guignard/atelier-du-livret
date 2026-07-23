@@ -16,25 +16,19 @@
 
 /* ---------- Échantillons (textures génératives, aucun asset externe) ---------- */
 
-.papier-swatch { position: relative; height: 300px; }
+.papier-swatch { position: relative; height: 340px; }
 
-/* Condat Silk : surface satinée — reflet doux en diagonale + grain très fin. */
+/* Photos officielles des papiers (assets/papiers/), sur fond doux le temps du chargement. */
 .papier-swatch--silk {
-  background:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.55 0 0 0 0 0.52 0 0 0 0 0.47 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23g)'/%3E%3C/svg%3E"),
-    linear-gradient(118deg, #F2EFE8 0%, #FBFAF6 34%, #EFECE3 50%, #FCFBF8 66%, #F1EEE6 100%);
+  background: url("../../assets/papiers/condat-silk.png") center / cover no-repeat, #FBFAF7;
 }
-.papier-swatch--silk::after {
-  content: ""; position: absolute; inset: 0;
-  background: linear-gradient(118deg, transparent 42%, rgba(255,255,255,.55) 50%, transparent 58%);
-}
-
-/* Old Mill : surface feutrée, martelée — grain marqué + micro-relief. */
 .papier-swatch--oldmill {
-  background:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='h'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.16' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.62 0 0 0 0 0.58 0 0 0 0 0.5 0 0 0 0.12 0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23h)'/%3E%3C/svg%3E"),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 0.98 0 0 0 0.14 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23f)'/%3E%3C/svg%3E"),
-    linear-gradient(150deg, #FDFDFB 0%, #F6F5F0 55%, #FDFDFA 100%);
+  background: url("../../assets/papiers/old-mill-premium-white.jpg") center / cover no-repeat, #FBFAF7;
+}
+.papier-credit {
+  position: absolute; right: var(--sp-3); bottom: var(--sp-2);
+  font-family: var(--font-ui); font-size: 10px; letter-spacing: .04em;
+  color: rgba(75, 85, 99, .55);
 }
 
 .papier-badge {
