@@ -10,7 +10,13 @@
   aspect-ratio: 148 / 210;
   width: 100%;
   container-type: inline-size;
-  background: var(--lv-paper, #FBF8F0);
+  /* Couleur du thème + texture du papier choisi (--lv-texture), fondue en
+     multiply : le grain du papier apparaît sans altérer la palette.
+     Retirée à l'impression et dans les exports PDF (le vrai papier a son grain). */
+  background-color: var(--lv-paper, #FBF8F0);
+  background-image: var(--lv-texture, none);
+  background-size: 62cqw auto;
+  background-blend-mode: multiply;
   color: var(--lv-ink, #3A352C);
   font-family: var(--lv-body, Georgia, serif);
   position: relative;
@@ -289,4 +295,10 @@
   height: 6cqw;
   background: linear-gradient(to top, rgba(179, 57, 47, .18), transparent);
   pointer-events: none;
+}
+
+/* À l'impression, jamais de texture simulée : le vrai papier a son propre grain
+   (la simulation à l'écran servirait sinon deux fois). */
+@media print {
+  .lv-page { background-image: none !important; }
 }

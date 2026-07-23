@@ -566,3 +566,6 @@
   background-image: var(--cfg-paper, none);
   background-size: cover; background-position: center;
 }
+.cfg-papier-desc { display: block; font-size: var(--fs-xs); color: var(--ink-soft); margin-top: 3px; line-height: 1.45; }
+.cfg-papier { align-items: flex-start; padding: 10px; }
+.cfg-papier-nom { display: block; }

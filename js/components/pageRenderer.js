@@ -33,6 +33,17 @@ function blendHex(hex, bgHex, ratio) {
   return `rgb(${mix.join(', ')})`;
 }
 
+/*
+ * Textures des papiers proposés (mêmes fichiers que le configurateur et la page
+ * « Nos papiers »). Le grain apparaît SUR les pages du livret à l'écran ; il est
+ * retiré à l'impression (@media print) et dans les exports PDF (pdfExport),
+ * puisque le vrai papier a déjà son propre grain.
+ */
+const PAPIER_TEXTURES = {
+  couche: 'assets/papiers/sim-condat.jpg',
+  creation: 'assets/papiers/sim-oldmill.jpg',
+};
+
 /** Applique la palette et les polices du projet sur un élément (variables --lv-*). */
 export function applyProjectStyle(node, project) {
   const theme = themeById(project.themeId);
@@ -45,6 +56,11 @@ export function applyProjectStyle(node, project) {
   node.style.setProperty('--lv-soft', theme.soft);
   node.style.setProperty('--lv-display', font.display);
   node.style.setProperty('--lv-body', font.body);
+  // Grain du papier choisi, visible sur la page elle-même (écran uniquement).
+  // URL ABSOLUE : un url() relatif placé dans une variable CSS est résolu
+  // depuis la feuille qui l'utilise (css/…), pas depuis le document.
+  const tex = PAPIER_TEXTURES[project.papier] || PAPIER_TEXTURES.couche;
+  node.style.setProperty('--lv-texture', `url("${new URL(tex, document.baseURI).href}")`);
 }
 
 /* ---------------- Rendu des blocs ---------------- */

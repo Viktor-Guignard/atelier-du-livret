@@ -43,6 +43,9 @@ export async function exportSheetsToPDF(sheetsContainer, filename, { onProgress 
       onclone: (clonedDoc, clonedEl) => {
         clonedEl.style.boxShadow = 'none';
         clonedDoc.querySelectorAll('*').forEach((node) => { node.style.boxShadow = 'none'; });
+        // La texture de papier n'est qu'une SIMULATION d'écran : le fichier
+        // envoyé à l'imprimeur doit rester net (le vrai papier a son grain).
+        clonedDoc.querySelectorAll('.lv-page').forEach((page) => { page.style.backgroundImage = 'none'; });
       },
     });
     const img = canvas.toDataURL('image/jpeg', 0.92);

@@ -13,13 +13,19 @@ import { CATEGORIES_LITURGIQUES, chantById, searchChants, categorieLiturgique } 
 import { renderPage, renderPageThumb, renderAllPages } from '../components/pageRenderer.js';
 import { createBook3D } from '../components/book3d.js';
 import { showToast } from '../components/toast.js';
-import { addToCart, cartItems, defaultCommande } from '../core/cart.js';
+import { addToCart, cartItems, updateItem, defaultCommande } from '../core/cart.js';
 
 /* Papiers du devis (id, libellé, texture HD) — défini localement pour ne pas
    charger le module e-mail (api.js) dans le configurateur. */
+/* `photo` = texture réelle (vignette du sélecteur) ; `sim` = version neutre
+   quasi blanche, utilisée en fond de scène pour ne pas jurer avec l'ivoire. */
 const PAPIERS_CFG = [
-  { id: 'couche',   nom: 'Couché demi-mat — Condat Silk', court: 'Condat Silk', photo: 'assets/papiers/tex-condat.jpg' },
-  { id: 'creation', nom: 'Création Premium White — Old Mill', court: 'Old Mill', photo: 'assets/papiers/tex-oldmill.jpg' },
+  { id: 'couche', nom: 'Couché moderne demi-mat 150 g — Condat Silk',
+    desc: 'Surface satinée, douce et lumineuse. Idéal avec des photos.',
+    photo: 'assets/papiers/tex-condat.jpg', sim: 'assets/papiers/sim-condat.jpg' },
+  { id: 'creation', nom: 'Papier de création 160 g Premium White — Old Mill',
+    desc: 'Surface feutrée, toucher « papier d\'art ». Le choix premium.',
+    photo: 'assets/papiers/tex-oldmill.jpg', sim: 'assets/papiers/sim-oldmill.jpg' },
 ];
 const papierCfgById = (id) => PAPIERS_CFG.find((p) => p.id === id) || PAPIERS_CFG[0];
 
@@ -27,7 +33,9 @@ const papierCfgById = (id) => PAPIERS_CFG.find((p) => p.id === id) || PAPIERS_CF
 function applyPaperBg() {
   const p = papierCfgById(project().papier || 'couche');
   const stage = qs('.cfg-preview');
-  if (stage) stage.style.setProperty('--cfg-paper', `url("${p.photo}")`);
+  // URL absolue : un url() relatif dans une variable CSS est résolu depuis la
+  // feuille de style qui l'utilise (css/…), pas depuis le document.
+  if (stage) stage.style.setProperty('--cfg-paper', `url("${new URL(p.sim, document.baseURI).href}")`);
 }
 
 /* ================================================================
@@ -976,30 +984,63 @@ function renderStylePane() {
   }
   pane.append(fl);
 
-  /* --- Papier (avec aperçu texture en fond) --- */
-  pane.append(el('h3', {}, 'Papier'));
+  pane.append(el('div', { class: 'cfg-hint-box' },
+    'Les palettes et polices proposées sont accordées à chaque modèle et garanties à l\'impression. ' +
+    'Le motif de couverture se règle dans Pages → Couverture.'));
+}
+
+/* ================================================================
+   Onglet PAPIER — choix de la matière (texture simulée + prix)
+   ================================================================ */
+
+function renderPapierPane() {
+  const pane = qs('#pane-papier');
+  pane.textContent = '';
   const papierActuel = project().papier || 'couche';
+
+  pane.append(
+    el('h3', {}, 'Papier du livret'),
+    el('p', { class: 'small muted', style: 'margin:-4px 0 12px' },
+      'Votre livret s\'affiche sur le papier choisi — le grain est simulé à l\'écran. '
+      + 'La couverture est imprimée dans le même papier, en 250 g rainé.'),
+  );
+
   const pl = el('div', { class: 'cfg-papiers' });
   for (const p of PAPIERS_CFG) {
+    const actif = papierActuel === p.id;
     const btn = el('button', {
-      class: `cfg-papier${papierActuel === p.id ? ' is-active' : ''}`,
-      type: 'button', 'aria-pressed': String(papierActuel === p.id),
+      class: `cfg-papier${actif ? ' is-active' : ''}`,
+      type: 'button', 'aria-pressed': String(actif),
     }, [
       el('span', { class: 'cfg-papier-swatch', style: `background-image:url("${p.photo}")` }),
-      el('span', { class: 'cfg-papier-nom' }, p.nom),
+      el('span', {}, [
+        el('span', { class: 'cfg-papier-nom' }, p.nom),
+        el('span', { class: 'cfg-papier-desc' }, p.desc),
+      ]),
     ]);
-    btn.addEventListener('click', () => {
-      store.setStyle({ papier: p.id });
-      applyPaperBg();
-      renderStylePane();
-    });
+    btn.addEventListener('click', () => choisirPapier(p.id));
     pl.append(btn);
   }
   pane.append(pl);
 
   pane.append(el('div', { class: 'cfg-hint-box' },
-    'Votre livret s\'affiche posé sur le papier choisi. Les palettes et polices proposées sont accordées à chaque modèle et garanties à l\'impression. ' +
-    'Le motif de couverture se règle dans Pages → Couverture.'));
+    'Le papier suit votre livret jusqu\'au panier et au devis — vous pourrez encore en changer avant de commander.'));
+}
+
+/**
+ * Change le papier : projet + fond de simulation + pages, ET met à jour la
+ * ligne de panier si ce livret y est déjà (le prix en dépend).
+ */
+function choisirPapier(id) {
+  store.setStyle({ papier: id });          // émet 'style' → refreshPreview()
+  applyPaperBg();
+  const ligne = cartItems().find((it) => it.projet?.id === project().id);
+  if (ligne) {
+    addToCart(project());                  // rafraîchit l'instantané (miniature au bon grain)
+    updateItem(ligne.id, { papier: id });  // et l'option qui pilote le prix
+    showToast('Papier mis à jour dans votre panier.', 'success');
+  }
+  renderPapierPane();
 }
 
 /* ================================================================
@@ -1010,6 +1051,7 @@ renderInfosPane();
 renderPagesPane();
 renderChantsPane();
 renderStylePane();
+renderPapierPane();
 applyPaperBg();
 renderEdition();
 renderThumbs();
