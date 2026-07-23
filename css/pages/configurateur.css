@@ -543,3 +543,26 @@
      dimensions fixes) — la barre reste sur une ligne, « Commander » lisible. */
   #cfg-save, #cfg-add-cart { font-size: 0; gap: 0; padding-inline: 12px; }
 }
+
+/* --- Choix du papier (panneau Style) --- */
+.cfg-papiers { display: flex; flex-direction: column; gap: var(--sp-2); margin-bottom: var(--sp-4); }
+.cfg-papier {
+  display: flex; align-items: center; gap: var(--sp-3);
+  padding: 8px; text-align: left; cursor: pointer;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  transition: border-color var(--dur-fast) var(--ease);
+}
+.cfg-papier:hover { border-color: var(--gold); }
+.cfg-papier.is-active { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
+.cfg-papier-swatch {
+  flex: none; width: 48px; height: 48px; border-radius: 6px;
+  background-size: cover; background-position: center;
+  border: 1px solid var(--border-soft);
+}
+.cfg-papier-nom { font-size: var(--fs-sm); font-weight: 500; color: var(--ink); }
+
+/* --- Simulation : le livret posé sur le papier choisi --- */
+.cfg-view-edition, .cfg-book-holder {
+  background-image: var(--cfg-paper, none);
+  background-size: cover; background-position: center;
+}

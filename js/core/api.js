@@ -75,18 +75,19 @@ export const TARIFS = {
   papiers: {
     // Libellés EXACTS du devis Imprigraphic n°0726-052812. La couverture 4 pages
     // est dans LE MÊME papier en 250 g (Condat Silk 250 g / Old Mill 250 g).
+    // `photo` = texture HD montrée au client (aperçu + fond de simulation).
     'couche': {
       nom: 'Couché moderne demi-mat 150 g — Condat Silk',
+      court: 'Condat Silk demi-mat',
       couverture: 'Couché moderne demi-mat 250 g Condat Silk, rainée',
-      fabricant: 'Condat Silk chez Lecta',
-      url: 'https://www.lecta.com/fr/produits/papier-couche-2-faces/condat-silk',
+      photo: 'assets/papiers/tex-condat.jpg',
       ancre: 'papiers.html#condat-silk',
     },
     'creation': {
       nom: 'Papier de création 160 g Premium White — Old Mill',
+      court: 'Old Mill Premium White',
       couverture: 'Papier de création 250 g Premium White Old Mill, rainée',
-      fabricant: 'Old Mill chez Fedrigoni',
-      url: 'https://specialpapers.fedrigoni.com/fra/serie/old-mill/',
+      photo: 'assets/papiers/tex-oldmill.jpg',
       ancre: 'papiers.html#old-mill',
     },
   },

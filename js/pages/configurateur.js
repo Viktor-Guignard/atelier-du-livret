@@ -13,7 +13,22 @@ import { CATEGORIES_LITURGIQUES, chantById, searchChants, categorieLiturgique } 
 import { renderPage, renderPageThumb, renderAllPages } from '../components/pageRenderer.js';
 import { createBook3D } from '../components/book3d.js';
 import { showToast } from '../components/toast.js';
-import { addToCart, cartItems } from '../core/cart.js';
+import { addToCart, cartItems, defaultCommande } from '../core/cart.js';
+
+/* Papiers du devis (id, libellé, texture HD) — défini localement pour ne pas
+   charger le module e-mail (api.js) dans le configurateur. */
+const PAPIERS_CFG = [
+  { id: 'couche',   nom: 'Couché demi-mat — Condat Silk', court: 'Condat Silk', photo: 'assets/papiers/tex-condat.jpg' },
+  { id: 'creation', nom: 'Création Premium White — Old Mill', court: 'Old Mill', photo: 'assets/papiers/tex-oldmill.jpg' },
+];
+const papierCfgById = (id) => PAPIERS_CFG.find((p) => p.id === id) || PAPIERS_CFG[0];
+
+/** Applique la texture du papier choisi en fond de l'aperçu (simulation). */
+function applyPaperBg() {
+  const p = papierCfgById(project().papier || 'couche');
+  const stage = qs('.cfg-preview');
+  if (stage) stage.style.setProperty('--cfg-paper', `url("${p.photo}")`);
+}
 
 /* ================================================================
    Chargement du projet
@@ -87,7 +102,8 @@ window.addEventListener('beforeunload', (e) => { if (dirty) { doSave(); } });
 const addCartBtn = qs('#cfg-add-cart');
 addCartBtn.addEventListener('click', () => {
   doSave();
-  if (!addToCart(project())) {
+  // Reporte le papier choisi dans le configurateur sur la ligne de panier.
+  if (!addToCart(project(), { ...defaultCommande(), papier: project().papier || 'couche' })) {
     showToast('Panier plein sur cet appareil — retirez un livret ou passez commande.', 'error');
     return;
   }
@@ -960,8 +976,29 @@ function renderStylePane() {
   }
   pane.append(fl);
 
+  /* --- Papier (avec aperçu texture en fond) --- */
+  pane.append(el('h3', {}, 'Papier'));
+  const papierActuel = project().papier || 'couche';
+  const pl = el('div', { class: 'cfg-papiers' });
+  for (const p of PAPIERS_CFG) {
+    const btn = el('button', {
+      class: `cfg-papier${papierActuel === p.id ? ' is-active' : ''}`,
+      type: 'button', 'aria-pressed': String(papierActuel === p.id),
+    }, [
+      el('span', { class: 'cfg-papier-swatch', style: `background-image:url("${p.photo}")` }),
+      el('span', { class: 'cfg-papier-nom' }, p.nom),
+    ]);
+    btn.addEventListener('click', () => {
+      store.setStyle({ papier: p.id });
+      applyPaperBg();
+      renderStylePane();
+    });
+    pl.append(btn);
+  }
+  pane.append(pl);
+
   pane.append(el('div', { class: 'cfg-hint-box' },
-    'Les palettes et polices proposées sont accordées à chaque modèle et garanties à l\'impression. ' +
+    'Votre livret s\'affiche posé sur le papier choisi. Les palettes et polices proposées sont accordées à chaque modèle et garanties à l\'impression. ' +
     'Le motif de couverture se règle dans Pages → Couverture.'));
 }
 
@@ -973,6 +1010,7 @@ renderInfosPane();
 renderPagesPane();
 renderChantsPane();
 renderStylePane();
+applyPaperBg();
 renderEdition();
 renderThumbs();
 setStatus(getParam('projet') ? 'Projet chargé' : 'Nouveau projet — enregistrement automatique activé');

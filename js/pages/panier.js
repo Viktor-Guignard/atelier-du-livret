@@ -109,19 +109,15 @@ function renderItem(item, refreshTotal) {
     Object.entries(TARIFS.papiers).map(([id, p]) =>
       el('option', { value: id, selected: papierActuel === id ? '' : null }, p.nom)));
 
-  // Toucher le papier avant de choisir : notre page matière + la vraie fiche fabricant.
-  const papierLien = el('a', { class: 'papier-lien', target: '_blank', rel: 'noopener' });
-  const majPapierLien = () => {
-    const p = TARIFS.papiers[papier.value];
-    papierLien.href = p.url;
-    papierLien.textContent = `Voir ${p.fabricant} ↗`;
-  };
-  majPapierLien();
-  papier.addEventListener('change', majPapierLien);
-  const papierLiens = el('p', { class: 'small papier-liens' }, [
-    el('a', { href: 'papiers.html' }, 'Nos papiers'), ' · ', papierLien,
+  // Voir le papier choisi : vignette de la texture réelle + lien vers la page matière.
+  const papierSwatch = el('span', { class: 'papier-swatch-mini', 'aria-hidden': 'true' });
+  const majPapierSwatch = () => { papierSwatch.style.backgroundImage = `url("${TARIFS.papiers[papier.value].photo}")`; };
+  majPapierSwatch();
+  const papierLiens = el('div', { class: 'papier-apercu' }, [
+    papierSwatch,
+    el('a', { class: 'small', href: 'papiers.html' }, 'Voir la matière de près'),
   ]);
-  papier.addEventListener('change', () => { item.commande.papier = papier.value; updateItem(item.id, { papier: papier.value }); onChange(); });
+  papier.addEventListener('change', () => { item.commande.papier = papier.value; updateItem(item.id, { papier: papier.value }); majPapierSwatch(); onChange(); });
 
   const bat = el('input', { type: 'checkbox', ...(item.commande.bat ? { checked: '' } : {}) });
   bat.addEventListener('change', () => { item.commande.bat = bat.checked; updateItem(item.id, { bat: bat.checked }); });

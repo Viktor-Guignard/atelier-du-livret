@@ -62,10 +62,15 @@
   accent-color: var(--gold); cursor: pointer; flex: none;
 }
 
-/* Liens papier sous le sélecteur (page matière + fiche fabricant) */
-.papier-liens { margin: -4px 0 var(--sp-3); color: var(--ink-faint); }
-.papier-liens a { color: var(--gold-deep, var(--gold)); text-decoration: underline; text-underline-offset: 3px; }
-.papier-liens a:hover { color: var(--ink); }
+/* Aperçu du papier choisi (vignette texture + lien page matière) sous le sélecteur */
+.papier-apercu { display: flex; align-items: center; gap: var(--sp-2); margin: -4px 0 var(--sp-3); }
+.papier-swatch-mini {
+  flex: none; width: 34px; height: 34px; border-radius: 6px;
+  background-size: cover; background-position: center;
+  border: 1px solid var(--border); box-shadow: inset 0 0 0 1px rgba(255,255,255,.4);
+}
+.papier-apercu a { color: var(--gold-deep, var(--gold)); text-decoration: underline; text-underline-offset: 3px; }
+.papier-apercu a:hover { color: var(--ink); }
 
 /* Bouton-lien discret d'action destructive (retirer du panier…) */
 .btn-link-danger {

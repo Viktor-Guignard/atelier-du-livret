@@ -379,6 +379,7 @@ export function buildDefaultProject(modeleId) {
     categorieId: modele.categorieId,
     themeId: modele.themeId,
     fontId: modele.fontId,
+    papier: 'couche',                 // papier par défaut (choisi dans le configurateur)
     fields: deepClone(DEFAULT_FIELDS[modele.categorieId] || DEFAULT_FIELDS['mariage']),
     pages,
     updatedAt: Date.now(),

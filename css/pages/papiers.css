@@ -18,17 +18,12 @@
 
 .papier-swatch { position: relative; height: 340px; }
 
-/* Photos officielles des papiers (assets/papiers/), sur fond doux le temps du chargement. */
+/* Textures HD des papiers (macro réelle Old Mill / swatch demi-mat Condat). */
 .papier-swatch--silk {
-  background: url("../../assets/papiers/condat-silk.png") center / cover no-repeat, #FBFAF7;
+  background: url("../../assets/papiers/tex-condat.jpg") center / cover no-repeat, #FBFAF7;
 }
 .papier-swatch--oldmill {
-  background: url("../../assets/papiers/old-mill-premium-white.jpg") center / cover no-repeat, #FBFAF7;
-}
-.papier-credit {
-  position: absolute; right: var(--sp-3); bottom: var(--sp-2);
-  font-family: var(--font-ui); font-size: 10px; letter-spacing: .04em;
-  color: rgba(75, 85, 99, .55);
+  background: url("../../assets/papiers/tex-oldmill.jpg") center / cover no-repeat, #FBFAF7;
 }
 
 .papier-badge {
