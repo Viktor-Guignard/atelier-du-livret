@@ -584,7 +584,7 @@
    Voile blanc par-dessus : la scène suggère la matière sans devenir un grand
    aplat gris qui écraserait le livret. */
 .cfg-view-edition, .cfg-book-holder {
-  background-image: linear-gradient(rgba(255, 255, 255, .62), rgba(255, 255, 255, .62)), var(--cfg-paper, none);
+  background-image: linear-gradient(rgba(255, 255, 255, .74), rgba(255, 255, 255, .74)), var(--cfg-paper, none);
   background-size: cover, cover;
   background-position: center, center;
 }
