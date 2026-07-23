@@ -63,6 +63,15 @@ service cloud.firestore {
       allow delete: if request.auth != null;
     }
 
+    // Factures (créées par l'atelier après paiement Stripe). Le jeton {token}
+    // est long et aléatoire : seul le client qui possède le lien peut lire SA
+    // facture. Création/modification/suppression : atelier uniquement.
+    match /factures/{token} {
+      allow get: if true;
+      allow list: if false;
+      allow create, update, delete: if request.auth != null;
+    }
+
     // Bons à tirer partageables (BAT 3D). Le jeton {token} est long et aléatoire :
     // seul celui qui possède le lien peut lire le BAT. Impossible d'énumérer.
     match /bats/{token} {

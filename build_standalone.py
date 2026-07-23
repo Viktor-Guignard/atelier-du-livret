@@ -34,7 +34,7 @@ SHARED_MODULES = [
 PAGES = [
     "index.html", "categories.html", "modeles.html",
     "modele.html", "configurateur.html", "commande.html",
-    "panier.html",
+    "panier.html", "facture.html",
     "atelier.html", "admin.html", "bat.html", "confidentialite.html",
 ]
 

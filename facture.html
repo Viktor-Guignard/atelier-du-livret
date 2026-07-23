@@ -1,0 +1,49 @@
+<!-- © 2026 VIKTO LABS — Tous droits réservés. Code propriétaire, réutilisation interdite (voir LICENSE). Contact : viktor.guignard@gmail.com -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Votre facture — Livrets de messe</title>
+  <meta name="author" content="VIKTO LABS">
+  <meta name="copyright" content="© 2026 VIKTO LABS — Tous droits réservés">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages/facture.css">
+</head>
+<body>
+  <main id="main">
+    <section class="section facture-wrap">
+      <div class="container">
+
+        <div id="fac-loading" class="text-center">
+          <p class="lead">Chargement de votre facture…</p>
+        </div>
+
+        <div id="fac-error" class="text-center" hidden>
+          <h1>Facture introuvable</h1>
+          <p class="lead" style="margin-inline:auto">Ce lien de facture n'est pas valide ou n'existe plus.
+          Vérifiez le lien reçu par e-mail, ou écrivez-nous.</p>
+          <a class="btn btn-ghost" href="index.html" style="margin-top:16px">Retour à l'accueil</a>
+        </div>
+
+        <div id="fac-view" hidden>
+          <div class="facture-toolbar" data-noprint>
+            <p class="small muted">Votre facture est prête. « Télécharger » ouvre la boîte d'impression :
+            choisissez « Enregistrer au format PDF ».</p>
+            <button id="fac-download" class="btn btn-gold" type="button">Télécharger la facture (PDF)</button>
+          </div>
+          <div id="fac-sheet" class="facture-sheet"></div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+  <script type="module" src="js/pages/facture.js"></script>
+</body>
+</html>

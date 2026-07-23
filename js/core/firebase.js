@@ -162,6 +162,78 @@ export async function validateBat(token, nom, appareil, lieu) {
   });
 }
 
+/* ---------------- Factures (payées via Stripe, consultables par jeton) ---------------- */
+
+/**
+ * Numéro de facture séquentiel « LDM-AAAA-NNNN » (série dédiée au service,
+ * distincte de la numérotation interne d'Imprigraphic — séries multiples
+ * autorisées en France). Compteur transactionnel, comme les commandes.
+ */
+async function nextFactureNumber() {
+  const year = new Date().getFullYear();
+  const ref = doc(db, 'counters', `factures-${year}`);
+  return runTransaction(db, async (tx) => {
+    const snap = await tx.get(ref);
+    const next = (snap.exists() ? snap.data().n : 0) + 1;
+    tx.set(ref, { n: next });
+    return `LDM-${year}-${String(next).padStart(4, '0')}`;
+  });
+}
+
+/**
+ * Crée la facture d'une commande payée : numéro séquentiel + document
+ * `factures/{token}` (lisible uniquement avec le jeton, comme les BAT) +
+ * marquage de la commande (statut payé, jeton, numéro). Réservé au compte
+ * atelier. Renvoie { token, numero }.
+ */
+export async function createFacture(order, { lignes, totalTTC }) {
+  const token = randomToken();
+  const numero = await nextFactureNumber();
+  const totalHT = Math.round((totalTTC / 1.2) * 100) / 100;
+
+  await setDoc(doc(db, 'factures', token), {
+    token,
+    numero,
+    commandeNumero: order.numero || null,
+    client: {
+      prenom: order.contact?.prenom || '',
+      nom: order.contact?.nom || '',
+      email: order.contact?.email || '',
+    },
+    lignes,                                   // [{ label, ttc }]
+    totalTTC: Math.round(totalTTC * 100) / 100,
+    totalHT,
+    tva: Math.round((totalTTC - totalHT) * 100) / 100,
+    payeeLe: serverTimestamp(),
+    creeLe: serverTimestamp(),
+  });
+  if (order.id || order.numero) {
+    try {
+      await updateDoc(doc(db, 'commandes', order.id || order.numero), {
+        paiementStatut: 'payee',
+        paiementLe: serverTimestamp(),
+        factureToken: token,
+        factureNumero: numero,
+      });
+    } catch { /* non bloquant */ }
+  }
+  return { token, numero };
+}
+
+/** Lit une facture par son jeton (accès public : il faut connaître le jeton). */
+export async function getFacture(token) {
+  const snap = await getDoc(doc(db, 'factures', token));
+  return snap.exists() ? snap.data() : null;
+}
+
+/** Mémorise le lien de paiement Stripe collé dans l'admin (réservé atelier). */
+export async function savePaymentLink(order, lien) {
+  await updateDoc(doc(db, 'commandes', order.id || order.numero), {
+    paiementLien: lien,
+    paiementStatut: order.paiementStatut || 'en_attente',
+  });
+}
+
 /* ---------------- Panier partageable (reprise par code, sans compte) ---------------- */
 
 /**

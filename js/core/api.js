@@ -12,6 +12,20 @@ import { formatDateFr } from './utils.js';
 export const CONTACT_EMAIL = 'viktor.guignard@gmail.com';
 
 /*
+ * Émetteur des factures : Imprigraphic (décision Viktor — la société encaisse
+ * via Stripe et facture). Mentions reprises du devis n°0726-052812.
+ */
+export const FACTURE_EMETTEUR = {
+  nom: 'ImpriGraphic',
+  soustitre: 'De la création à l\'impression — service « Livrets de messe »',
+  adresse: '9-13, rue de la Folie Regnault, 75011 Paris',
+  tel: '01 44 93 26 30',
+  email: 'contact@imprigraphic.fr',
+  mentions: 'S.A.S au capital de 115 000 € · R.C. Paris B 319 772 695 · Siret 319 772 695 00031 · APE 1812 Z',
+  tva: 'TVA intracommunautaire : FR 28319772695',
+};
+
+/*
  * EmailJS — identifiants publics (conçus pour être visibles côté client, comme
  * Firebase). Service Gmail connecté à CONTACT_EMAIL + un template générique
  * piloté par les variables to_email / reply_to / subject / message.
@@ -329,6 +343,40 @@ export async function submitOrder(payload, { numero, adminUrl } = {}) {
     console.warn('Accusé de réception client non envoyé (best-effort) :', err);
   }
   return { ok: true, method: 'emailjs' };
+}
+
+/**
+ * Envoie au CLIENT sa facture (lien sécurisé par jeton, PDF téléchargeable sur
+ * la page). Appelé depuis l'admin après « Marquer payée ». Rejette si échec,
+ * pour que l'admin puisse signaler et réessayer.
+ */
+export async function sendFactureToClient({ email, prenom, numeroFacture, numeroCommande, montantTTC, url }) {
+  const message = [
+    `Bonjour ${(prenom || '').trim()},`.replace(' ,', ','),
+    '',
+    'Merci pour votre règlement — voici votre facture.',
+    '',
+    RULE,
+    `  Facture               ${numeroFacture}`,
+    numeroCommande ? `  Commande              ${numeroCommande}` : null,
+    `  Montant réglé TTC     ${montantTTC.toFixed(2)} €`,
+    RULE,
+    '',
+    'Consultez et téléchargez votre facture (PDF) ici :',
+    url,
+    '',
+    'Conservez ce lien : il reste accessible à tout moment.',
+    'Votre commande part en fabrication — nous revenons vers vous pour la livraison.',
+    '',
+    'À très bientôt,',
+    'Livrets de messe · créé par VIKTO LABS · imaginé et imprimé par Imprigraphic',
+  ].filter((l) => l !== null).join('\n');
+  return sendEmail({
+    to_email: email,
+    reply_to: CONTACT_EMAIL,
+    subject: `Votre facture ${numeroFacture} — Livrets de messe`,
+    message,
+  });
 }
 
 /**

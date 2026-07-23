@@ -6,7 +6,8 @@
  */
 
 import { qs, el } from '../core/utils.js';
-import { onAuthChange, signIn, signOutAdmin, listOrders, createBatShare, getBat } from '../core/firebase.js';
+import { onAuthChange, signIn, signOutAdmin, listOrders, createBatShare, getBat, createFacture, savePaymentLink } from '../core/firebase.js';
+import { sendFactureToClient } from '../core/api.js';
 import { buildPrintKit } from '../components/printKit.js';
 import { exportSheetsToPDF } from '../components/pdfExport.js';
 import { showToast } from '../components/toast.js';
@@ -110,6 +111,7 @@ function renderOrderList() {
     }, [
       el('div', { class: 'admin-order-top' }, [
         el('span', { class: 'admin-order-numero' }, o.numero),
+        o.paiementStatut === 'payee' ? el('span', { class: 'admin-order-payee' }, '✓ Payée') : null,
         el('span', { class: `admin-order-intent${o.intent === 'devis' ? ' is-devis' : ''}` },
           o.intent === 'devis' ? 'Devis' : 'Commande'),
       ]),
@@ -140,7 +142,112 @@ function selectOrder(numero) {
   qs('#detail-panel').hidden = false;
   renderItemSwitcher(order);
   renderBatShare(order, activeItemIndex);
+  renderPaiement(order);
   renderPrint(order, activeItemIndex);
+}
+
+/* ---------------- Paiement Stripe + facture ---------------- */
+
+/** Lignes de facture d'une commande : un livret = une ligne, TTC. */
+function factureLignes(order) {
+  const items = orderItemsOf(order);
+  const lignes = items.map((it) => {
+    const c = it.commande || {};
+    const est = c.estimation || {};
+    return {
+      label: `${it.projet?.nom || 'Livret'} — ${c.quantite || '?'} ex. · A5 · `
+        + `${est.pagesFacturees || it.projet?.pages?.length || '?'} pages · création, BAT & impression`,
+      ttc: est.total ?? 0,
+    };
+  });
+  const totalTTC = order.montantTotal ?? lignes.reduce((s, l) => s + l.ttc, 0);
+  return { lignes, totalTTC };
+}
+
+const factureLink = (token) => new URL(`facture.html?f=${token}`, location.href).href;
+
+function renderPaiement(order) {
+  const zone = qs('#paiement-zone');
+  zone.textContent = '';
+  zone.append(el('h3', { class: 'admin-bat-title' }, 'Paiement (Stripe) & facture'));
+  const { lignes, totalTTC } = factureLignes(order);
+
+  /* --- Déjà payée : statut + facture --- */
+  if (order.paiementStatut === 'payee' && order.factureToken) {
+    const link = factureLink(order.factureToken);
+    zone.append(
+      el('p', { class: 'admin-bat-status small is-valide' },
+        `✓ Payée — facture ${order.factureNumero || ''} envoyée au client.`),
+      el('div', { class: 'admin-bat-linkrow' }, [
+        el('input', { type: 'text', readonly: '', value: link, 'aria-label': 'Lien de la facture', onclick: (e) => e.target.select() }),
+        el('button', {
+          class: 'btn btn-light btn-sm', type: 'button',
+          onclick: async () => { try { await navigator.clipboard.writeText(link); showToast('Lien copié.', 'success'); } catch { showToast('Copie impossible.', 'error'); } },
+        }, 'Copier'),
+      ]),
+      el('a', { class: 'btn btn-ghost btn-sm', href: link, target: '_blank', rel: 'noopener', style: 'margin-top:8px' }, 'Ouvrir la facture'),
+    );
+    return;
+  }
+
+  /* --- En attente : lien Stripe + marquage payé --- */
+  const lienInput = el('input', {
+    type: 'url', placeholder: 'https://buy.stripe.com/…',
+    value: order.paiementLien || '', 'aria-label': 'Lien de paiement Stripe',
+  });
+  const saveBtn = el('button', { class: 'btn btn-light btn-sm', type: 'button' }, 'Enregistrer');
+  saveBtn.addEventListener('click', async () => {
+    try {
+      await savePaymentLink(order, lienInput.value.trim());
+      order.paiementLien = lienInput.value.trim();
+      showToast('Lien de paiement enregistré.', 'success');
+      renderPaiement(order);
+    } catch { showToast('Enregistrement impossible — vérifiez les règles Firestore.', 'error'); }
+  });
+
+  const prenom = order.contact?.prenom || '';
+  const mailBody = `Bonjour ${prenom},\n\nVotre bon à tirer est validé — voici le lien pour régler votre commande`
+    + `${order.numero ? ' ' + order.numero : ''} (${totalTTC.toFixed(2)} € TTC) :\n${order.paiementLien || '[coller le lien Stripe]'}\n\n`
+    + 'Dès réception du règlement, vous recevrez votre facture et la fabrication sera lancée.\n\n'
+    + 'À très bientôt,\nLivrets de messe · créé par VIKTO LABS · imaginé et imprimé par Imprigraphic';
+  const mailtoHref = `mailto:${order.contact?.email || ''}?subject=${encodeURIComponent(`Règlement de votre commande${order.numero ? ' ' + order.numero : ''} — Livrets de messe`)}&body=${encodeURIComponent(mailBody)}`;
+
+  const payeBtn = el('button', { class: 'btn btn-gold btn-sm', type: 'button' }, 'Marquer payée + envoyer la facture');
+  payeBtn.addEventListener('click', async () => {
+    if (!confirm(`Confirmer : paiement de ${totalTTC.toFixed(2)} € TTC reçu (vérifié dans Stripe) ?\nLa facture sera créée et envoyée à ${order.contact?.email || '?'}.`)) return;
+    payeBtn.disabled = true; payeBtn.textContent = 'Création de la facture…';
+    try {
+      const { token, numero } = await createFacture(order, { lignes, totalTTC });
+      Object.assign(order, { paiementStatut: 'payee', factureToken: token, factureNumero: numero });
+      try {
+        await sendFactureToClient({
+          email: order.contact?.email, prenom,
+          numeroFacture: numero, numeroCommande: order.numero,
+          montantTTC: totalTTC, url: factureLink(token),
+        });
+        showToast(`Facture ${numero} créée et envoyée.`, 'success');
+      } catch (err) {
+        console.error(err);
+        showToast(`Facture ${numero} créée, mais e-mail non parti — envoyez le lien manuellement.`, 'error');
+      }
+      renderPaiement(order);
+      renderOrderList();
+    } catch (err) {
+      console.error(err);
+      payeBtn.disabled = false; payeBtn.textContent = 'Marquer payée + envoyer la facture';
+      showToast('Impossible de créer la facture — vérifiez les règles Firestore.', 'error');
+    }
+  });
+
+  zone.append(
+    el('p', { class: 'small muted', style: 'margin:0 0 10px' },
+      `Montant de la commande : ${totalTTC.toFixed(2)} € TTC. Créez un lien de paiement dans le tableau de bord Stripe (Imprigraphic), collez-le ici, envoyez-le au client. Une fois le paiement visible dans Stripe, marquez la commande payée : la facture ${''}est générée et envoyée automatiquement.`),
+    el('div', { class: 'admin-bat-linkrow' }, [lienInput, saveBtn]),
+    el('div', { class: 'admin-bat-actions' }, [
+      el('a', { class: `btn btn-ghost btn-sm${order.paiementLien ? '' : ' is-disabled'}`, href: mailtoHref }, 'Préparer l\'e-mail de paiement'),
+      payeBtn,
+    ]),
+  );
 }
 
 /* Sélecteur de livret pour les commandes multi-livrets (chaque livret a son BAT + PDF). */

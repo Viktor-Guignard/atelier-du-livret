@@ -3,6 +3,7 @@ Allow: /
 Disallow: /admin.html
 Disallow: /atelier.html
 Disallow: /bat.html
+Disallow: /facture.html
 Disallow: /standalone/
 
 Sitemap: https://livretsdemesse.fr/sitemap.xml
