@@ -42,6 +42,7 @@
   align-items: baseline;
   gap: var(--sp-3);
   min-width: 0;
+  overflow: hidden;
 }
 .cfg-title input {
   border: 1px solid transparent;
@@ -58,7 +59,12 @@
 .cfg-title input:hover { border-color: var(--border); border-radius: var(--radius-sm); }
 .cfg-title input:focus-visible { border-color: var(--gold); background: var(--surface); }
 
-.cfg-status { font-size: var(--fs-xs); color: var(--ink-faint); white-space: nowrap; }
+/* Tronqué plutôt que débordant : sans cela le texte de statut se dessinait
+   par-dessus les boutons quand la barre est à l'étroit. */
+.cfg-status {
+  font-size: var(--fs-xs); color: var(--ink-faint);
+  white-space: nowrap; min-width: 0; overflow: hidden; text-overflow: ellipsis;
+}
 .cfg-status.is-dirty { color: var(--gold-deep); }
 .cfg-status.is-saved { color: var(--success); }
 
@@ -85,23 +91,30 @@
 
 .cfg-tabs {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  /* 5 onglets : Informations · Pages · Chants · Style · Papier */
+  grid-template-columns: repeat(5, 1fr);
   border-bottom: 1px solid var(--border-soft);
   flex: none;
 }
 .cfg-tab {
   min-height: 48px;
+  padding: 0 2px;
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
   font-family: var(--font-ui);
   font-size: var(--fs-xs);
   font-weight: 600;
-  letter-spacing: .02em;
+  letter-spacing: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: var(--ink-soft);
   cursor: pointer;
   transition: color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
 }
+/* Libellés courts (« Infos ») : le panneau fait 380 px, soit ~76 px par onglet —
+   « Informations » en entier s'y ferait tronquer. Nom complet en aria-label. */
 .cfg-tab:hover { color: var(--ink); }
 .cfg-tab.is-active { color: var(--gold-deep); border-bottom-color: var(--gold); }
 
@@ -525,10 +538,13 @@
   .cfg-title input { font-size: var(--fs-base); }
 }
 
+/* Barre à l'étroit : le statut disparaît avant de gêner les boutons. */
+@media (max-width: 1023px) {
+  .cfg-status { display: none; }
+}
 @media (max-width: 640px) {
   .cfg-actions .btn { padding-inline: 1em; }
   .cfg-back span { display: none; }
-  .cfg-status { display: none; }
   .cfg-preview-toolbar { padding: var(--sp-2) var(--sp-3); }
   .cfg-page-nav { display: none; }
 }
