@@ -88,7 +88,7 @@ export const FAQ = [
   {
     id: 'prix-comparaison-papier', cat: 'prix',
     q: 'Quel papier est le moins cher ?',
-    a: 'Le <strong>Condat Silk</strong> (couché demi-mat 150 g) est le plus économique. Le <strong>Old Mill Premium White</strong>, papier de création 160 g, est plus haut de gamme : comptez environ 35 % de plus. Pour 100 livrets de 12 pages : 595,20 € en Condat Silk contre 811,20 € en Old Mill.',
+    a: 'Le <strong>Condat Silk</strong> (couché demi-mat 150 g) est le plus économique. Le <strong>Old Mill Premium White</strong>, papier de création 160 g, est plus haut de gamme.<br><br>Pour 100 livrets de 12 pages : <strong>595,20 €</strong> en Condat Silk contre <strong>811,20 €</strong> en Old Mill. L\'écart se resserre sur les petites séries et se creuse sur les grandes — basculez d\'un papier à l\'autre dans le configurateur, le prix se recalcule aussitôt.',
     kw: ['papier moins cher', 'economique', 'difference prix papier', 'old mill prix', 'condat prix'],
     suite: ['papier-lequel', 'papier-difference'],
   },
@@ -512,15 +512,15 @@ export const FAQ = [
   {
     id: 'livraison-modes', cat: 'livraison',
     q: 'Quels sont les modes de livraison ?',
-    a: 'Trois possibilités, à choisir au moment de commander :<br>• <strong>Retrait à l\'atelier</strong> (Paris 11ᵉ) — gratuit<br>• <strong>Livraison à Paris</strong> — 50 €<br>• <strong>Chronopost France métropolitaine</strong> — selon le poids du colis (environ 20 à 32 €)<br><br>Le tarif exact s\'affiche dès que vous sélectionnez l\'option.',
-    kw: ['livraison', 'expedition', 'envoi', 'mode', 'options', 'recevoir', 'frais de port'],
+    a: 'Trois possibilités, à choisir au moment de commander :<br>• <strong>Retrait à l\'atelier</strong> (Paris 11ᵉ) — gratuit<br>• <strong>Livraison à Paris</strong> — 50 €<br>• <strong>Chronopost France métropolitaine</strong> — selon le poids du colis, d\'environ 24 € pour 50 livrets à une soixantaine d\'euros pour 300<br><br>Le tarif exact s\'affiche dès que vous sélectionnez l\'option : c\'est lui qui compte.',
+    kw: ['livraison', 'expedition', 'envoi', 'mode', 'options', 'recevoir', 'frais de port', 'chronopost', 'transporteur'],
     suite: ['livraison-delai', 'livraison-retrait', 'livraison-prix'],
   },
   {
     id: 'livraison-prix', cat: 'livraison',
     q: 'Combien coûte la livraison ?',
-    a: 'Le retrait à l\'atelier est <strong>gratuit</strong>. La livraison dans Paris est à <strong>50 €</strong>. Pour le reste de la France, le tarif Chronopost dépend du poids du colis : comptez environ 20 € pour un petit volume et jusqu\'à une trentaine d\'euros pour 300 livrets.',
-    kw: ['prix livraison', 'frais de port', 'combien livraison', 'cout envoi', 'port'],
+    a: 'Le retrait à l\'atelier est <strong>gratuit</strong>. La livraison dans Paris est à <strong>50 €</strong>. Pour le reste de la France, le tarif Chronopost suit le poids du colis — à titre indicatif, sur un livret de 12 pages :<br>• 50 exemplaires → environ 24 €<br>• 100 exemplaires → environ 30 €<br>• 300 exemplaires → environ 61 €<br><br>Le montant exact apparaît dès que vous choisissez ce mode de livraison.',
+    kw: ['prix livraison', 'frais de port', 'combien livraison', 'cout envoi', 'port', 'tarif chronopost'],
     suite: ['livraison-modes', 'livraison-gratuite'],
   },
   {
