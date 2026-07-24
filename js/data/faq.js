@@ -60,7 +60,7 @@ export const FAQ = [
   {
     id: 'prix-devis', cat: 'prix',
     q: 'Puis-je avoir un devis écrit ?',
-    a: 'Oui, immédiatement et sans nous écrire : dans le configurateur et sur la page de commande, le bouton <strong>« Télécharger le devis (PDF) »</strong> génère un devis complet et daté, prêt à présenter à votre paroisse ou à votre famille.',
+    a: 'Oui, immédiatement et sans nous écrire : sur la <strong>page de commande</strong>, le bouton <strong>« Télécharger le devis (PDF) »</strong> génère un devis complet et daté, prêt à présenter à votre paroisse ou à votre famille. Rien ne nous est envoyé et vous ne laissez aucune coordonnée.',
     kw: ['devis', 'pdf', 'ecrit', 'papier', 'justificatif', 'estimation'],
     suite: ['prix-validite', 'prix-combien'],
   },
@@ -220,7 +220,7 @@ export const FAQ = [
   {
     id: 'chants-bibliotheque', cat: 'chants',
     q: 'Proposez-vous une bibliothèque de chants ?',
-    a: 'Oui, environ <strong>70 chants</strong> classés par moment de la célébration (entrée, Gloria, psaume, offertoire, communion, envoi…). Vous les parcourez, vous cliquez, ils s\'insèrent dans le livret avec leur mise en page.',
+    a: 'Oui, <strong>69 chants</strong> classés par moment de la célébration (entrée, Gloria, psaume, offertoire, communion, chant final…). Vous les parcourez, vous cliquez, ils s\'insèrent dans le livret avec leur mise en page.',
     kw: ['chants', 'bibliotheque', 'liste', 'repertoire', 'cantiques', 'musique', 'combien de chants'],
     suite: ['chants-perso', 'chants-droits', 'chants-classement'],
   },
@@ -248,8 +248,8 @@ export const FAQ = [
   {
     id: 'chants-classement', cat: 'chants',
     q: 'Les chants sont-ils classés par moment de la messe ?',
-    a: 'Oui, exactement : entrée, Kyrie, Gloria, psaume, acclamation, offertoire, Sanctus, Agnus Dei, communion, action de grâce, envoi, et les chants mariaux. Vous suivez le déroulé de la célébration sans rien oublier.',
-    kw: ['classement', 'moment', 'ordre', 'categorie', 'entree', 'communion', 'envoi', 'deroule'],
+    a: 'Oui, en onze moments qui suivent la messe : <strong>chant d\'entrée, Kyrie, Gloria, psaume, Alléluia, offertoire, Sanctus, Agneau de Dieu, communion, action de grâce et chant final</strong>. Vous suivez le déroulé de la célébration sans rien oublier.<br><br>Les chants mariaux (Magnificat, Ave Maria de Lourdes, Salve Regina…) se trouvent dans « action de grâce » et « chant final ».',
+    kw: ['classement', 'moment', 'ordre', 'categorie', 'entree', 'communion', 'envoi', 'final', 'deroule', 'marial', 'mariaux'],
     suite: ['chants-bibliotheque', 'ceremonies-structure'],
   },
   {
@@ -422,7 +422,7 @@ export const FAQ = [
   {
     id: 'commande-suivi', cat: 'commande',
     q: 'Comment suivre ma commande ?',
-    a: 'Votre numéro de commande (au format <strong>CMD-2026-0001</strong>) figure dans l\'accusé de réception. Rappelez-le dans vos messages : il nous permet de retrouver votre dossier instantanément. Vous recevez un e-mail à chaque étape : réception, bon à tirer, règlement, expédition.',
+    a: 'Votre numéro de commande (au format <strong>CMD-2026-0001</strong>) figure dans l\'accusé de réception. Rappelez-le dans vos messages : il nous permet de retrouver votre dossier instantanément.<br><br>Vous recevez un e-mail à la réception de la commande, à l\'envoi de votre bon à tirer, après votre validation, puis avec votre facture. Pour l\'expédition, nous vous prévenons personnellement.',
     kw: ['suivi', 'suivre', 'ou en est', 'numero commande', 'statut', 'avancement', 'tracking'],
     suite: ['pratique-contact', 'livraison-suivi'],
   },
@@ -436,7 +436,7 @@ export const FAQ = [
   {
     id: 'commande-devis-avant', cat: 'commande',
     q: 'Puis-je avoir un devis sans commander ?',
-    a: 'Bien sûr : téléchargez le devis PDF depuis le configurateur ou la page de commande, sans rien envoyer ni laisser vos coordonnées. Vous ne vous engagez à rien tant que vous n\'avez pas cliqué « Commander ».',
+    a: 'Bien sûr : ajoutez votre livret au panier, allez sur la page de commande et cliquez <strong>« Télécharger le devis (PDF) »</strong> — sans rien envoyer ni laisser vos coordonnées. Vous ne vous engagez à rien tant que vous n\'avez pas cliqué « Commander ».',
     kw: ['devis sans commander', 'sans engagement', 'juste un prix', 'estimation', 'gratuit'],
     suite: ['prix-devis', 'prix-validite'],
   },
@@ -554,7 +554,7 @@ export const FAQ = [
   {
     id: 'livraison-suivi', cat: 'livraison',
     q: 'Puis-je suivre mon colis ?',
-    a: 'Oui, pour les envois Chronopost : le numéro de suivi vous est communiqué par e-mail dès l\'expédition, et vous le suivez sur chronopost.fr. Chronopost livre en général le lendemain de la prise en charge.',
+    a: 'Oui, pour les envois Chronopost : nous vous transmettons le numéro de suivi au moment de l\'expédition, et vous le suivez sur chronopost.fr. Chronopost livre en général le lendemain de la prise en charge. Si vous ne l\'avez pas reçu, demandez-le nous, nous vous le donnons tout de suite.',
     kw: ['suivi colis', 'tracking', 'numero suivi', 'ou est mon colis', 'chronopost'],
     suite: ['livraison-delai', 'commande-suivi'],
   },
@@ -585,7 +585,7 @@ export const FAQ = [
   {
     id: 'paiement-moyens', cat: 'paiement',
     q: 'Quels moyens de paiement acceptez-vous ?',
-    a: 'La <strong>carte bancaire</strong>, par un lien de paiement sécurisé Stripe (avec Apple Pay et Google Pay sur mobile). Pour un virement ou un règlement par mandat administratif — courant pour les paroisses —, écrivez-nous, c\'est possible.',
+    a: 'La <strong>carte bancaire</strong>, par un lien de paiement sécurisé Stripe. Selon votre appareil, le paiement par portefeuille (Apple Pay, Google Pay) peut également vous être proposé.<br><br>Pour un virement ou un règlement par mandat administratif — courant pour les paroisses —, écrivez-nous, c\'est possible.',
     kw: ['paiement', 'payer', 'carte', 'cb', 'virement', 'cheque', 'moyen', 'stripe', 'especes'],
     suite: ['paiement-quand', 'paiement-securite'],
   },
@@ -781,14 +781,14 @@ export const FAQ = [
   {
     id: 'pratique-donnees', cat: 'pratique',
     q: 'Que faites-vous de mes données personnelles ?',
-    a: 'Le strict minimum : votre nom, votre e-mail et votre téléphone servent à traiter votre commande, rien d\'autre. Aucune revente, aucune publicité, aucun traçage publicitaire. Votre livret reste sur votre appareil tant que vous ne commandez pas. Le détail est sur la page <a href="confidentialite.html">Confidentialité & données</a>.',
+    a: 'Le strict minimum : votre nom, votre e-mail et votre téléphone servent à traiter votre commande, rien d\'autre. Aucune revente, aucune publicité, aucun traçage publicitaire.<br><br>Votre livret est conservé sur votre appareil ; dès que vous l\'ajoutez au panier, une copie est également enregistrée sur nos serveurs sous votre code « PAN-XXXXXX » — c\'est ce qui vous permet de le retrouver depuis un autre appareil. Cette copie ne contient aucune donnée personnelle : ni nom, ni adresse, ni e-mail.<br><br>Le détail est sur la page <a href="confidentialite.html">Confidentialité & données</a>.',
     kw: ['donnees', 'rgpd', 'vie privee', 'confidentialite', 'personnel', 'cookies', 'traçage'],
     suite: ['pratique-supprimer-donnees', 'paiement-securite'],
   },
   {
     id: 'pratique-supprimer-donnees', cat: 'pratique',
     q: 'Puis-je faire supprimer mes données ?',
-    a: 'Oui, à tout moment : écrivez-nous et nous supprimons votre dossier, sous réserve des factures que la loi nous oblige à conserver dix ans. Pour effacer votre travail en cours, il suffit de vider votre panier sur le site.',
+    a: 'Oui, à tout moment : écrivez-nous et nous supprimons votre dossier — commande, bon à tirer et panier sauvegardé —, sous réserve des factures que la loi nous oblige à conserver dix ans.<br><br>Vider votre panier sur le site efface votre travail de cet appareil ; dites-le nous si vous voulez aussi que la copie associée à votre code « PAN-XXXXXX » soit supprimée de nos serveurs.',
     kw: ['supprimer donnees', 'effacer', 'oubli', 'rgpd', 'droit', 'retirer'],
     suite: ['pratique-donnees', 'pratique-contact'],
   },
