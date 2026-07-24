@@ -3,6 +3,7 @@
 import { el, qs } from '../core/utils.js';
 import { CATEGORIES } from '../data/categories.js';
 import { itemCount, onCartChange } from '../core/cart.js';
+import { initChatbot } from './chatbot.js';
 
 const BRAND_MARK =
   '<svg width="34" height="34" viewBox="0 0 48 48" fill="none" stroke="currentColor" ' +
@@ -138,4 +139,9 @@ export function initSite({ active = '' } = {}) {
     ]),
   ]);
   document.body.append(footer);
+
+  /* Assistant « Une question ? » — uniquement sur les pages publiques, donc
+     partout où l'en-tête du site est monté (l'espace privé et l'atelier ne
+     passent pas par initSite). */
+  initChatbot();
 }

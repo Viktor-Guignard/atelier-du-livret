@@ -81,8 +81,10 @@ const AVIS = [
 
 const STAR = '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true"><path d="M12 2.6l2.8 5.9 6.4.8-4.7 4.4 1.2 6.3-5.7-3.1-5.7 3.1 1.2-6.3L2.8 9.3l6.4-.8z"/></svg>';
 
+// Section masquée en attendant de vrais témoignages clients (le bloc est
+// commenté dans index.html) : on ne rend rien si le conteneur est absent.
 const avisGrid = document.getElementById('home-avis');
-for (const avis of AVIS) {
+for (const avis of (avisGrid ? AVIS : [])) {
   avisGrid.append(el('figure', { class: 'card avis-card', style: 'margin:0' }, [
     el('div', { class: 'card-body' }, [
       el('span', { class: 'stars', html: STAR.repeat(5), role: 'img', 'aria-label': '5 étoiles sur 5' }),

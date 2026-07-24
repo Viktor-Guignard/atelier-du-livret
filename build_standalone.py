@@ -22,6 +22,8 @@ SHARED_MODULES = [
     "js/data/categories.js",
     "js/data/chants.js",
     "js/data/modeles.js",
+    "js/data/faq.js",
+    "js/components/chatbot.js",
     "js/components/ornaments.js",
     "js/components/pageRenderer.js",
     "js/components/printKit.js",

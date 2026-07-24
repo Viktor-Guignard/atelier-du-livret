@@ -307,3 +307,168 @@ input::placeholder, textarea::placeholder { color: var(--ink-faint); }
   border-radius: var(--radius-sm); transition: top var(--dur-fast) var(--ease);
 }
 .skip-link:focus-visible { top: var(--sp-2); color: #FFF; }
+
+/* --- Assistant (questions fréquentes, sans IA) --------------------------------- */
+
+.chat-racine {
+  position: fixed; right: var(--sp-5); bottom: var(--sp-5);
+  z-index: var(--z-modal);
+  display: flex; flex-direction: column; align-items: flex-end; gap: var(--sp-3);
+}
+
+/* Bulle d'appel */
+.chat-bulle {
+  display: inline-flex; align-items: center; gap: var(--sp-2);
+  background: var(--night); color: #F5F1E6;
+  border: 0; border-radius: 99px;
+  padding: 13px 20px 13px 17px;
+  font-family: var(--font-ui); font-size: var(--fs-sm); font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 10px 30px -8px rgba(31, 41, 51, .45);
+  transition: background var(--dur) var(--ease), transform var(--dur) var(--ease),
+              box-shadow var(--dur) var(--ease), padding var(--dur) var(--ease);
+}
+.chat-bulle:hover { background: var(--night-hover); transform: translateY(-2px); }
+.chat-bulle:focus-visible { outline: none; box-shadow: var(--focus-ring), 0 10px 30px -8px rgba(31, 41, 51, .45); }
+.chat-bulle-icone { display: grid; place-items: center; }
+
+/* Visiteur déjà venu : bulle réduite à l'icône, pour ne pas encombrer. */
+.chat-bulle.is-discret { padding: 14px; }
+.chat-bulle.is-discret .chat-bulle-texte { display: none; }
+.chat-bulle.is-ouvert .chat-bulle-texte { display: none; }
+.chat-bulle.is-ouvert { padding: 14px; background: var(--gold-deep); }
+
+/* Panneau de conversation */
+.chat-panneau {
+  width: min(380px, calc(100vw - var(--sp-5) * 2));
+  height: min(560px, calc(100vh - 140px));
+  display: flex; flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 30px 70px -24px rgba(31, 41, 51, .5);
+  overflow: hidden;
+  animation: chat-apparait var(--dur) var(--ease);
+}
+.chat-panneau[hidden] { display: none; }
+@keyframes chat-apparait {
+  from { opacity: 0; transform: translateY(14px) scale(.98); }
+  to   { opacity: 1; transform: none; }
+}
+
+.chat-entete {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: var(--sp-3);
+  padding: var(--sp-4);
+  background: var(--night); color: #F5F1E6;
+}
+.chat-entete strong { display: block; font-size: var(--fs-md); font-family: var(--font-display); }
+.chat-sous { display: block; font-size: var(--fs-xs); opacity: .72; margin-top: 2px; }
+.chat-fermer {
+  background: none; border: 0; color: inherit; cursor: pointer;
+  padding: 4px; border-radius: var(--radius-sm); opacity: .8; flex: none;
+}
+.chat-fermer:hover { opacity: 1; }
+.chat-fermer:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(245, 241, 230, .7); }
+
+/* Fil de la conversation */
+.chat-flux {
+  flex: 1; overflow-y: auto; overscroll-behavior: contain;
+  padding: var(--sp-4);
+  display: flex; flex-direction: column; gap: var(--sp-3);
+  background: var(--paper);
+  scrollbar-width: thin;
+}
+
+.chat-msg {
+  max-width: 88%;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  font-size: var(--fs-sm); line-height: 1.55;
+  animation: chat-msg-in var(--dur-fast) var(--ease);
+}
+@keyframes chat-msg-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.chat-msg-bot {
+  align-self: flex-start;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-bottom-left-radius: 4px;
+  color: var(--ink);
+}
+.chat-msg-bot a { color: var(--gold-deep); text-decoration: underline; }
+.chat-msg-bot strong { font-weight: 600; }
+
+.chat-msg-visiteur {
+  align-self: flex-end;
+  background: var(--night); color: #F5F1E6;
+  border-bottom-right-radius: 4px;
+  overflow-wrap: anywhere;
+}
+
+/* Points d'attente */
+.chat-msg.is-typing { padding: 12px 16px; }
+.chat-points { display: inline-flex; gap: 4px; }
+.chat-points i {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--ink-faint);
+  animation: chat-point 1.1s infinite ease-in-out;
+}
+.chat-points i:nth-child(2) { animation-delay: .16s; }
+.chat-points i:nth-child(3) { animation-delay: .32s; }
+@keyframes chat-point { 0%, 60%, 100% { opacity: .25; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-3px); } }
+
+/* Boutons de questions proposées */
+.chat-props { display: flex; flex-wrap: wrap; gap: 6px; }
+.chat-props-titre {
+  width: 100%; margin: 0 0 2px;
+  font-size: var(--fs-xs); color: var(--ink-faint); font-weight: 600;
+}
+.chat-chip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 7px 13px;
+  font-family: var(--font-ui); font-size: var(--fs-xs); color: var(--ink-soft);
+  text-align: left; cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease),
+              color var(--dur-fast) var(--ease);
+}
+.chat-chip:hover { border-color: var(--gold); background: var(--gold-soft); color: var(--ink); }
+.chat-chip:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.chat-chip-cat { background: var(--paper-soft); font-weight: 600; }
+
+/* Saisie */
+.chat-saisie {
+  display: flex; gap: var(--sp-2);
+  padding: var(--sp-3);
+  border-top: 1px solid var(--border-soft);
+  background: var(--surface);
+}
+.chat-champ {
+  flex: 1; min-width: 0;
+  border: 1px solid var(--border); border-radius: 99px;
+  padding: 10px 16px;
+  font-family: var(--font-ui); font-size: var(--fs-sm); color: var(--ink);
+  background: var(--paper);
+}
+.chat-champ:focus-visible { outline: none; border-color: var(--gold); box-shadow: var(--focus-ring); }
+.chat-envoyer {
+  flex: none; width: 40px; height: 40px;
+  display: grid; place-items: center;
+  background: var(--night); color: #F5F1E6;
+  border: 0; border-radius: 50%; cursor: pointer;
+  transition: background var(--dur-fast) var(--ease);
+}
+.chat-envoyer:hover { background: var(--night-hover); }
+.chat-envoyer:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+/* L'assistant ne doit jamais apparaître sur un document imprimé ou un PDF. */
+@media print { .chat-racine { display: none !important; } }
+
+@media (max-width: 640px) {
+  .chat-racine { right: var(--sp-4); bottom: var(--sp-4); left: var(--sp-4); align-items: flex-end; }
+  .chat-panneau { width: 100%; height: min(70vh, 520px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chat-panneau, .chat-msg { animation: none; }
+  .chat-points i { animation: none; opacity: .5; }
+}
