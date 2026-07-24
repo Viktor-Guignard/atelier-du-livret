@@ -23,7 +23,7 @@ const EMAILJS = {
 
 const orderItemsOf = (o) => (o.items?.length ? o.items : [{ projet: o.projet, commande: o.commande }]);
 
-/** Lignes de facture d'une commande : un livret = une ligne, TTC. Doit rester identique à admin.js. */
+/** Lignes de facture d'une commande : un livret = une ligne, TTC, + livraison. Doit rester identique à admin.js. */
 function factureLignes(order) {
   const items = orderItemsOf(order);
   const lignes = items.map((it) => {
@@ -35,6 +35,7 @@ function factureLignes(order) {
       ttc: est.total ?? 0,
     };
   });
+  if (order.livraison?.prix) lignes.push({ label: order.livraison.label || 'Livraison', ttc: order.livraison.prix });
   const totalTTC = order.montantTotal ?? lignes.reduce((s, l) => s + l.ttc, 0);
   return { lignes, totalTTC };
 }

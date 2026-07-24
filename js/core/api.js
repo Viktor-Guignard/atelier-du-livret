@@ -97,6 +97,70 @@ export const TARIFS = {
   validiteDevisJours: 30,
 };
 
+/*
+ * Livraison — 3 modes. Le tarif Chronopost n'a pas de zone Paris moins chère
+ * que le reste de la France (grille nationale unique) : la seule vraie
+ * option « Paris » est le retrait direct à l'atelier Imprigraphic. Le mode
+ * « Livraison Paris » (50 € forfait, coursier) est un choix commercial de
+ * Viktor, pas un tarif transporteur.
+ * Grille Chronopost Chrono18 France métropolitaine (tarifs publics 2026,
+ * chronopost.fr/tarif-envoi-colis) : paliers de poids → prix TTC.
+ */
+const CHRONO18_TIERS = [
+  [1.5, 20.50], [2.5, 22.10], [3, 23.70], [3.5, 25.30],
+  [4, 26.90], [4.5, 28.60], [5, 30.20], [5.5, 31.90],
+];
+
+/** Prix Chronopost Chrono18 pour un poids donné (kg) — extrapolé au-delà de 5,5 kg. */
+function chronopostPrix(poidsKg) {
+  const w = Math.max(0.1, poidsKg);
+  for (const [max, prix] of CHRONO18_TIERS) if (w <= max) return prix;
+  const [prevMax, prevPrix] = CHRONO18_TIERS[CHRONO18_TIERS.length - 2];
+  const [lastMax, lastPrix] = CHRONO18_TIERS[CHRONO18_TIERS.length - 1];
+  const pentePerKg = (lastPrix - prevPrix) / (lastMax - prevMax);
+  return Math.round((lastPrix + (w - lastMax) * pentePerKg) * 100) / 100;
+}
+
+// Grammages du devis Imprigraphic (g/m²) + format A5 (148×210 mm), pour
+// ESTIMER le poids du colis. Approximation raisonnable (calage/carton inclus
+// forfaitairement) — à recaler si Imprigraphic pèse un colis réel.
+const GRAMMAGE_INTERIEUR = { couche: 150, creation: 160 };
+const GRAMMAGE_COUVERTURE = 250;
+const A5_AIRE_M2 = 0.148 * 0.210;
+
+function poidsLivretGrammes(idPapier, pagesFacturees) {
+  const gInt = GRAMMAGE_INTERIEUR[papierId(idPapier)] || 150;
+  const feuillesInt = pagesFacturees / 2;                          // recto-verso
+  const poidsInt = feuillesInt * gInt * A5_AIRE_M2;
+  const poidsCouv = GRAMMAGE_COUVERTURE * A5_AIRE_M2 * 2;           // feuille pliée, 2 faces
+  return poidsInt + poidsCouv;
+}
+
+/** Poids estimé du colis (kg) pour tout le panier — livrets + emballage forfaitaire. */
+export function estimatePoidsColisKg(items) {
+  const poidsLivretsG = (items || []).reduce((s, it) => {
+    const c = it.commande || {};
+    const pages = pagesImprimees(it.projet?.pages?.length || 12);
+    return s + poidsLivretGrammes(c.papier, pages) * (c.quantite || 0);
+  }, 0);
+  const emballageG = 400 + poidsLivretsG * 0.05;                    // carton + calage
+  return Math.round(poidsLivretsG + emballageG) / 1000;
+}
+
+export const LIVRAISON_MODES = {
+  retrait: { id: 'retrait', label: 'Retrait à l\'atelier (Paris 11e)', prix: () => 0 },
+  paris: { id: 'paris', label: 'Livraison à Paris', prix: () => 50 },
+  chronopost: {
+    id: 'chronopost', label: 'Livraison France métropolitaine (Chronopost)',
+    prix: (items) => chronopostPrix(estimatePoidsColisKg(items)),
+  },
+};
+
+/** Prix TTC du mode de livraison choisi, pour le panier donné. */
+export function livraisonPrix(mode, items) {
+  return LIVRAISON_MODES[mode]?.prix(items) ?? 0;
+}
+
 /* Les anciens identifiants de papier (paniers/commandes déjà enregistrés) sont
    rabattus sur les papiers réels du devis. */
 const PAPIER_ALIAS = { classique: 'couche', nacre: 'creation' };
@@ -222,6 +286,7 @@ function orderBodyShort(payload, numero, adminUrl) {
       `      ${c.quantite} ex. · ${(c.format || 'a5').toUpperCase()} · ${papierNom(c.papier)}${c.bat ? ' · BAT' : ''} · ${(c.estimation?.total ?? 0).toFixed(2)} € TTC`,
     );
   });
+  if (payload.livraison) lignes.push(`  Livraison       ${payload.livraison.label} · ${payload.livraison.prix.toFixed(2)} €`);
   lignes.push('', `MONTANT TOTAL TTC   ${orderTotal(payload).toFixed(2)} €`, '');
   if (adminUrl) lignes.push(`${RULE}\nDossier complet & BAT/PDF par livret → ${adminUrl}`);
   return lignes.filter((l) => l !== null).join('\n');
@@ -251,6 +316,7 @@ function clientMessage(payload, numero, paiementUrl) {
     lignes.push(`   • ${it.projet?.nom || 'Livret'} — ${c.quantite} ex. (${(c.estimation?.total ?? 0).toFixed(2)} €)`);
   });
   lignes.push(
+    payload.livraison ? `  Livraison         ${payload.livraison.label} (${payload.livraison.prix.toFixed(2)} €)` : null,
     `  Montant total TTC ${orderTotal(payload).toFixed(2)} €`,
     RULE,
     '',

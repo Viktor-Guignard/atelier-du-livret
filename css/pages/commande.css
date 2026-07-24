@@ -243,6 +243,19 @@
 }
 .commande-total-val { font-family: var(--font-display); font-size: 1.6rem; color: var(--gold-deep, var(--gold)); }
 
+.commande-livraison-h { font-size: var(--fs-sm); text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); margin: 0 0 var(--sp-2); }
+.commande-livraison-list { display: flex; flex-direction: column; gap: var(--sp-2); }
+.commande-livraison-option {
+  display: flex; align-items: center; gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3); border: 1px solid var(--border-soft); border-radius: var(--radius);
+  cursor: pointer; transition: border-color .15s, background .15s;
+}
+.commande-livraison-option:hover { border-color: var(--gold); }
+.commande-livraison-option.is-active { border-color: var(--gold); background: var(--surface-warm, rgba(191, 151, 74, .06)); }
+.commande-livraison-option input[type="radio"] { accent-color: var(--gold); flex: none; }
+.commande-livraison-label { flex: 1; font-size: var(--fs-sm); }
+.commande-livraison-option strong { font-size: var(--fs-sm); white-space: nowrap; }
+
 .commande-h { font-size: var(--fs-lg); margin-bottom: var(--sp-4); }
 .commande-livrets { display: flex; flex-direction: column; gap: var(--sp-4); margin-bottom: var(--sp-6); }
 

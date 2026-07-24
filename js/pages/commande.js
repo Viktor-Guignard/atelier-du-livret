@@ -7,7 +7,7 @@
 import { initSite } from '../components/nav.js';
 import { el, qs, getParam } from '../core/utils.js';
 import { loadProject, listProjects } from '../core/store.js';
-import { estimateOrder, pagesImprimees, papierId, submitOrder, downloadOrderJSON, devisNumber, TARIFS, CONTACT_EMAIL } from '../core/api.js';
+import { estimateOrder, pagesImprimees, papierId, submitOrder, downloadOrderJSON, devisNumber, TARIFS, CONTACT_EMAIL, LIVRAISON_MODES, livraisonPrix } from '../core/api.js';
 import { saveOrder, createStripeCheckoutPublic } from '../core/firebase.js';
 import { categorieById } from '../data/categories.js';
 import { renderPageThumb } from '../components/pageRenderer.js';
@@ -23,6 +23,11 @@ const lineEstimate = (it) => estimateOrder({
   nbPages: it.projet?.pages?.length || 8, options: it.commande.options || [],
 });
 const cartTotalNow = () => Math.round(cartItems().reduce((s, it) => s + (lineEstimate(it).total || 0), 0) * 100) / 100;
+
+/* --- Livraison : un choix par commande (pas par livret) --- */
+let livraisonMode = 'chronopost';
+const livraisonTotal = () => livraisonPrix(livraisonMode, cartItems());
+const grandTotalNow = () => Math.round((cartTotalNow() + livraisonTotal()) * 100) / 100;
 
 /* --- Constituer le panier de commande --- */
 // Bouton « Commander » d'un livret → on l'ajoute au panier si absent (la commande
@@ -59,17 +64,48 @@ if (!cartItems().length) {
 /* ================================================================ */
 
 function buildOrderPage() {
-  /* ----- Colonne latérale : total en direct + devis PDF ----- */
-  const totalEl = el('strong', { class: 'commande-total-val' }, euro(cartTotalNow()));
-  const refreshTotal = () => { totalEl.textContent = euro(cartTotalNow()); };
+  /* ----- Colonne latérale : total en direct + livraison + devis PDF ----- */
+  const totalEl = el('strong', { class: 'commande-total-val' }, euro(grandTotalNow()));
+
+  const livraisonOption = (mode) => {
+    const info = LIVRAISON_MODES[mode];
+    const prixEl = el('strong', {}, euro(info.prix(cartItems())));
+    const radio = el('input', {
+      type: 'radio', name: 'livraison', value: mode, checked: mode === livraisonMode ? '' : null,
+    });
+    const row = el('label', { class: 'commande-livraison-option' }, [
+      radio, el('span', { class: 'commande-livraison-label' }, info.label), prixEl,
+    ]);
+    radio.addEventListener('change', () => {
+      livraisonMode = mode;
+      refreshTotal();
+      livraisonList.querySelectorAll('.commande-livraison-option').forEach((r) => r.classList.remove('is-active'));
+      row.classList.add('is-active');
+    });
+    if (mode === livraisonMode) row.classList.add('is-active');
+    return row;
+  };
+  const livraisonList = el('div', { class: 'commande-livraison-list' },
+    Object.keys(LIVRAISON_MODES).map(livraisonOption));
+
+  const refreshTotal = () => {
+    totalEl.textContent = euro(grandTotalNow());
+    livraisonList.querySelectorAll('.commande-livraison-option').forEach((row, i) => {
+      const mode = Object.keys(LIVRAISON_MODES)[i];
+      const strongEl = row.querySelector('strong:last-child');
+      if (strongEl) strongEl.textContent = euro(LIVRAISON_MODES[mode].prix(cartItems()));
+    });
+  };
 
   recap.append(
     el('div', { class: 'commande-summary' }, [
       el('h2', {}, 'Votre commande'),
       el('div', { class: 'commande-total' }, [el('span', {}, 'Total estimé TTC'), totalEl]),
-      el('p', { class: 'small muted', style: 'margin:0 0 var(--sp-4)' },
+      el('p', { class: 'small muted', style: 'margin:0 0 var(--sp-3)' },
         `BAT et accompagnement inclus · devis ferme ${TARIFS.validiteDevisJours} jours. Montant définitif sur le devis.`),
-      el('button', { class: 'btn btn-light btn-sm', type: 'button', style: 'width:100%', onclick: printDevis },
+      el('h3', { class: 'commande-livraison-h' }, 'Livraison'),
+      livraisonList,
+      el('button', { class: 'btn btn-light btn-sm', type: 'button', style: 'width:100%;margin-top:var(--sp-4)', onclick: printDevis },
         'Télécharger le devis (PDF)'),
       el('a', { class: 'btn btn-ghost btn-sm', href: 'panier.html', style: 'width:100%;margin-top:var(--sp-3)' },
         'Modifier mon panier'),
@@ -122,8 +158,7 @@ function buildOrderPage() {
       field('c-message', 'Votre message', inMessage),
     ]),
     el('div', { class: 'commande-submit' }, [
-      el('button', { class: 'btn btn-ghost btn-lg', type: 'submit', 'data-intent': 'devis' }, 'Demander un devis'),
-      el('button', { class: 'btn btn-gold btn-lg', type: 'submit', 'data-intent': 'commande' }, 'Envoyer ma commande'),
+      el('button', { class: 'btn btn-gold btn-lg', type: 'submit' }, 'Commander'),
     ]),
   ]);
 
@@ -140,19 +175,10 @@ function buildOrderPage() {
 
   /* ---------------- Validation & envoi ---------------- */
 
-  let lastIntent = 'commande';
-  form.addEventListener('click', (e) => {
-    const btn = e.target.closest('button[type="submit"]');
-    if (btn) lastIntent = btn.dataset.intent;
-  });
-
   const setError = (input, hasError) => input.closest('.field')?.classList.toggle('has-error', hasError);
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    // Soumission clavier (Entrée) : e.submitter donne le vrai bouton ; sinon le
-    // dernier cliqué. Évite qu'une validation au clavier soit traitée en « commande ».
-    lastIntent = e.submitter?.dataset.intent || lastIntent;
     if (!cartItems().length) { showToast('Votre panier est vide.', 'error'); return; }
 
     let firstInvalid = null;
@@ -167,7 +193,7 @@ function buildOrderPage() {
     }
 
     const payload = {
-      intent: lastIntent,
+      intent: 'commande',
       contact: {
         prenom: inPrenom.value.trim(), nom: inNom.value.trim(),
         email: inEmail.value.trim(), telephone: inTel.value.trim(),
@@ -180,16 +206,16 @@ function buildOrderPage() {
           estimation: lineEstimate(it),
         },
       })),
-      montantTotal: cartTotalNow(),
+      montantTotal: grandTotalNow(),
+      livraison: { mode: livraisonMode, label: LIVRAISON_MODES[livraisonMode].label, prix: livraisonTotal() },
       devisNumero: numeroDevis,
       message: inMessage.value.trim(),
     };
 
-    const submitBtns = [...form.querySelectorAll('button[type="submit"]')];
-    submitBtns.forEach((b) => { b.disabled = true; });
-    const goldBtn = submitBtns.find((b) => b.dataset.intent === lastIntent) || submitBtns[1];
-    const btnLabel = goldBtn.textContent;
-    goldBtn.textContent = 'Envoi en cours…';
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    const btnLabel = submitBtn.textContent;
+    submitBtn.textContent = 'Envoi en cours…';
 
     /* 1. Enregistrement Firestore (numéro officiel). */
     let numero = null;
@@ -198,11 +224,10 @@ function buildOrderPage() {
     const adminUrl = new URL('admin.html', location.href).href;
 
     /* 1bis. Lien de paiement Stripe, best-effort : le client peut payer dès
-     * maintenant s'il le souhaite. Une vraie commande seulement (pas un devis,
-     * pas de montant ferme) ; un échec ici ne bloque jamais la confirmation —
+     * maintenant s'il le souhaite. Un échec ici ne bloque jamais la confirmation —
      * le lien sera de toute façon renvoyé après validation du BAT (bat.js). */
     let paiementUrl = null;
-    if (numero && lastIntent !== 'devis') {
+    if (numero) {
       try { paiementUrl = await createStripeCheckoutPublic(numero); }
       catch (err) { console.warn('Lien de paiement immédiat non généré (best-effort) :', err); }
     }
@@ -212,8 +237,8 @@ function buildOrderPage() {
     downloadOrderJSON(payload);
     if (result.method === 'mailto' && result.mailto) window.location.href = result.mailto;
 
-    submitBtns.forEach((b) => { b.disabled = false; });
-    goldBtn.textContent = btnLabel;
+    submitBtn.disabled = false;
+    submitBtn.textContent = btnLabel;
 
     // On ne vide le panier QUE si la commande est réellement enregistrée en base
     // (numero attribué). Si l'enregistrement a échoué (ex. commande trop lourde),
@@ -226,10 +251,8 @@ function buildOrderPage() {
     document.querySelector('.commande-layout')?.replaceWith(el('div', { class: 'container' }, [
       el('div', { class: 'commande-confirm' }, [
         el('span', { class: 'confirm-icon', html: '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>' }),
-        el('h2', {}, envoiReel
-          ? (lastIntent === 'devis' ? 'Votre demande de devis est envoyée' : 'Votre commande est envoyée')
-          : (lastIntent === 'devis' ? 'Votre demande de devis est prête' : 'Votre demande de commande est prête')),
-        numero ? el('p', { class: 'commande-numero' }, [el('span', {}, lastIntent === 'devis' ? 'Numéro de suivi' : 'Numéro de commande'), el('strong', {}, numero)]) : null,
+        el('h2', {}, envoiReel ? 'Votre commande est envoyée' : 'Votre demande de commande est prête'),
+        numero ? el('p', { class: 'commande-numero' }, [el('span', {}, 'Numéro de commande'), el('strong', {}, numero)]) : null,
         el('p', { class: 'small muted' }, `${nb} livret${nb > 1 ? 's' : ''} · ${euro(payload.montantTotal)} TTC`),
         // Cas dégradé : e-mail parti mais enregistrement en base échoué (numero null).
         (envoiReel && !numero) ? el('p', { class: 'commande-warn', style: 'margin: var(--sp-3) auto var(--sp-4);max-width:56ch' },
