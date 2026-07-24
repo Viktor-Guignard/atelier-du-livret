@@ -29,6 +29,7 @@ SHARED_MODULES = [
     "js/components/book3d.js",
     "js/components/toast.js",
     "js/components/nav.js",
+    "js/components/demoTuto.js",
 ]
 
 PAGES = [

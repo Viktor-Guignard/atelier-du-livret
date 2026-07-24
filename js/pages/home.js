@@ -6,8 +6,11 @@ import { CATEGORIES } from '../data/categories.js';
 import { buildDefaultProject, modeleById } from '../data/modeles.js';
 import { renderPageThumb } from '../components/pageRenderer.js';
 import { ornament } from '../components/ornaments.js';
+import { initDemoTuto } from '../components/demoTuto.js';
 
 initSite({ active: 'accueil' });
+
+initDemoTuto(document.getElementById('demo-tuto'));
 
 /* ---------------- Héros : éventail de trois vraies couvertures ---------------- */
 
